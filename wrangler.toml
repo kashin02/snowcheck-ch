@@ -4,5 +4,5 @@ compatibility_date = "2024-01-01"
 
 [[kv_namespaces]]
 binding = "CACHE_KV"
-id = "TO_BE_CREATED"
-preview_id = "TO_BE_CREATED"
+id = "417dce57c0604e7196a7762867b10b9d"
+preview_id = "56fa7564220f4a9c9fa16aabff32da73"
