@@ -28,7 +28,7 @@ export default function App() {
     let s = stations;
     if (region !== "Tous") s = s.filter(x => x.region === region);
     if (search) s = s.filter(x => x.name.toLowerCase().includes(search.toLowerCase()));
-    return s;
+    return [...s].sort((a, b) => (b.verdictScore ?? -1) - (a.verdictScore ?? -1));
   }, [stations, region, search]);
 
   return (

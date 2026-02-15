@@ -110,10 +110,7 @@ function computeVerdict(station, weatherData, snowData, targetDayIndex = 0) {
   const snow = snowData?.stations?.[station.imisCode];
   const weather = weatherData?.stations?.[station.id];
 
-  // Fallback to static verdict if no API data at all
-  if (!snow && !weather) return { verdict: station.verdict, score: null, breakdown: null };
-
-  // Data extraction with fallbacks
+  // Always compute a score — use static station data as fallback
   const depth = snow?.snowDepth ?? station.snowBase;
   const fresh72 = snow?.fresh72h ?? station.fresh72;
   const { pistesOpen } = station.operational;
