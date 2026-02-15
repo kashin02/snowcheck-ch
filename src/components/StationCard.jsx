@@ -1,64 +1,122 @@
 import { useState } from "react";
 import { verdictConfig } from "../data/constants";
-import SnowStats from "./SnowStats";
 import ForecastRow from "./ForecastRow";
 import VerdictBreakdown from "./VerdictBreakdown";
 
 export default function StationCard({ station, forecast, index }) {
-  const [expanded, setExpanded] = useState(false);
+  const [level, setLevel] = useState(0); // 0=compact, 1=forecast, 2=breakdown
   const v = verdictConfig[station.verdict];
-  const { pistesOpen, pistesTotal, liftsOpen, liftsTotal } = station.operational;
-  const pctOpen = Math.round((pistesOpen / pistesTotal) * 100);
+  const { pistesOpen, pistesTotal } = station.operational;
   const isTomorrow = station.targetDayLabel === "Demain";
+  const bd = station.verdictBreakdown;
+
+  // Key metrics from the target day
+  const sunH = bd?.sun?.value ?? 0;
+  const windKmh = bd?.wind?.value ?? 0;
 
   return (
-    <div className="card" style={{ background: "#fff", borderRadius: 10, border: "1px solid #e2e8f0", marginBottom: 8, overflow: "hidden", animation: `fadeUp 0.2s ease ${index * 0.02}s both` }}>
-      {/* TOP: identity + verdict */}
+    <div className="card" style={{
+      background: "#fff", borderRadius: 10, border: "1px solid #e2e8f0",
+      marginBottom: 8, overflow: "hidden",
+      animation: `fadeUp 0.2s ease ${index * 0.02}s both`,
+    }}>
+      {/* ── L0: Compact summary ─────────────────────────────── */}
       <div
-        onClick={() => setExpanded(e => !e)}
-        style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "10px 14px 0", gap: 8, cursor: "pointer", userSelect: "none" }}
+        onClick={() => setLevel(l => l > 0 ? 0 : 1)}
+        style={{ padding: "10px 14px", cursor: "pointer", userSelect: "none" }}
       >
-        <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-          <div style={{ textAlign: "center", minWidth: 48 }}>
-            <div style={{ fontFamily: "var(--font-display)", fontSize: 22, lineHeight: 1, color: pctOpen > 70 ? "#059669" : pctOpen > 40 ? "#d97706" : "#dc2626" }}>{pistesOpen}</div>
-            <div style={{ fontSize: 8, color: "#94a3b8" }}>/{pistesTotal} km</div>
-            <div style={{ width: 34, height: 3, borderRadius: 2, background: "#e2e8f0", margin: "2px auto 0", overflow: "hidden" }}>
-              <div style={{ width: `${pctOpen}%`, height: "100%", borderRadius: 2, background: pctOpen > 70 ? "#059669" : pctOpen > 40 ? "#d97706" : "#dc2626" }} />
-            </div>
-          </div>
-          <div>
-            <div style={{ fontFamily: "var(--font-display)", fontSize: 16, color: "#0f172a" }}>{station.name}</div>
-            <div style={{ fontSize: 10, color: "#94a3b8" }}>{station.region} &middot; {station.alt} &middot; {liftsOpen}/{liftsTotal} remont&eacute;es</div>
-          </div>
-        </div>
-        <div style={{ display: "flex", alignItems: "center", gap: 6, flexShrink: 0 }}>
-          {isTomorrow && (
-            <span style={{ padding: "2px 6px", borderRadius: 4, fontSize: 9, fontWeight: 600, color: "#7c3aed", background: "#f5f3ff", border: "1px solid #ddd6fe" }}>
-              Demain
-            </span>
-          )}
-          <span style={{ padding: "3px 9px", borderRadius: 5, fontSize: 10, fontWeight: 700, color: v.color, background: v.bg, border: `1px solid ${v.border}`, whiteSpace: "nowrap", display: "inline-flex", alignItems: "center", gap: 4 }}>
-            {v.label}
-            {station.verdictScore != null && (
-              <span style={{ fontFamily: "var(--font-display)", fontSize: 13, fontWeight: 800 }}>
-                {station.verdictScore}
+        {/* Row 1: Name + Score */}
+        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 8 }}>
+          <span style={{ fontFamily: "var(--font-display)", fontSize: 16, color: "#0f172a", minWidth: 0, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+            {station.name}
+          </span>
+          <div style={{ display: "flex", alignItems: "center", gap: 6, flexShrink: 0 }}>
+            {isTomorrow && (
+              <span style={{ padding: "2px 6px", borderRadius: 4, fontSize: 9, fontWeight: 600, color: "#7c3aed", background: "#f5f3ff", border: "1px solid #ddd6fe" }}>
+                Demain
               </span>
             )}
+            <span style={{
+              padding: "3px 9px", borderRadius: 5, fontWeight: 700,
+              color: v.color, background: v.bg, border: `1px solid ${v.border}`,
+              whiteSpace: "nowrap", display: "inline-flex", alignItems: "center", gap: 4,
+              fontSize: 10,
+            }}>
+              {v.label}
+              {station.verdictScore != null && (
+                <span style={{ fontFamily: "var(--font-display)", fontSize: 14, fontWeight: 800 }}>
+                  {station.verdictScore}
+                </span>
+              )}
+            </span>
+            <span style={{
+              fontSize: 10, color: "#94a3b8",
+              transition: "transform 0.2s",
+              transform: level > 0 ? "rotate(180deg)" : "rotate(0deg)",
+            }}>&#x25BC;</span>
+          </div>
+        </div>
+
+        {/* Row 2: Metadata */}
+        <div style={{ fontSize: 10, color: "#94a3b8", marginTop: 2 }}>
+          {station.region} &middot; {station.alt} &middot; {pistesOpen}/{pistesTotal}km pistes
+        </div>
+
+        {/* Row 3: Key metrics for the target day */}
+        <div style={{ display: "flex", flexWrap: "wrap", alignItems: "center", gap: "4px 12px", marginTop: 6 }}>
+          <span style={{ fontSize: 11, fontWeight: 600, color: sunH >= 3 ? "#b45309" : sunH > 0 ? "#d97706" : "#94a3b8" }}>
+            &#x2600;&#xFE0F; {sunH}h
           </span>
-          <span style={{ fontSize: 10, color: "#94a3b8", transition: "transform 0.2s", transform: expanded ? "rotate(180deg)" : "rotate(0deg)" }}>
-            ▼
+          <span style={{ fontSize: 11, fontWeight: 600, color: "#1e40af" }}>
+            &#x26F7;&#xFE0F; {station.snowBase}cm
+          </span>
+          {station.fresh72 > 0 && (
+            <span style={{ fontSize: 11, fontWeight: 600, color: "#059669" }}>
+              &#x2744;&#xFE0F; +{station.fresh72}cm
+            </span>
+          )}
+          {windKmh >= 25 && (
+            <span style={{ fontSize: 11, fontWeight: 600, color: windKmh >= 60 ? "#dc2626" : "#d97706" }}>
+              &#x1F4A8; {windKmh}km/h
+            </span>
+          )}
+          <span style={{
+            fontSize: 9, fontWeight: 600, padding: "1px 6px", borderRadius: 3,
+            color: station.quality === "Poudreuse" ? "#059669" : station.quality === "Humide" ? "#dc2626" : "#64748b",
+            background: station.quality === "Poudreuse" ? "#ecfdf5" : station.quality === "Humide" ? "#fef2f2" : "#f8fafc",
+          }}>
+            {station.quality}
           </span>
         </div>
       </div>
 
-      {/* BODY: two zones */}
-      <div className="card-body" style={{ display: "flex", padding: "8px 14px 10px", gap: 0 }}>
-        <SnowStats station={station} />
-        <ForecastRow forecast={forecast} sun5={station.sun5} freshForecast={station.freshForecast} targetDayIndex={station.targetDayIndex} />
-      </div>
+      {/* ── L1: 5-day forecast ──────────────────────────────── */}
+      {level >= 1 && (
+        <div style={{ padding: "0 14px 8px", borderTop: "1px solid #f1f5f9" }}>
+          <div style={{ paddingTop: 10 }}>
+            <ForecastRow
+              forecast={forecast}
+              sun5={station.sun5}
+              targetDayIndex={station.targetDayIndex}
+            />
+          </div>
+          {/* Toggle for L2 */}
+          <div
+            onClick={(e) => { e.stopPropagation(); setLevel(l => l >= 2 ? 1 : 2); }}
+            style={{
+              marginTop: 8, padding: "6px 0", textAlign: "center",
+              cursor: "pointer", userSelect: "none",
+              fontSize: 10, fontWeight: 600, color: "#64748b",
+              borderTop: "1px solid #f1f5f9",
+            }}
+          >
+            D&eacute;tail du score {level >= 2 ? "&#x25B2;" : "&#x25BC;"}
+          </div>
+        </div>
+      )}
 
-      {/* EXPANDED: verdict breakdown */}
-      {expanded && (
+      {/* ── L2: Score breakdown ─────────────────────────────── */}
+      {level >= 2 && (
         <VerdictBreakdown
           breakdown={station.verdictBreakdown}
           score={station.verdictScore}

@@ -29,14 +29,5 @@ body {
 .fbtn:hover { transform: translateY(-1px); }
 
 @media (max-width: 700px) {
-  .card-body { flex-direction: column !important; }
-  .zone-left {
-    border-right: none !important;
-    border-bottom: 1px solid #f1f5f9 !important;
-    padding-right: 0 !important;
-    margin-right: 0 !important;
-    padding-bottom: 10px !important;
-    margin-bottom: 10px !important;
-    min-width: 100% !important;
-  }
+  .card { font-size: 13px; }
 }

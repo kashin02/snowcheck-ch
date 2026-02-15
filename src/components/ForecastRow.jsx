@@ -12,7 +12,7 @@ const VERDICT_BG = {
   bad: "#fef2f2",
 };
 
-export default function ForecastRow({ forecast, sun5, freshForecast, targetDayIndex }) {
+export default function ForecastRow({ forecast, sun5, targetDayIndex }) {
   // After 14h, skip today and start from tomorrow — always show up to 5 days
   const displayed = forecast.slice(targetDayIndex, targetDayIndex + 5);
   const displayedSun = sun5.slice(targetDayIndex, targetDayIndex + 5);
