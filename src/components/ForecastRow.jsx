@@ -1,4 +1,18 @@
-export default function ForecastRow({ forecast, sun5, freshForecast }) {
+const VERDICT_COLORS = {
+  top: "#059669",
+  good: "#2563eb",
+  ok: "#d97706",
+  bad: "#dc2626",
+};
+
+const VERDICT_BG = {
+  top: "#ecfdf5",
+  good: "#eff6ff",
+  ok: "#fffbeb",
+  bad: "#fef2f2",
+};
+
+export default function ForecastRow({ forecast, sun5, freshForecast, targetDayIndex }) {
   const totalSun = sun5.reduce((a, b) => a + b, 0);
 
   return (
@@ -8,17 +22,34 @@ export default function ForecastRow({ forecast, sun5, freshForecast }) {
         {forecast.map((f, fi) => {
           const sunH = sun5[fi];
           const snowCm = parseInt(f.snow) || 0;
+          const isTarget = fi === targetDayIndex;
           return (
             <div key={fi} style={{
               flex: "1 1 0", minWidth: 58, padding: "5px 4px 4px", borderRadius: 5, textAlign: "center",
-              background: f.accent ? "#fef2f2" : "#f8fafc",
-              border: f.accent ? "1.5px solid #fecaca" : "1px solid #f1f5f9",
+              background: f.accent ? "#fef2f2" : isTarget ? "#f0f4ff" : "#f8fafc",
+              border: isTarget ? "1.5px solid #93c5fd" : f.accent ? "1.5px solid #fecaca" : "1px solid #f1f5f9",
             }}>
-              <div style={{ fontSize: 10, fontWeight: 700, color: f.accent ? "#dc2626" : "#475569", marginBottom: 2 }}>{f.day}</div>
+              <div style={{ fontSize: 10, fontWeight: 700, color: f.accent ? "#dc2626" : isTarget ? "#1e40af" : "#475569", marginBottom: 2 }}>{f.day}</div>
               <div style={{ fontSize: 16, lineHeight: 1, marginBottom: 2 }}>{f.icon}</div>
               <div style={{ fontSize: 11, fontWeight: 600, color: sunH >= 3 ? "#b45309" : sunH > 0 ? "#d97706" : "#d1d5db" }}>{"\u2600"} {sunH}h</div>
               <div style={{ fontSize: 11, fontWeight: 600, color: snowCm >= 20 ? "#059669" : snowCm > 0 ? "#3b82f6" : "#d1d5db", marginTop: 1 }}>{"\u2744"} {snowCm > 0 ? `${snowCm}` : "\u2014"}</div>
               {f.wind >= 50 && <div style={{ fontSize: 9, fontWeight: 700, color: "#dc2626", marginTop: 1 }}>{"\uD83D\uDCA8"} {f.wind}</div>}
+              {f.dayScore != null && (
+                <div style={{
+                  marginTop: 3, paddingTop: 3, borderTop: "1px solid #e2e8f0",
+                  fontSize: 10, fontWeight: 700,
+                  color: VERDICT_COLORS[f.dayVerdict] || "#94a3b8",
+                }}>
+                  <span style={{
+                    display: "inline-block",
+                    padding: "1px 5px", borderRadius: 3,
+                    background: VERDICT_BG[f.dayVerdict] || "#f8fafc",
+                    fontSize: 9, lineHeight: "14px",
+                  }}>
+                    {f.dayScore}
+                  </span>
+                </div>
+              )}
             </div>
           );
         })}
