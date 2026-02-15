@@ -37,8 +37,13 @@ export default function StationCard({ station, forecast, index }) {
               Demain
             </span>
           )}
-          <span style={{ padding: "3px 9px", borderRadius: 5, fontSize: 10, fontWeight: 700, color: v.color, background: v.bg, border: `1px solid ${v.border}`, whiteSpace: "nowrap" }}>
-            {v.label}{station.verdictScore != null ? ` ${station.verdictScore}` : ""}
+          <span style={{ padding: "3px 9px", borderRadius: 5, fontSize: 10, fontWeight: 700, color: v.color, background: v.bg, border: `1px solid ${v.border}`, whiteSpace: "nowrap", display: "inline-flex", alignItems: "center", gap: 4 }}>
+            {v.label}
+            {station.verdictScore != null && (
+              <span style={{ fontFamily: "var(--font-display)", fontSize: 13, fontWeight: 800 }}>
+                {station.verdictScore}
+              </span>
+            )}
           </span>
           <span style={{ fontSize: 10, color: "#94a3b8", transition: "transform 0.2s", transform: expanded ? "rotate(180deg)" : "rotate(0deg)" }}>
             ▼
