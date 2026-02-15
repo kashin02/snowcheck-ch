@@ -5,6 +5,12 @@ import useWeatherData from "./useWeatherData";
 import useAvalancheData from "./useAvalancheData";
 import useSnowMeasurements from "./useSnowMeasurements";
 
+// ── Target day: after 14h Swiss time, focus on tomorrow ────────────────
+function getSwissTargetDayIndex() {
+  const nowCH = new Date(new Date().toLocaleString("en-US", { timeZone: "Europe/Zurich" }));
+  return nowCH.getHours() >= 14 ? 1 : 0;
+}
+
 // ── Scoring helpers (new weighted algorithm, score out of 100) ──────────
 
 // POSITIVE: Sunshine hours today (max +35) — most important factor
@@ -68,6 +74,36 @@ function penaltyCrowd(crowdScore) {
   return -crowdScore; // crowdScore is already 0-15
 }
 
+// ── Lightweight score for a single forecast day ─────────────────────────
+
+function computeDayScore(station, snowData, dayForecast, dateStr) {
+  if (!dayForecast) return null;
+  const snow = snowData?.stations?.[station.imisCode];
+  const depth = snow?.snowDepth ?? station.snowBase;
+  const fresh72 = snow?.fresh72h ?? station.fresh72;
+  const { pistesOpen } = station.operational;
+
+  const sunHours = dayForecast.sunshineHours ?? 0;
+  const windMax = dayForecast.windMax ?? 0;
+  const jourBlancHours = dayForecast.jourBlancHours ?? 0;
+
+  const targetDate = new Date(dateStr + "T12:00:00");
+  const crowdScore = computeCalendarCrowdScore(targetDate);
+
+  const raw = scoreSun(sunHours) + scoreFresh(fresh72) + scoreDepth(depth) +
+    scorePistes(pistesOpen) + penaltyJourBlanc(jourBlancHours) +
+    penaltyWind(windMax) + penaltyCrowd(crowdScore);
+  const score = Math.max(0, Math.min(100, raw));
+
+  let verdict;
+  if (score >= 70) verdict = "top";
+  else if (score >= 45) verdict = "good";
+  else if (score >= 20) verdict = "ok";
+  else verdict = "bad";
+
+  return { score, verdict };
+}
+
 // ── Main verdict computation ────────────────────────────────────────────
 
 function computeVerdict(station, weatherData, snowData, targetDayIndex = 0) {
@@ -88,9 +124,9 @@ function computeVerdict(station, weatherData, snowData, targetDayIndex = 0) {
   const windMax = dayForecast?.windMax ?? 0;
   const jourBlancHours = dayForecast?.jourBlancHours ?? 0;
 
-  // Crowd from calendar for the target day
-  const targetDate = new Date();
-  targetDate.setDate(targetDate.getDate() + targetDayIndex);
+  // Crowd from calendar for the target day (use actual forecast date when available)
+  const dateStr = dayForecast?.date;
+  const targetDate = dateStr ? new Date(dateStr + "T12:00:00") : new Date();
   const crowdScore = computeCalendarCrowdScore(targetDate);
 
   // Compute sub-scores
@@ -130,21 +166,26 @@ function computeVerdict(station, weatherData, snowData, targetDayIndex = 0) {
 
 const DAYS_FR = ["Dim", "Lun", "Mar", "Mer", "Jeu", "Ven", "Sam"];
 
-function buildForecastForStation(station, weatherData) {
+function buildForecastForStation(station, weatherData, snowData) {
   const weather = weatherData?.stations?.[station.id];
   if (!weather?.forecast) return null;
 
-  return weather.forecast.map((day) => ({
-    day: day.dayShort || DAYS_FR[new Date(day.date).getDay()],
-    date: day.date,
-    icon: day.icon,
-    sun: Math.round(day.sunshineHours || 0),
-    snow: String(Math.round(day.snowfallSum || 0)),
-    wind: day.windMax || 0,
-    jourBlanc: day.jourBlancHours || 0,
-    accent: (day.snowfallSum || 0) >= 30 || (day.windMax || 0) >= 60,
-    sunH: Math.round(day.sunshineHours || 0),
-  }));
+  return weather.forecast.map((day) => {
+    const projected = computeDayScore(station, snowData, day, day.date);
+    return {
+      day: day.dayShort || DAYS_FR[new Date(day.date).getDay()],
+      date: day.date,
+      icon: day.icon,
+      sun: Math.round(day.sunshineHours || 0),
+      snow: String(Math.round(day.snowfallSum || 0)),
+      wind: day.windMax || 0,
+      jourBlanc: day.jourBlancHours || 0,
+      accent: (day.snowfallSum || 0) >= 30 || (day.windMax || 0) >= 60,
+      sunH: Math.round(day.sunshineHours || 0),
+      dayScore: projected?.score ?? null,
+      dayVerdict: projected?.verdict ?? null,
+    };
+  });
 }
 
 // ── Hook ────────────────────────────────────────────────────────────────
@@ -161,14 +202,13 @@ export default function useDashboardData() {
   const lastUpdate = weather.data?.updatedAt || snow.data?.updatedAt || null;
 
   const enrichedStations = useMemo(() => {
-    // Get target day from weather API (same for all stations)
-    const firstStationWeather = weather.data?.stations?.[Object.keys(weather.data?.stations || {})[0]];
-    const targetDayIndex = firstStationWeather?.targetDayIndex ?? 0;
-    const targetDayLabel = firstStationWeather?.targetDayLabel ?? "Aujourd'hui";
+    // Compute target day client-side (avoids stale cache issues)
+    const targetDayIndex = getSwissTargetDayIndex();
+    const targetDayLabel = targetDayIndex === 0 ? "Aujourd'hui" : "Demain";
 
     return staticStations.map(station => {
       const snowMeasurement = snow.data?.stations?.[station.imisCode];
-      const stationForecast = buildForecastForStation(station, weather.data);
+      const stationForecast = buildForecastForStation(station, weather.data, snow.data);
       const { verdict, score, breakdown } = computeVerdict(station, weather.data, snow.data, targetDayIndex);
 
       return {
@@ -192,6 +232,7 @@ export default function useDashboardData() {
         verdictScore: score,
         verdictBreakdown: breakdown,
         targetDayLabel,
+        targetDayIndex,
       };
     });
   }, [weather.data, avalanche.data, snow.data]);

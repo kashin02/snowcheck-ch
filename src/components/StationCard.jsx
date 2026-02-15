@@ -49,7 +49,7 @@ export default function StationCard({ station, forecast, index }) {
       {/* BODY: two zones */}
       <div className="card-body" style={{ display: "flex", padding: "8px 14px 10px", gap: 0 }}>
         <SnowStats station={station} />
-        <ForecastRow forecast={forecast} sun5={station.sun5} freshForecast={station.freshForecast} />
+        <ForecastRow forecast={forecast} sun5={station.sun5} freshForecast={station.freshForecast} targetDayIndex={station.targetDayIndex} />
       </div>
 
       {/* EXPANDED: verdict breakdown */}
