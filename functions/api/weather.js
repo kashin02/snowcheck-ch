@@ -49,7 +49,7 @@ export async function onRequestGet(context) {
   const lats = stationCoords.map(s => s.lat).join(",");
   const lons = stationCoords.map(s => s.lon).join(",");
 
-  const url = `https://api.open-meteo.com/v1/forecast?latitude=${lats}&longitude=${lons}&daily=snowfall_sum,sunshine_duration,temperature_2m_max,temperature_2m_min,wind_speed_10m_max,cloud_cover_mean&hourly=snow_depth,visibility,cloud_cover_low,cloud_cover_mid,direct_normal_irradiance&forecast_days=5&timezone=Europe/Zurich`;
+  const url = `https://api.open-meteo.com/v1/forecast?latitude=${lats}&longitude=${lons}&daily=snowfall_sum,sunshine_duration,temperature_2m_max,temperature_2m_min,wind_speed_10m_max,cloud_cover_mean&hourly=snow_depth,visibility,cloud_cover_low,cloud_cover_mid,direct_normal_irradiance&forecast_days=6&timezone=Europe/Zurich`;
 
   const response = await fetch(url);
   if (!response.ok) {
