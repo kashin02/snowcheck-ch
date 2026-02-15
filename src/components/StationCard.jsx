@@ -68,7 +68,7 @@ export default function StationCard({ station, forecast, index }) {
             &#x2600;&#xFE0F; {sunH}h
           </span>
           <span style={{ fontSize: 11, fontWeight: 600, color: "#1e40af" }}>
-            &#x26F7;&#xFE0F; {station.snowBase}cm
+            &#x1F4CF; {station.snowBase}cm
           </span>
           {station.fresh72 > 0 && (
             <span style={{ fontSize: 11, fontWeight: 600, color: "#059669" }}>
