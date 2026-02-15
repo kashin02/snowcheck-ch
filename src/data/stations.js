@@ -6,6 +6,8 @@ export const stations = [
     operational: { pistesOpen: 58, pistesTotal: 100, liftsOpen: 18, liftsTotal: 23 },
     snowBase: 200, snowMin: 30, fresh72: 0, freshForecast: 45,
     quality: "Compacte", verdict: "top", sun5: [0, 3, 0, 2, 4],
+    webcamUrl: "https://www.saas-fee.ch/en/webcams",
+    pisteMapUrl: "https://www.saas-fee.ch/en/winter-in-the-saas-valley/piste-map",
   },
   {
     id: "grimentz-zinal", name: "Grimentz-Zinal", region: "Valais", alt: "1570\u20132900m",
@@ -14,6 +16,8 @@ export const stations = [
     operational: { pistesOpen: 88, pistesTotal: 115, liftsOpen: 21, liftsTotal: 21 },
     snowBase: 170, snowMin: 80, fresh72: 55, freshForecast: 60,
     quality: "Poudreuse", verdict: "top", sun5: [0, 2, 0, 1, 3],
+    webcamUrl: "https://www.valdanniviers.ch/en/Z21601/noswebcams-en",
+    pisteMapUrl: "https://www.valdanniviers.ch/en/Z15412/map-grimentz-zinal",
   },
   {
     id: "glacier-3000", name: "Glacier 3000", region: "Vaud", alt: "1350\u20133000m",
@@ -22,6 +26,8 @@ export const stations = [
     operational: { pistesOpen: 22, pistesTotal: 31, liftsOpen: 10, liftsTotal: 12 },
     snowBase: 200, snowMin: 80, fresh72: 20, freshForecast: 50,
     quality: "Poudreuse", verdict: "top", sun5: [0, 3, 0, 2, 4],
+    webcamUrl: "https://www.glacier3000.ch/en/webcams",
+    pisteMapUrl: "https://www.glacier3000.ch/en/activities/ski-snowboard",
   },
   {
     id: "villars-gryon", name: "Villars-Gryon", region: "Vaud", alt: "1200\u20133000m",
@@ -30,6 +36,8 @@ export const stations = [
     operational: { pistesOpen: 73, pistesTotal: 78, liftsOpen: 22, liftsTotal: 24 },
     snowBase: 150, snowMin: 60, fresh72: 8, freshForecast: 40,
     quality: "Compacte", verdict: "top", sun5: [1, 3, 0, 2, 3],
+    webcamUrl: "https://www.villars-diablerets.ch/en/webcams",
+    pisteMapUrl: "https://www.tvgd.ch/en-US/map/",
   },
   {
     id: "anzere", name: "Anz\u00E8re", region: "Valais", alt: "1500\u20132420m",
@@ -38,6 +46,8 @@ export const stations = [
     operational: { pistesOpen: 24, pistesTotal: 27, liftsOpen: 10, liftsTotal: 14 },
     snowBase: 180, snowMin: 100, fresh72: 0, freshForecast: 35,
     quality: "Poudreuse", verdict: "top", sun5: [0, 2, 0, 2, 4],
+    webcamUrl: "https://www.anzere.ch/en/webcams-352",
+    pisteMapUrl: "https://www.anzere.ch/en/ski-lifts/ski-area/",
   },
   {
     id: "champex-lac", name: "Champex-Lac", region: "Valais", alt: "1470\u20132200m",
@@ -46,6 +56,8 @@ export const stations = [
     operational: { pistesOpen: 7, pistesTotal: 7, liftsOpen: 4, liftsTotal: 4 },
     snowBase: 152, snowMin: 80, fresh72: 50, freshForecast: 40,
     quality: "Poudreuse", verdict: "top", sun5: [0, 2, 0, 1, 3],
+    webcamUrl: "https://www.champex.ch/en/webcams",
+    pisteMapUrl: "https://www.saint-bernard.ch/en/ski-lifts/interactive-map-openings-13984/",
   },
   {
     id: "st-luc-chandolin", name: "St-Luc/Chandolin", region: "Valais", alt: "1650\u20133000m",
@@ -54,6 +66,8 @@ export const stations = [
     operational: { pistesOpen: 50, pistesTotal: 55, liftsOpen: 10, liftsTotal: 12 },
     snowBase: 120, snowMin: 60, fresh72: 15, freshForecast: 45,
     quality: "Poudreuse", verdict: "top", sun5: [0, 3, 0, 2, 5],
+    webcamUrl: "https://www.valdanniviers.ch/en/Z15111/webcams-en",
+    pisteMapUrl: "https://www.valdanniviers.ch/en/Z15413/map-slc",
   },
   {
     id: "arolla", name: "Arolla", region: "Valais", alt: "2000\u20133000m",
@@ -62,6 +76,8 @@ export const stations = [
     operational: { pistesOpen: 12, pistesTotal: 12, liftsOpen: 6, liftsTotal: 6 },
     snowBase: 138, snowMin: 80, fresh72: 0, freshForecast: 50,
     quality: "Poudreuse", verdict: "top", sun5: [0, 3, 0, 2, 4],
+    webcamUrl: "https://www.valdherens.ch/en/webcam-ski-arolla",
+    pisteMapUrl: "https://www.valdherens.ch/en/espace-dent-blanche-ski-sector-arolla-fp42182",
   },
   {
     id: "gstaad", name: "Gstaad", region: "Berne", alt: "1050\u20132160m",
@@ -70,6 +86,8 @@ export const stations = [
     operational: { pistesOpen: 100, pistesTotal: 173, liftsOpen: 25, liftsTotal: 31 },
     snowBase: 80, snowMin: 30, fresh72: 15, freshForecast: 35,
     quality: "Compacte", verdict: "good", sun5: [0, 2, 0, 1, 3],
+    webcamUrl: "https://www.gstaad.ch/en/quick-links/weather-webcams",
+    pisteMapUrl: "https://www.gstaad.ch/interaktivekarte/index.php?lang=en",
   },
   {
     id: "meiringen-hasliberg", name: "Meiringen-Hasliberg", region: "Berne", alt: "600\u20132433m",
@@ -78,6 +96,8 @@ export const stations = [
     operational: { pistesOpen: 45, pistesTotal: 60, liftsOpen: 12, liftsTotal: 15 },
     snowBase: 80, snowMin: 20, fresh72: 15, freshForecast: 40,
     quality: "Compacte", verdict: "good", sun5: [0, 1, 0, 1, 2],
+    webcamUrl: "https://www.meiringen-hasliberg.ch/en/Info/Livecam",
+    pisteMapUrl: "https://meiringen-hasliberg.ch/en/Info/Map",
   },
   {
     id: "leysin", name: "Leysin", region: "Vaud", alt: "1260\u20132205m",
@@ -86,6 +106,8 @@ export const stations = [
     operational: { pistesOpen: 28, pistesTotal: 60, liftsOpen: 9, liftsTotal: 13 },
     snowBase: 100, snowMin: 40, fresh72: 7, freshForecast: 30,
     quality: "Compacte", verdict: "good", sun5: [1, 3, 0, 2, 3],
+    webcamUrl: "https://www.aigle-leysin-lesmosses.ch/en/Z12685/webcams",
+    pisteMapUrl: "https://www.tlml.ch/de-DE/Pistenplan/",
   },
   {
     id: "sorenberg", name: "S\u00F6renberg", region: "Lucerne", alt: "1166\u20132350m",
@@ -94,6 +116,8 @@ export const stations = [
     operational: { pistesOpen: 40, pistesTotal: 53, liftsOpen: 12, liftsTotal: 15 },
     snowBase: 80, snowMin: 20, fresh72: 15, freshForecast: 35,
     quality: "Compacte", verdict: "good", sun5: [0, 1, 0, 1, 2],
+    webcamUrl: "https://www.soerenberg.ch/en/webcams",
+    pisteMapUrl: "https://www.soerenberg.ch/en/information-service/mountain-cableways/ski-area-map",
   },
   {
     id: "melchsee-frutt", name: "Melchsee-Frutt", region: "Obwald", alt: "1080\u20132255m",
@@ -102,6 +126,8 @@ export const stations = [
     operational: { pistesOpen: 25, pistesTotal: 32, liftsOpen: 8, liftsTotal: 10 },
     snowBase: 80, snowMin: 30, fresh72: 15, freshForecast: 30,
     quality: "Compacte", verdict: "good", sun5: [0, 2, 0, 1, 3],
+    webcamUrl: "https://www.melchsee-frutt.ch/webcams/",
+    pisteMapUrl: "https://www.melchsee-frutt.ch/en/transport-and-tariffs/panoramic-map/",
   },
   {
     id: "leukerbad", name: "Leukerbad", region: "Valais", alt: "1411\u20132610m",
@@ -110,6 +136,8 @@ export const stations = [
     operational: { pistesOpen: 20, pistesTotal: 25, liftsOpen: 9, liftsTotal: 9 },
     snowBase: 100, snowMin: 50, fresh72: 10, freshForecast: 25,
     quality: "Compacte", verdict: "good", sun5: [0, 2, 0, 2, 4],
+    webcamUrl: "https://www.leukerbad.ch/en/webcam",
+    pisteMapUrl: "https://leukerbad.ch/en/open-lifts",
   },
   {
     id: "charmey", name: "Charmey", region: "Fribourg", alt: "900\u20131630m",
@@ -118,6 +146,8 @@ export const stations = [
     operational: { pistesOpen: 7, pistesTotal: 12, liftsOpen: 4, liftsTotal: 7 },
     snowBase: 40, snowMin: 0, fresh72: 10, freshForecast: 20,
     quality: "Poudreuse", verdict: "ok", sun5: [1, 2, 0, 1, 2],
+    webcamUrl: "https://www.charmey.ch/en/webcams/",
+    pisteMapUrl: "https://www.charmey.ch/slopes-map/",
   },
   {
     id: "moleson", name: "Mol\u00E9son", region: "Fribourg", alt: "1100\u20132002m",
@@ -126,6 +156,8 @@ export const stations = [
     operational: { pistesOpen: 1, pistesTotal: 19, liftsOpen: 3, liftsTotal: 8 },
     snowBase: 40, snowMin: 10, fresh72: 3, freshForecast: 15,
     quality: "Compacte", verdict: "bad", sun5: [1, 2, 0, 1, 2],
+    webcamUrl: "https://www.moleson.ch/en/webcams/",
+    pisteMapUrl: "https://www.moleson.ch/en/ski/",
   },
   {
     id: "les-pleiades", name: "Les Pl\u00E9iades", region: "Vaud", alt: "1360\u20131397m",
@@ -134,6 +166,8 @@ export const stations = [
     operational: { pistesOpen: 3, pistesTotal: 15, liftsOpen: 7, liftsTotal: 10 },
     snowBase: 20, snowMin: 5, fresh72: 0, freshForecast: 5,
     quality: "Humide", verdict: "bad", sun5: [1, 3, 0, 2, 3],
+    webcamUrl: "https://lespleiades.ch/webcam.html",
+    pisteMapUrl: "https://www.lespleiades.ch/domaine.html",
   },
   {
     id: "la-berra", name: "La Berra", region: "Fribourg", alt: "1050\u20131634m",
@@ -142,5 +176,7 @@ export const stations = [
     operational: { pistesOpen: 1, pistesTotal: 5, liftsOpen: 0, liftsTotal: 2 },
     snowBase: 15, snowMin: 0, fresh72: 0, freshForecast: 10,
     quality: "Humide", verdict: "bad", sun5: [0, 1, 0, 1, 2],
+    webcamUrl: "https://www.laberra.ch/en/weather-webcam",
+    pisteMapUrl: "https://www.laberra.ch/fr/ouverture-des-installations",
   },
 ];
