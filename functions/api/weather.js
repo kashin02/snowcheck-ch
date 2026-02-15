@@ -62,6 +62,12 @@ export async function onRequestGet(context) {
   const results = Array.isArray(raw) ? raw : [raw];
 
   const data = {};
+
+  // After 14h Swiss time, show tomorrow's conditions
+  const nowCH = new Date(new Date().toLocaleString("en-US", { timeZone: "Europe/Zurich" }));
+  const targetDayIndex = nowCH.getHours() >= 14 ? 1 : 0;
+  const targetDayLabel = targetDayIndex === 0 ? "Aujourd'hui" : "Demain";
+
   stationCoords.forEach((station, idx) => {
     const r = results[idx];
     if (!r || !r.daily) return;
@@ -120,6 +126,8 @@ export async function onRequestGet(context) {
     data[station.id] = {
       updatedAt: new Date().toISOString(),
       currentSnowDepth,
+      targetDayIndex,
+      targetDayLabel,
       forecast,
     };
   });

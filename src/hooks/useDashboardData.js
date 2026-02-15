@@ -70,26 +70,28 @@ function penaltyCrowd(crowdScore) {
 
 // ── Main verdict computation ────────────────────────────────────────────
 
-function computeVerdict(station, weatherData, snowData) {
+function computeVerdict(station, weatherData, snowData, targetDayIndex = 0) {
   const snow = snowData?.stations?.[station.imisCode];
   const weather = weatherData?.stations?.[station.id];
 
   // Fallback to static verdict if no API data at all
-  if (!snow && !weather) return { verdict: station.verdict, score: null };
+  if (!snow && !weather) return { verdict: station.verdict, score: null, breakdown: null };
 
   // Data extraction with fallbacks
   const depth = snow?.snowDepth ?? station.snowBase;
   const fresh72 = snow?.fresh72h ?? station.fresh72;
   const { pistesOpen } = station.operational;
 
-  // Today's forecast (first day) for sun, wind, jour blanc
-  const todayForecast = weather?.forecast?.[0];
-  const sunHours = todayForecast?.sunshineHours ?? (station.sun5?.[0] || 0);
-  const windMax = todayForecast?.windMax ?? 0;
-  const jourBlancHours = todayForecast?.jourBlancHours ?? 0;
+  // Target day's forecast for sun, wind, jour blanc
+  const dayForecast = weather?.forecast?.[targetDayIndex];
+  const sunHours = dayForecast?.sunshineHours ?? (station.sun5?.[targetDayIndex] || 0);
+  const windMax = dayForecast?.windMax ?? 0;
+  const jourBlancHours = dayForecast?.jourBlancHours ?? 0;
 
-  // Crowd from calendar
-  const crowdScore = computeCalendarCrowdScore(new Date());
+  // Crowd from calendar for the target day
+  const targetDate = new Date();
+  targetDate.setDate(targetDate.getDate() + targetDayIndex);
+  const crowdScore = computeCalendarCrowdScore(targetDate);
 
   // Compute sub-scores
   const sunPts = scoreSun(sunHours);
@@ -109,7 +111,19 @@ function computeVerdict(station, weatherData, snowData) {
   else if (score >= 20) verdict = "ok";
   else verdict = "bad";
 
-  return { verdict, score };
+  return {
+    verdict,
+    score,
+    breakdown: {
+      sun: { pts: sunPts, max: 35, value: sunHours, unit: "h" },
+      fresh: { pts: freshPts, max: 30, value: fresh72, unit: "cm" },
+      depth: { pts: depthPts, max: 20, value: depth, unit: "cm" },
+      pistes: { pts: pistesPts, max: 15, value: pistesOpen, unit: "km" },
+      jourBlanc: { pts: jourBlancPts, min: -30, value: jourBlancHours, unit: "h" },
+      wind: { pts: windPts, min: -20, value: windMax, unit: "km/h" },
+      crowd: { pts: crowdPts, min: -15, value: crowdScore, unit: "/15" },
+    },
+  };
 }
 
 // ── Forecast builder ────────────────────────────────────────────────────
@@ -147,10 +161,15 @@ export default function useDashboardData() {
   const lastUpdate = weather.data?.updatedAt || snow.data?.updatedAt || null;
 
   const enrichedStations = useMemo(() => {
+    // Get target day from weather API (same for all stations)
+    const firstStationWeather = weather.data?.stations?.[Object.keys(weather.data?.stations || {})[0]];
+    const targetDayIndex = firstStationWeather?.targetDayIndex ?? 0;
+    const targetDayLabel = firstStationWeather?.targetDayLabel ?? "Aujourd'hui";
+
     return staticStations.map(station => {
       const snowMeasurement = snow.data?.stations?.[station.imisCode];
       const stationForecast = buildForecastForStation(station, weather.data);
-      const { verdict, score } = computeVerdict(station, weather.data, snow.data);
+      const { verdict, score, breakdown } = computeVerdict(station, weather.data, snow.data, targetDayIndex);
 
       return {
         ...station,
@@ -168,9 +187,11 @@ export default function useDashboardData() {
           : station.freshForecast,
         // Avalanche data
         avalancheLevel: avalanche.data?.regions?.[station.slfRegionId]?.level ?? null,
-        // New weighted verdict + score
+        // New weighted verdict + score + breakdown
         verdict,
         verdictScore: score,
+        verdictBreakdown: breakdown,
+        targetDayLabel,
       };
     });
   }, [weather.data, avalanche.data, snow.data]);
