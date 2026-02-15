@@ -49,7 +49,7 @@ export async function onRequestGet(context) {
   const lats = stationCoords.map(s => s.lat).join(",");
   const lons = stationCoords.map(s => s.lon).join(",");
 
-  const url = `https://api.open-meteo.com/v1/forecast?latitude=${lats}&longitude=${lons}&daily=snowfall_sum,sunshine_duration,temperature_2m_max,temperature_2m_min,wind_speed_10m_max,cloud_cover_mean&hourly=snow_depth&forecast_days=5&timezone=Europe/Zurich`;
+  const url = `https://api.open-meteo.com/v1/forecast?latitude=${lats}&longitude=${lons}&daily=snowfall_sum,sunshine_duration,temperature_2m_max,temperature_2m_min,wind_speed_10m_max,cloud_cover_mean&hourly=snow_depth,visibility,cloud_cover_low,cloud_cover_mid,direct_normal_irradiance&forecast_days=5&timezone=Europe/Zurich`;
 
   const response = await fetch(url);
   if (!response.ok) {
@@ -72,6 +72,35 @@ export async function onRequestGet(context) {
       ? Math.round((snowDepths.filter(v => v !== null).pop() || 0) * 100) // meters to cm
       : null;
 
+    // Compute jour blanc (whiteout) hours per day from hourly data
+    const hourlyTimes = r.hourly?.time || [];
+    const hourlyVisibility = r.hourly?.visibility || [];
+    const hourlyCloudLow = r.hourly?.cloud_cover_low || [];
+    const hourlyCloudMid = r.hourly?.cloud_cover_mid || [];
+    const hourlyDNI = r.hourly?.direct_normal_irradiance || [];
+
+    // Group hourly data by date, count whiteout hours during ski time (8h-16h)
+    const jourBlancByDate = {};
+    hourlyTimes.forEach((time, hi) => {
+      const dateKey = time.slice(0, 10);
+      const hour = parseInt(time.slice(11, 13), 10);
+      if (hour < 8 || hour >= 16) return; // only ski hours
+
+      const vis = hourlyVisibility[hi];
+      const cloudLow = hourlyCloudLow[hi];
+      const cloudMid = hourlyCloudMid[hi];
+      const dni = hourlyDNI[hi];
+
+      // Jour blanc detection: low visibility OR dense low clouds with no direct sun
+      const isJourBlanc =
+        (vis != null && vis < 2000) ||
+        (cloudLow > 80 && dni != null && dni < 50) ||
+        (cloudLow > 60 && cloudMid > 70 && vis != null && vis < 5000);
+
+      if (!jourBlancByDate[dateKey]) jourBlancByDate[dateKey] = 0;
+      if (isJourBlanc) jourBlancByDate[dateKey]++;
+    });
+
     const forecast = r.daily.time.map((date, di) => {
       const d = new Date(date);
       return {
@@ -83,6 +112,7 @@ export async function onRequestGet(context) {
         tempMin: Math.round((r.daily.temperature_2m_min?.[di] || 0) * 10) / 10,
         windMax: Math.round(r.daily.wind_speed_10m_max?.[di] || 0),
         cloudCover: Math.round(r.daily.cloud_cover_mean?.[di] || 0),
+        jourBlancHours: jourBlancByDate[date] || 0,
         icon: getWeatherIcon(r.daily.snowfall_sum?.[di] || 0, r.daily.cloud_cover_mean?.[di] || 0),
       };
     });

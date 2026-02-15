@@ -1,35 +1,118 @@
 import { useMemo } from "react";
 import { stations as staticStations } from "../data/stations";
+import { computeCalendarCrowdScore } from "../data/crowdCalendar";
 import useWeatherData from "./useWeatherData";
 import useAvalancheData from "./useAvalancheData";
 import useSnowMeasurements from "./useSnowMeasurements";
+
+// ── Scoring helpers (new weighted algorithm, score out of 100) ──────────
+
+// POSITIVE: Sunshine hours today (max +35) — most important factor
+function scoreSun(sunHours) {
+  if (sunHours >= 8) return 35;
+  if (sunHours >= 6) return 28;
+  if (sunHours >= 4) return 20;
+  if (sunHours >= 2) return 12;
+  if (sunHours >= 1) return 5;
+  return 0;
+}
+
+// POSITIVE: Fresh snow last 72h (max +30)
+function scoreFresh(fresh72) {
+  if (fresh72 >= 50) return 30;
+  if (fresh72 >= 30) return 24;
+  if (fresh72 >= 15) return 18;
+  if (fresh72 >= 5) return 10;
+  if (fresh72 > 0) return 4;
+  return 0;
+}
+
+// POSITIVE: Total snow depth (max +20)
+function scoreDepth(depth) {
+  if (depth >= 150) return 20;
+  if (depth >= 100) return 16;
+  if (depth >= 60) return 12;
+  if (depth >= 30) return 6;
+  return 0;
+}
+
+// POSITIVE: Absolute km of open slopes (max +15) — not a ratio
+function scorePistes(pistesOpenKm) {
+  if (pistesOpenKm >= 100) return 15;
+  if (pistesOpenKm >= 60) return 12;
+  if (pistesOpenKm >= 30) return 8;
+  if (pistesOpenKm >= 15) return 4;
+  return 1;
+}
+
+// NEGATIVE: Jour blanc / whiteout hours during ski time (max -30)
+function penaltyJourBlanc(jourBlancHours) {
+  if (jourBlancHours >= 6) return -30;
+  if (jourBlancHours >= 4) return -22;
+  if (jourBlancHours >= 2) return -12;
+  if (jourBlancHours >= 1) return -5;
+  return 0;
+}
+
+// NEGATIVE: Strong wind (max -20)
+function penaltyWind(windMaxKmh) {
+  if (windMaxKmh >= 80) return -20;
+  if (windMaxKmh >= 60) return -15;
+  if (windMaxKmh >= 40) return -8;
+  if (windMaxKmh >= 25) return -3;
+  return 0;
+}
+
+// NEGATIVE: Crowd level from calendar (max -15)
+function penaltyCrowd(crowdScore) {
+  return -crowdScore; // crowdScore is already 0-15
+}
+
+// ── Main verdict computation ────────────────────────────────────────────
 
 function computeVerdict(station, weatherData, snowData) {
   const snow = snowData?.stations?.[station.imisCode];
   const weather = weatherData?.stations?.[station.id];
 
-  // Fallback to static verdict if no API data
-  if (!snow && !weather) return station.verdict;
+  // Fallback to static verdict if no API data at all
+  if (!snow && !weather) return { verdict: station.verdict, score: null };
 
+  // Data extraction with fallbacks
   const depth = snow?.snowDepth ?? station.snowBase;
   const fresh72 = snow?.fresh72h ?? station.fresh72;
-  const forecastSnow = weather?.forecast
-    ? weather.forecast.reduce((sum, d) => sum + (d.snowfallSum || 0), 0)
-    : station.freshForecast;
-  const { pistesOpen, pistesTotal } = station.operational;
-  const openRatio = pistesTotal > 0 ? pistesOpen / pistesTotal : 0;
+  const { pistesOpen } = station.operational;
 
-  let score = 0;
-  if (depth > 100) score += 3; else if (depth > 50) score += 2; else if (depth > 20) score += 1;
-  if (fresh72 > 30) score += 2; else if (fresh72 > 10) score += 1;
-  if (forecastSnow > 30) score += 1;
-  if (openRatio > 0.7) score += 2; else if (openRatio > 0.4) score += 1;
+  // Today's forecast (first day) for sun, wind, jour blanc
+  const todayForecast = weather?.forecast?.[0];
+  const sunHours = todayForecast?.sunshineHours ?? (station.sun5?.[0] || 0);
+  const windMax = todayForecast?.windMax ?? 0;
+  const jourBlancHours = todayForecast?.jourBlancHours ?? 0;
 
-  if (score >= 7) return "top";
-  if (score >= 4) return "good";
-  if (score >= 2) return "ok";
-  return "bad";
+  // Crowd from calendar
+  const crowdScore = computeCalendarCrowdScore(new Date());
+
+  // Compute sub-scores
+  const sunPts = scoreSun(sunHours);
+  const freshPts = scoreFresh(fresh72);
+  const depthPts = scoreDepth(depth);
+  const pistesPts = scorePistes(pistesOpen);
+  const jourBlancPts = penaltyJourBlanc(jourBlancHours);
+  const windPts = penaltyWind(windMax);
+  const crowdPts = penaltyCrowd(crowdScore);
+
+  const raw = sunPts + freshPts + depthPts + pistesPts + jourBlancPts + windPts + crowdPts;
+  const score = Math.max(0, Math.min(100, raw));
+
+  let verdict;
+  if (score >= 70) verdict = "top";
+  else if (score >= 45) verdict = "good";
+  else if (score >= 20) verdict = "ok";
+  else verdict = "bad";
+
+  return { verdict, score };
 }
+
+// ── Forecast builder ────────────────────────────────────────────────────
 
 const DAYS_FR = ["Dim", "Lun", "Mar", "Mer", "Jeu", "Ven", "Sam"];
 
@@ -44,10 +127,13 @@ function buildForecastForStation(station, weatherData) {
     sun: Math.round(day.sunshineHours || 0),
     snow: String(Math.round(day.snowfallSum || 0)),
     wind: day.windMax || 0,
+    jourBlanc: day.jourBlancHours || 0,
     accent: (day.snowfallSum || 0) >= 30 || (day.windMax || 0) >= 60,
     sunH: Math.round(day.sunshineHours || 0),
   }));
 }
+
+// ── Hook ────────────────────────────────────────────────────────────────
 
 export default function useDashboardData() {
   const weather = useWeatherData();
@@ -64,6 +150,7 @@ export default function useDashboardData() {
     return staticStations.map(station => {
       const snowMeasurement = snow.data?.stations?.[station.imisCode];
       const stationForecast = buildForecastForStation(station, weather.data);
+      const { verdict, score } = computeVerdict(station, weather.data, snow.data);
 
       return {
         ...station,
@@ -81,8 +168,9 @@ export default function useDashboardData() {
           : station.freshForecast,
         // Avalanche data
         avalancheLevel: avalanche.data?.regions?.[station.slfRegionId]?.level ?? null,
-        // Computed verdict
-        verdict: computeVerdict(station, weather.data, snow.data),
+        // New weighted verdict + score
+        verdict,
+        verdictScore: score,
       };
     });
   }, [weather.data, avalanche.data, snow.data]);
