@@ -125,7 +125,7 @@ export default function StationCard({ station, forecast, index }) {
               onClick={(e) => { e.stopPropagation(); setLevel(l => l >= 2 ? 1 : 2); }}
               style={{ cursor: "pointer", userSelect: "none", fontSize: 10, fontWeight: 600, color: "#64748b" }}
             >
-              D&eacute;tail du score {level >= 2 ? "&#x25B2;" : "&#x25BC;"}
+              {"Détail du score "}{level >= 2 ? "\u25B2" : "\u25BC"}
             </div>
           </div>
         </div>
