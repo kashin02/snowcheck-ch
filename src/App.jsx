@@ -1,6 +1,7 @@
 import { useState, useMemo } from "react";
 import { FONT_LINK } from "./data/constants";
 import useDashboardData from "./hooks/useDashboardData";
+import useLocation, { proximityBonus } from "./hooks/useLocation";
 import Header from "./components/Header";
 import DangerBanner from "./components/DangerBanner";
 import FilterBar from "./components/FilterBar";
@@ -20,6 +21,7 @@ const fallbackForecast = [
 
 export default function App() {
   const { stations, avalanche, isLoading, allFailed, lastUpdate } = useDashboardData();
+  const location = useLocation(stations);
   const [region, setRegion] = useState("Tous");
   const [search, setSearch] = useState("");
 
@@ -27,8 +29,25 @@ export default function App() {
     let s = stations;
     if (region !== "Tous") s = s.filter(x => x.region === region);
     if (search) s = s.filter(x => x.name.toLowerCase().includes(search.toLowerCase()));
-    return [...s].sort((a, b) => (b.verdictScore ?? -1) - (a.verdictScore ?? -1));
-  }, [stations, region, search]);
+
+    // Enrich with travel times + proximity bonus when location is set
+    if (location.travelTimes) {
+      s = s.map(st => {
+        const tt = location.travelTimes[st.id];
+        const bonus = tt ? proximityBonus(tt.durationMin) : 0;
+        return {
+          ...st,
+          travelTime: tt || null,
+          proximityBonus: bonus,
+          combinedScore: (st.verdictScore ?? 0) + bonus,
+        };
+      });
+    }
+
+    // Sort by combined score (with proximity) or base score
+    const key = location.travelTimes ? "combinedScore" : "verdictScore";
+    return [...s].sort((a, b) => (b[key] ?? -1) - (a[key] ?? -1));
+  }, [stations, region, search, location.travelTimes]);
 
   return (
     <>
@@ -36,7 +55,12 @@ export default function App() {
       <div style={{ minHeight: "100vh", background: "#f8fafc", fontFamily: "var(--font-body)", overflowX: "hidden" }}>
         <Header stationCount={stations.length} lastUpdate={lastUpdate} />
         <DangerBanner avalancheData={avalanche} />
-        <FilterBar region={region} setRegion={setRegion} search={search} setSearch={setSearch} filtered={filtered} />
+        <FilterBar
+          region={region} setRegion={setRegion}
+          search={search} setSearch={setSearch}
+          filtered={filtered}
+          location={location}
+        />
 
         {allFailed && <ErrorMessage />}
 

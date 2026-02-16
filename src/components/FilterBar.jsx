@@ -1,7 +1,8 @@
 import { regions } from "../data/regions";
 import { verdictConfig } from "../data/constants";
+import LocationInput from "./LocationInput";
 
-export default function FilterBar({ region, setRegion, search, setSearch, filtered }) {
+export default function FilterBar({ region, setRegion, search, setSearch, filtered, location }) {
   return (
     <div style={{ background: "#fff", borderBottom: "1px solid #e2e8f0", position: "sticky", top: 0, zIndex: 10 }}>
       <div style={{ maxWidth: 1100, margin: "0 auto", padding: "8px 24px" }}>
@@ -13,7 +14,13 @@ export default function FilterBar({ region, setRegion, search, setSearch, filter
           <span style={{ fontSize: 9, color: "#64748b" }}>{"\uD83D\uDCA8"} 80 = vent en km/h</span>
         </div>
         <div style={{ display: "flex", alignItems: "center", gap: 6, overflowX: "auto", WebkitOverflowScrolling: "touch" }}>
-          <input value={search} onChange={e => setSearch(e.target.value)} placeholder="Rechercher..." style={{ padding: "5px 10px", borderRadius: 6, border: "1px solid #e2e8f0", fontSize: 12, color: "#334155", background: "#f8fafc", width: 150, outline: "none", fontFamily: "var(--font-body)", flex: "0 0 auto" }} />
+          <input value={search} onChange={e => setSearch(e.target.value)} placeholder="Rechercher..." style={{ padding: "5px 10px", borderRadius: 6, border: "1px solid #e2e8f0", fontSize: 12, color: "#334155", background: "#f8fafc", width: 130, outline: "none", fontFamily: "var(--font-body)", flex: "0 0 auto" }} />
+          <LocationInput
+            npa={location.npa}
+            npaName={location.npaName}
+            setNpa={location.setNpa}
+            loading={location.loading}
+          />
           {regions.map(r => (
             <button key={r} className="fbtn" onClick={() => setRegion(region === r ? "Tous" : r)} style={{ padding: "4px 11px", borderRadius: 14, fontSize: 11, fontWeight: 500, fontFamily: "var(--font-body)", background: region === r ? "#2563eb" : "#f1f5f9", color: region === r ? "#fff" : "#64748b", whiteSpace: "nowrap", flex: "0 0 auto" }}>{r}</button>
           ))}

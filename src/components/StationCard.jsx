@@ -5,6 +5,13 @@ import VerdictBreakdown from "./VerdictBreakdown";
 
 const DAY_LABELS = ["Dim", "Lun", "Mar", "Mer", "Jeu", "Ven", "Sam"];
 
+function formatDuration(min) {
+  if (min < 60) return `${min}min`;
+  const h = Math.floor(min / 60);
+  const m = min % 60;
+  return m > 0 ? `${h}h${String(m).padStart(2, "0")}` : `${h}h`;
+}
+
 export default function StationCard({ station, forecast, index }) {
   const [level, setLevel] = useState(0); // 0=compact, 1=forecast, 2=breakdown
   const [selectedDay, setSelectedDay] = useState(0); // offset within displayed 5 days
@@ -12,6 +19,7 @@ export default function StationCard({ station, forecast, index }) {
   const { pistesOpen, pistesTotal } = station.operational;
   const isTomorrow = station.targetDayLabel === "Demain";
   const bd = station.verdictBreakdown;
+  const tt = station.travelTime;
 
   // Key metrics from the target day
   const sunH = bd?.sun?.value ?? 0;
@@ -35,6 +43,9 @@ export default function StationCard({ station, forecast, index }) {
     if (level < 2) setLevel(2);
   }
 
+  // Display score: combined if proximity is active, otherwise base
+  const displayScore = station.combinedScore ?? station.verdictScore;
+
   return (
     <div className="card" style={{
       background: "#fff", borderRadius: 10, border: "1px solid #e2e8f0",
@@ -52,6 +63,16 @@ export default function StationCard({ station, forecast, index }) {
             {station.name}
           </span>
           <div style={{ display: "flex", alignItems: "center", gap: 6, flexShrink: 0 }}>
+            {/* Travel time badge */}
+            {tt && (
+              <span style={{
+                padding: "2px 6px", borderRadius: 4, fontSize: 9, fontWeight: 600,
+                color: "#0369a1", background: "#f0f9ff", border: "1px solid #bae6fd",
+                display: "inline-flex", alignItems: "center", gap: 3,
+              }}>
+                {"\uD83D\uDE97"} {formatDuration(tt.durationMin)} &middot; {tt.distanceKm}km
+              </span>
+            )}
             {isTomorrow && (
               <span style={{ padding: "2px 6px", borderRadius: 4, fontSize: 9, fontWeight: 600, color: "#7c3aed", background: "#f5f3ff", border: "1px solid #ddd6fe" }}>
                 Demain
@@ -64,9 +85,9 @@ export default function StationCard({ station, forecast, index }) {
               fontSize: 10,
             }}>
               {v.label}
-              {station.verdictScore != null && (
+              {displayScore != null && (
                 <span style={{ fontFamily: "var(--font-display)", fontSize: 14, fontWeight: 800 }}>
-                  {station.verdictScore}
+                  {displayScore}
                 </span>
               )}
             </span>
@@ -160,6 +181,8 @@ export default function StationCard({ station, forecast, index }) {
           breakdown={activeBreakdown}
           score={activeScore}
           targetDayLabel={activeDayLabel}
+          proximityBonus={station.proximityBonus}
+          travelTime={station.travelTime}
         />
       )}
     </div>
