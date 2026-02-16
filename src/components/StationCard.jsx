@@ -3,8 +3,11 @@ import { verdictConfig } from "../data/constants";
 import ForecastRow from "./ForecastRow";
 import VerdictBreakdown from "./VerdictBreakdown";
 
+const DAY_LABELS = ["Dim", "Lun", "Mar", "Mer", "Jeu", "Ven", "Sam"];
+
 export default function StationCard({ station, forecast, index }) {
   const [level, setLevel] = useState(0); // 0=compact, 1=forecast, 2=breakdown
+  const [selectedDay, setSelectedDay] = useState(0); // offset within displayed 5 days
   const v = verdictConfig[station.verdict];
   const { pistesOpen, pistesTotal } = station.operational;
   const isTomorrow = station.targetDayLabel === "Demain";
@@ -14,15 +17,33 @@ export default function StationCard({ station, forecast, index }) {
   const sunH = bd?.sun?.value ?? 0;
   const windKmh = bd?.wind?.value ?? 0;
 
+  // Resolve the active breakdown for the selected day
+  const activeDayIndex = station.targetDayIndex + selectedDay;
+  const activeData = station.dayBreakdowns?.[activeDayIndex];
+  const activeBreakdown = activeData?.breakdown ?? station.verdictBreakdown;
+  const activeScore = activeData?.score ?? station.verdictScore;
+
+  // Build a label for the selected day
+  const activeForecast = forecast?.[activeDayIndex];
+  const activeDayLabel = selectedDay === 0
+    ? (station.targetDayLabel || "Aujourd'hui")
+    : activeForecast?.day || DAY_LABELS[new Date(activeForecast?.date).getDay()] || `J+${selectedDay}`;
+
+  function handleDayClick(dayOffset) {
+    setSelectedDay(dayOffset);
+    // Auto-open breakdown when clicking a day
+    if (level < 2) setLevel(2);
+  }
+
   return (
     <div className="card" style={{
       background: "#fff", borderRadius: 10, border: "1px solid #e2e8f0",
       marginBottom: 8, overflow: "hidden",
       animation: `fadeUp 0.2s ease ${index * 0.02}s both`,
     }}>
-      {/* ── L0: Compact summary ─────────────────────────────── */}
+      {/* -- L0: Compact summary ----------------------------------------- */}
       <div
-        onClick={() => setLevel(l => l > 0 ? 0 : 1)}
+        onClick={() => { setLevel(l => l > 0 ? 0 : 1); setSelectedDay(0); }}
         style={{ padding: "10px 14px", cursor: "pointer", userSelect: "none" }}
       >
         {/* Row 1: Name + Score */}
@@ -90,7 +111,7 @@ export default function StationCard({ station, forecast, index }) {
         </div>
       </div>
 
-      {/* ── L1: 5-day forecast ──────────────────────────────── */}
+      {/* -- L1: 5-day forecast ------------------------------------------ */}
       {level >= 1 && (
         <div style={{ padding: "0 14px 8px", borderTop: "1px solid #f1f5f9" }}>
           <div style={{ paddingTop: 10 }}>
@@ -98,6 +119,8 @@ export default function StationCard({ station, forecast, index }) {
               forecast={forecast}
               sun5={station.sun5}
               targetDayIndex={station.targetDayIndex}
+              selectedDay={selectedDay}
+              onDayClick={handleDayClick}
             />
           </div>
           {/* Action bar: links + detail toggle */}
@@ -125,18 +148,18 @@ export default function StationCard({ station, forecast, index }) {
               onClick={(e) => { e.stopPropagation(); setLevel(l => l >= 2 ? 1 : 2); }}
               style={{ cursor: "pointer", userSelect: "none", fontSize: 10, fontWeight: 600, color: "#64748b" }}
             >
-              D&eacute;tail du score {level >= 2 ? "&#x25B2;" : "&#x25BC;"}
+              {"Détail du score "}{level >= 2 ? "\u25B2" : "\u25BC"}
             </div>
           </div>
         </div>
       )}
 
-      {/* ── L2: Score breakdown ─────────────────────────────── */}
+      {/* -- L2: Score breakdown ----------------------------------------- */}
       {level >= 2 && (
         <VerdictBreakdown
-          breakdown={station.verdictBreakdown}
-          score={station.verdictScore}
-          targetDayLabel={station.targetDayLabel || "Aujourd'hui"}
+          breakdown={activeBreakdown}
+          score={activeScore}
+          targetDayLabel={activeDayLabel}
         />
       )}
     </div>
