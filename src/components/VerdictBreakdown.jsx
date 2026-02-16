@@ -1,5 +1,17 @@
-export default function VerdictBreakdown({ breakdown, score, targetDayLabel }) {
+function formatDuration(min) {
+  if (min == null) return "";
+  if (min < 60) return `${min}min`;
+  const h = Math.floor(min / 60);
+  const m = min % 60;
+  return m > 0 ? `${h}h${String(m).padStart(2, "0")}` : `${h}h`;
+}
+
+export default function VerdictBreakdown({ breakdown, score, targetDayLabel, proximityBonus, travelTime }) {
   if (!breakdown) return null;
+
+  const hasProximity = proximityBonus != null && proximityBonus > 0 && travelTime;
+  const totalScore = hasProximity ? score + proximityBonus : score;
+  const factorCount = hasProximity ? 8 : 7;
 
   const positives = [
     { key: "sun", icon: "\u2600\uFE0F", label: "Soleil" },
@@ -14,8 +26,8 @@ export default function VerdictBreakdown({ breakdown, score, targetDayLabel }) {
     { key: "crowd", icon: "\uD83D\uDC65", label: "Fr\u00E9quentation" },
   ];
 
-  const scoreColor = score >= 70 ? "#059669" : score >= 45 ? "#2563eb" : score >= 20 ? "#d97706" : "#dc2626";
-  const scoreBg = score >= 70 ? "#ecfdf5" : score >= 45 ? "#eff6ff" : score >= 20 ? "#fffbeb" : "#fef2f2";
+  const scoreColor = totalScore >= 70 ? "#059669" : totalScore >= 45 ? "#2563eb" : totalScore >= 20 ? "#d97706" : "#dc2626";
+  const scoreBg = totalScore >= 70 ? "#ecfdf5" : totalScore >= 45 ? "#eff6ff" : totalScore >= 20 ? "#fffbeb" : "#fef2f2";
 
   return (
     <div style={{ padding: "14px 14px 16px", borderTop: "1px solid #f1f5f9", background: "#fafbfc" }}>
@@ -27,14 +39,17 @@ export default function VerdictBreakdown({ breakdown, score, targetDayLabel }) {
           display: "flex", alignItems: "center", justifyContent: "center",
           fontFamily: "var(--font-display)", fontSize: 20, fontWeight: 800, color: scoreColor,
         }}>
-          {score}
+          {totalScore}
         </div>
         <div>
           <div style={{ fontSize: 12, fontWeight: 700, color: "#0f172a" }}>
             Score {targetDayLabel.toLowerCase()}
           </div>
           <div style={{ fontSize: 10, color: "#94a3b8" }}>
-            sur 100 points &middot; 7 facteurs
+            {hasProximity
+              ? `${score} ski + ${proximityBonus} proximit\u00E9 \u00B7 ${factorCount} facteurs`
+              : `sur 100 points \u00B7 ${factorCount} facteurs`
+            }
           </div>
         </div>
       </div>
@@ -70,6 +85,29 @@ export default function VerdictBreakdown({ breakdown, score, targetDayLabel }) {
             </div>
           );
         })}
+        {/* Proximity bonus row */}
+        {hasProximity && (
+          <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 5 }}>
+            <span style={{ fontSize: 13, width: 20, textAlign: "center", flexShrink: 0 }}>{"\uD83D\uDE97"}</span>
+            <span style={{ fontSize: 11, color: "#334155", width: 90, flexShrink: 0, fontWeight: 500 }}>Proximit&eacute;</span>
+            <span style={{ fontSize: 10, color: "#64748b", width: 48, textAlign: "right", flexShrink: 0, fontWeight: 600 }}>
+              {formatDuration(travelTime.durationMin)}
+            </span>
+            <div style={{ flex: 1, height: 8, borderRadius: 4, background: "#e2e8f0", overflow: "hidden" }}>
+              <div style={{
+                width: `${Math.round((proximityBonus / 15) * 100)}%`, height: "100%", borderRadius: 4,
+                background: "linear-gradient(90deg, #7dd3fc, #0284c7)",
+                transition: "width 0.4s ease",
+              }} />
+            </div>
+            <span style={{
+              fontSize: 10, fontWeight: 700, width: 40, textAlign: "right", flexShrink: 0,
+              color: proximityBonus > 0 ? "#0284c7" : "#cbd5e1",
+            }}>
+              +{proximityBonus}/15
+            </span>
+          </div>
+        )}
       </div>
 
       {/* Separator */}
