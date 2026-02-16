@@ -208,6 +208,14 @@ export default function useDashboardData() {
       const stationForecast = buildForecastForStation(station, weather.data, snow.data);
       const { verdict, score, breakdown } = computeVerdict(station, weather.data, snow.data, targetDayIndex);
 
+      // Pre-compute full breakdowns for all forecast days (for day selection in UI)
+      const forecastLen = weather.data?.stations?.[station.id]?.forecast?.length ?? 0;
+      const dayBreakdowns = [];
+      for (let i = 0; i < forecastLen; i++) {
+        const dv = computeVerdict(station, weather.data, snow.data, i);
+        dayBreakdowns.push(dv);
+      }
+
       return {
         ...station,
         // Override snow data with real measurements if available
@@ -228,6 +236,7 @@ export default function useDashboardData() {
         verdict,
         verdictScore: score,
         verdictBreakdown: breakdown,
+        dayBreakdowns,
         targetDayLabel,
         targetDayIndex,
       };
