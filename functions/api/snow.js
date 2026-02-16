@@ -4,7 +4,7 @@ const IMIS_CODES = [
   "SAA2", "ANV3", "DIA2", "CHA2", "ANZ2",
   "CHX2", "STL2", "ARO2", "LAU2", "GUT2",
   "CHA3", "SRB2", "MEL2", "MUN2", "JAU2",
-  "MOL2", "PLI2", "BER2",
+  "MOL2", "PLI2", "BER2", "BEL2", "EVO2", "SIM2",
 ];
 
 export async function onRequestGet(context) {
