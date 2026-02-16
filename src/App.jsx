@@ -7,7 +7,6 @@ import FilterBar from "./components/FilterBar";
 import StationCard from "./components/StationCard";
 import StationCardSkeleton from "./components/StationCardSkeleton";
 import ErrorMessage from "./components/ErrorMessage";
-import AdBanner from "./components/AdBanner";
 import Footer from "./components/Footer";
 
 // Fallback forecast (used when weather API hasn't loaded yet)
@@ -35,7 +34,6 @@ export default function App() {
     <>
       <link href={FONT_LINK} rel="stylesheet" />
       <div style={{ minHeight: "100vh", background: "#f8fafc", fontFamily: "var(--font-body)", overflowX: "hidden" }}>
-        <AdBanner position="top" />
         <Header stationCount={stations.length} lastUpdate={lastUpdate} />
         <DangerBanner avalancheData={avalanche} />
         <FilterBar region={region} setRegion={setRegion} search={search} setSearch={setSearch} filtered={filtered} />
@@ -56,7 +54,6 @@ export default function App() {
           }
         </section>
 
-        <AdBanner position="bottom" />
         <Footer />
       </div>
     </>
