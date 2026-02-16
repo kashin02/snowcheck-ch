@@ -100,17 +100,33 @@ export default function StationCard({ station, forecast, index }) {
               targetDayIndex={station.targetDayIndex}
             />
           </div>
-          {/* Toggle for L2 */}
-          <div
-            onClick={(e) => { e.stopPropagation(); setLevel(l => l >= 2 ? 1 : 2); }}
-            style={{
-              marginTop: 8, padding: "6px 0", textAlign: "center",
-              cursor: "pointer", userSelect: "none",
-              fontSize: 10, fontWeight: 600, color: "#64748b",
-              borderTop: "1px solid #f1f5f9",
-            }}
-          >
-            D&eacute;tail du score {level >= 2 ? "&#x25B2;" : "&#x25BC;"}
+          {/* Action bar: links + detail toggle */}
+          <div style={{
+            marginTop: 8, paddingTop: 8, borderTop: "1px solid #f1f5f9",
+            display: "flex", alignItems: "center", justifyContent: "space-between",
+          }}>
+            <div style={{ display: "flex", gap: 10 }}>
+              {station.webcamUrl && (
+                <a href={station.webcamUrl} target="_blank" rel="noopener noreferrer"
+                  onClick={(e) => e.stopPropagation()}
+                  style={{ fontSize: 10, fontWeight: 600, color: "#2563eb", textDecoration: "none", display: "inline-flex", alignItems: "center", gap: 3 }}>
+                  &#x1F4F7; Webcam
+                </a>
+              )}
+              {station.pisteMapUrl && (
+                <a href={station.pisteMapUrl} target="_blank" rel="noopener noreferrer"
+                  onClick={(e) => e.stopPropagation()}
+                  style={{ fontSize: 10, fontWeight: 600, color: "#2563eb", textDecoration: "none", display: "inline-flex", alignItems: "center", gap: 3 }}>
+                  &#x1F5FA;&#xFE0F; Plan des pistes
+                </a>
+              )}
+            </div>
+            <div
+              onClick={(e) => { e.stopPropagation(); setLevel(l => l >= 2 ? 1 : 2); }}
+              style={{ cursor: "pointer", userSelect: "none", fontSize: 10, fontWeight: 600, color: "#64748b" }}
+            >
+              D&eacute;tail du score {level >= 2 ? "&#x25B2;" : "&#x25BC;"}
+            </div>
           </div>
         </div>
       )}
