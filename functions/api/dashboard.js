@@ -9,12 +9,12 @@ const FULL_REFRESH_AGE = 3600;   // 1h — triggers full refresh
 const STALE_AGE = 3300;          // 55min — proactive background refresh
 const RETRY_INTERVAL = 600;      // 10min — retry failed sources
 
-// ── Source fetchers (sequential, generous timeouts) ─────────────────────
+// ── Source fetchers (parallel, tight timeouts for Workers limits) ────────
 
 const SOURCE_FETCHERS = {
-  weather:   () => fetchWeatherData({ timeout: 20000, retries: 2 }),
-  snow:      () => fetchSnowData({ timeout: 8000 }),
-  avalanche: () => fetchAvalancheData({ timeout: 10000, retries: 2 }),
+  weather:   () => fetchWeatherData({ timeout: 8000, retries: 1 }),
+  snow:      () => fetchSnowData({ timeout: 6000 }),
+  avalanche: () => fetchAvalancheData({ timeout: 6000, retries: 1 }),
 };
 
 async function fetchSource(name) {
@@ -27,14 +27,12 @@ async function fetchSource(name) {
   }
 }
 
-// ── Full refresh: fetch all 3 sources sequentially ──────────────────────
+// ── Full refresh: fetch all 3 sources in parallel ───────────────────────
 
 async function fullRefresh(env) {
-  const results = {};
-  // Sequential: weather → snow → avalanche
-  for (const name of ["weather", "snow", "avalanche"]) {
-    results[name] = await fetchSource(name);
-  }
+  const names = ["weather", "snow", "avalanche"];
+  const settled = await Promise.all(names.map(name => fetchSource(name)));
+  const results = Object.fromEntries(names.map((n, i) => [n, settled[i]]));
 
   const complete = Object.values(results).every(r => r.ok);
 
@@ -68,15 +66,15 @@ async function retryFailed(env, cached) {
 
   let changed = false;
 
-  // Sequential retry of failed sources only
-  for (const name of failedNames) {
-    const result = await fetchSource(name);
-    if (result.ok) {
-      cached[name] = result.data;
-      cached.sources[name] = { ok: true, fetchedAt: result.fetchedAt, error: null };
+  // Parallel retry of failed sources
+  const retries = await Promise.all(failedNames.map(name => fetchSource(name)));
+  failedNames.forEach((name, i) => {
+    if (retries[i].ok) {
+      cached[name] = retries[i].data;
+      cached.sources[name] = { ok: true, fetchedAt: retries[i].fetchedAt, error: null };
       changed = true;
     }
-  }
+  });
 
   cached.complete = Object.values(cached.sources).every(s => s.ok);
   cached.nextRetryAfter = cached.complete
