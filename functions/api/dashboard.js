@@ -18,20 +18,16 @@ const SOURCES = {
 // Cold-start uses shorter timeouts so the synchronous path stays under
 // the frontend's 15 s timeout budget.
 
-function makeFetcher(name, cached, { coldStart = false } = {}) {
-  const wTimeout = coldStart ? 8000  : 12000;
-  const sTimeout = coldStart ? 4000  : 6000;
-  const aTimeout = coldStart ? 4000  : 6000;
-  const retries  = coldStart ? 0     : 1;
-
+function makeFetcher(name, cached, opts = {}) {
+  const cold = opts.coldStart;
   switch (name) {
-    case "weather":   return fetchWeatherData({ timeout: wTimeout, retries });
-    case "snow":      return fetchSnowData({ timeout: sTimeout, cachedStations: cached?.data?.stations || {} });
-    case "avalanche": return fetchAvalancheData({ timeout: aTimeout, retries });
+    case "weather":   return fetchWeatherData({ timeout: cold ? 8000 : 12000, retries: cold ? 0 : 1 });
+    case "snow":      return fetchSnowData({ timeout: cold ? 4000 : 6000, cachedStations: cached?.data?.stations || {} });
+    case "avalanche": return fetchAvalancheData({ timeout: cold ? 4000 : 6000, retries: cold ? 0 : 1 });
   }
 }
 
-async function refreshSource(env, name, cached, opts) {
+async function refreshSource(env, name, cached, opts = {}) {
   const cfg = SOURCES[name];
   const t0 = Date.now();
   try {
@@ -118,9 +114,7 @@ export async function onRequestGet(context) {
   // 3a. Cold start: fetch truly-missing sources synchronously
   //     Use shorter timeouts so the total stays under the frontend's 15 s budget.
   if (missing.length > 0) {
-    const fetched = await Promise.all(
-      missing.map(n => refreshSource(env, n, null, { coldStart: true })),
-    );
+    const fetched = await Promise.all(missing.map(n => refreshSource(env, n, null, { coldStart: true })));
     missing.forEach((n, i) => { sources[n] = fetched[i]; });
   }
 
