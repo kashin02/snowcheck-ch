@@ -24,13 +24,13 @@ export async function onRequestGet(context) {
   try {
     const cached = await env.CACHE_KV.get(cacheKey, "json");
     if (cached) {
-      return Response.json(cached, { headers: { "X-Cache": "HIT", "Access-Control-Allow-Origin": "*" } });
+      return Response.json(cached, { headers: { "X-Cache": "HIT", "Access-Control-Allow-Origin": "https://snowcheck.ch" } });
     }
   } catch {
     // KV not available
   }
 
-  const response = await fetch("https://aws.slf.ch/api/bulletin/caaml/fr/json");
+  const response = await fetch("https://aws.slf.ch/api/bulletin/caaml/fr/json", { signal: AbortSignal.timeout(10000) });
   if (!response.ok) {
     return Response.json({ error: "SLF API error" }, { status: 502 });
   }
@@ -88,5 +88,5 @@ export async function onRequestGet(context) {
     // KV not available
   }
 
-  return Response.json(result, { headers: { "X-Cache": "MISS", "Access-Control-Allow-Origin": "*" } });
+  return Response.json(result, { headers: { "X-Cache": "MISS", "Access-Control-Allow-Origin": "https://snowcheck.ch" } });
 }

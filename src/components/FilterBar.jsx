@@ -10,7 +10,7 @@ export default function FilterBar({ region, setRegion, search, setSearch, filter
           <span style={{ fontSize: 9, color: "#94a3b8", fontWeight: 700 }}>Comment lire :</span>
           <span style={{ fontSize: 9, color: "#64748b" }}><b style={{ color: "#059669", fontSize: 11 }}>58</b>/100 km = km de pistes ouvertes</span>
           <span style={{ fontSize: 9, color: "#64748b" }}>{"\u2600"} 3h = heures de soleil</span>
-          <span style={{ fontSize: 9, color: "#64748b" }}>{"\u2744"} 45cm = neige fra&icirc;che attendue</span>
+          <span style={{ fontSize: 9, color: "#64748b" }}>{"\u2744"} 45cm = neige fra{"\u00EE"}che attendue</span>
           <span style={{ fontSize: 9, color: "#64748b" }}>{"\uD83D\uDCA8"} 80 = vent en km/h</span>
         </div>
         <div style={{ display: "flex", alignItems: "center", gap: 6, overflowX: "auto", WebkitOverflowScrolling: "touch" }}>

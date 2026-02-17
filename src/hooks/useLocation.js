@@ -137,7 +137,7 @@ export default function useLocation(stations) {
         stations.forEach((s, i) => {
           const duration = data.durations?.[0]?.[i + 1];
           const distance = data.distances?.[0]?.[i + 1];
-          if (duration != null && duration !== null) {
+          if (duration != null) {
             times[s.id] = {
               durationMin: Math.round(duration / 60),
               distanceKm: Math.round(distance / 1000),
@@ -145,7 +145,9 @@ export default function useLocation(stations) {
           }
         });
         setTravelTimes(times);
-        writeRoutingCache(npa, times);
+        if (Object.keys(times).length > 0) {
+          writeRoutingCache(npa, times);
+        }
       })
       .catch(err => {
         if (err.name !== "AbortError") setTravelTimes(null);

@@ -13,6 +13,7 @@ const VERDICT_BG = {
 };
 
 export default function ForecastRow({ forecast, sun5, targetDayIndex, selectedDay, onDayClick }) {
+  if (!forecast || !sun5) return null;
   // After 14h, skip today and start from tomorrow — always show up to 5 days
   const displayed = forecast.slice(targetDayIndex, targetDayIndex + 5);
   const displayedSun = sun5.slice(targetDayIndex, targetDayIndex + 5);

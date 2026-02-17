@@ -1,4 +1,12 @@
-export default function Footer() {
+export default function Footer({ lastUpdate }) {
+  const formatDate = (iso) => {
+    if (!iso) return null;
+    const d = new Date(iso);
+    return `${d.toLocaleDateString("fr-CH")} ${d.toLocaleTimeString("fr-CH", { hour: "2-digit", minute: "2-digit" })}`;
+  };
+
+  const formatted = formatDate(lastUpdate);
+
   return (
     <footer style={{ borderTop: "1px solid #e2e8f0", padding: "14px 24px", background: "#fff" }}>
       <div style={{ maxWidth: 1100, margin: "0 auto", display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: 10 }}>
@@ -7,8 +15,15 @@ export default function Footer() {
           <span style={{ fontSize: 9, color: "#94a3b8", marginLeft: 10 }}>Sources : Open-Meteo / MeteoSwiss &middot; WSL/SLF &middot; bergfex &mdash; Non affili&eacute; &agrave; Magic Pass</span>
         </div>
         <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
-          <span style={{ width: 6, height: 6, borderRadius: "50%", background: "#22c55e" }} />
-          <span style={{ fontSize: 9, color: "#94a3b8" }}>Donn&eacute;es &agrave; jour &middot; 14.02.2026 10:15</span>
+          {formatted && (
+            <>
+              <span style={{ width: 6, height: 6, borderRadius: "50%", background: "#22c55e" }} />
+              <span style={{ fontSize: 9, color: "#94a3b8" }}>Donn&eacute;es &agrave; jour &middot; {formatted}</span>
+            </>
+          )}
+          {!formatted && (
+            <span style={{ fontSize: 9, color: "#94a3b8" }}>Chargement des donn&eacute;es...</span>
+          )}
         </div>
       </div>
     </footer>

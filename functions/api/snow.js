@@ -15,7 +15,7 @@ export async function onRequestGet(context) {
   try {
     const cached = await env.CACHE_KV.get(cacheKey, "json");
     if (cached) {
-      return Response.json(cached, { headers: { "X-Cache": "HIT", "Access-Control-Allow-Origin": "*" } });
+      return Response.json(cached, { headers: { "X-Cache": "HIT", "Access-Control-Allow-Origin": "https://snowcheck.ch" } });
     }
   } catch {
     // KV not available
@@ -32,7 +32,7 @@ export async function onRequestGet(context) {
   const fetches = IMIS_CODES.map(async (code) => {
     try {
       const url = `https://measurement-api.slf.ch/public/api/imis/station/${code}/measurements?from=${from}&to=${to}`;
-      const res = await fetch(url);
+      const res = await fetch(url, { signal: AbortSignal.timeout(8000) });
       if (!res.ok) return;
 
       const measurements = await res.json();
@@ -70,5 +70,5 @@ export async function onRequestGet(context) {
     // KV not available
   }
 
-  return Response.json(result, { headers: { "X-Cache": "MISS", "Access-Control-Allow-Origin": "*" } });
+  return Response.json(result, { headers: { "X-Cache": "MISS", "Access-Control-Allow-Origin": "https://snowcheck.ch" } });
 }

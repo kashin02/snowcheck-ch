@@ -1,5 +1,11 @@
 const CACHE_TTL = 86400; // 24 hours — routes don't change
 
+async function hashKey(str) {
+  const encoded = new TextEncoder().encode(str);
+  const hash = await crypto.subtle.digest("SHA-256", encoded);
+  return Array.from(new Uint8Array(hash)).map(b => b.toString(16).padStart(2, "0")).join("").slice(0, 32);
+}
+
 export async function onRequestGet(context) {
   const { env } = context;
   const url = new URL(context.request.url);
@@ -9,14 +15,24 @@ export async function onRequestGet(context) {
     return Response.json({ error: "Missing coords parameter" }, { status: 400 });
   }
 
+  // Validate coords format: must be semicolon-separated lon,lat pairs with only valid characters
+  if (!/^[\d.,;\s-]+$/.test(coords)) {
+    return Response.json({ error: "Invalid coords format" }, { status: 400 });
+  }
+  // Cap the number of coordinate pairs to prevent abuse
+  const pairCount = coords.split(";").length;
+  if (pairCount > 100) {
+    return Response.json({ error: "Too many coordinates (max 100)" }, { status: 400 });
+  }
+
   // Cache key based on coords (same NPA → same result)
-  const cacheKey = `routing:${coords.slice(0, 30)}`;
+  const cacheKey = `routing:${await hashKey(coords)}`;
 
   try {
     const cached = await env.CACHE_KV.get(cacheKey, "json");
     if (cached) {
       return Response.json(cached, {
-        headers: { "X-Cache": "HIT", "Access-Control-Allow-Origin": "*" },
+        headers: { "X-Cache": "HIT", "Access-Control-Allow-Origin": "https://snowcheck.ch" },
       });
     }
   } catch {
@@ -28,6 +44,7 @@ export async function onRequestGet(context) {
 
   const res = await fetch(osrmUrl, {
     headers: { "User-Agent": "snowcheck-ch/1.0" },
+    signal: AbortSignal.timeout(10000),
   });
 
   if (!res.ok) {
@@ -55,7 +72,7 @@ export async function onRequestGet(context) {
   return Response.json(result, {
     headers: {
       "X-Cache": "MISS",
-      "Access-Control-Allow-Origin": "*",
+      "Access-Control-Allow-Origin": "https://snowcheck.ch",
       "Cache-Control": "public, max-age=86400",
     },
   });

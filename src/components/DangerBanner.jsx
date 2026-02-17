@@ -3,32 +3,19 @@ import { useState } from "react";
 const DANGER_LABELS = { 1: "Faible", 2: "Limit\u00E9", 3: "Marqu\u00E9", 4: "Fort", 5: "Tr\u00E8s fort" };
 const DANGER_ICONS = { 1: "\u2705", 2: "\u26A0\uFE0F", 3: "\u26A0\uFE0F", 4: "\u{1F6A8}", 5: "\u{1F6A8}" };
 
-// Fallback static dangers (used when API is not available)
-const staticDangers = [
-  { type: "Avalanches", level: 4, icon: "\u26A0\uFE0F", zone: "Alpes >2000m", detail: "Danger FORT (4/5) \u00B7 Lun 16\u2013Mer 18" },
-  { type: "Neige", level: 3, icon: "\u2744\uFE0F", zone: "Alpes occ. >1500m", detail: "30\u201360cm en 24h \u00B7 Lun 16\u2013Mar 17" },
-  { type: "Vent", level: 3, icon: "\uD83D\uDCA8", zone: "Cr\u00EAtes alpines", detail: "Rafales 80\u2013120 km/h \u00B7 Lun 16" },
-  { type: "Neige", level: 2, icon: "\u2744\uFE0F", zone: "Jura >1000m", detail: "15\u201325cm \u00B7 Lun 16\u2013Mar 17" },
-  { type: "Verglas", level: 2, icon: "\uD83E\uDDCA", zone: "Plateau 400\u2013800m", detail: "Pluie vergla\u00E7ante \u00B7 Lun 16 matin" },
-  { type: "Vent", level: 2, icon: "\uD83D\uDCA8", zone: "Plateau & L\u00E9man", detail: "Rafales 60\u201380 km/h \u00B7 Lun 16" },
-];
-
 export default function DangerBanner({ avalancheData }) {
   const [open, setOpen] = useState(false);
 
-  // Build dangers from live API data or fallback to static
-  let dangers;
-  if (avalancheData && avalancheData.summary) {
-    dangers = avalancheData.summary.map(s => ({
-      type: "Avalanches",
-      level: s.level,
-      icon: DANGER_ICONS[s.level] || "\u26A0\uFE0F",
-      zone: `${s.count} r\u00E9gions`,
-      detail: `Danger ${DANGER_LABELS[s.level] || s.level} (${s.level}/5)`,
-    }));
-  } else {
-    dangers = staticDangers;
-  }
+  // Only show banner when live API data is available
+  if (!avalancheData || !avalancheData.summary) return null;
+
+  const dangers = avalancheData.summary.map(s => ({
+    type: "Avalanches",
+    level: s.level,
+    icon: DANGER_ICONS[s.level] || "\u26A0\uFE0F",
+    zone: `${s.count} r\u00E9gions`,
+    detail: `Danger ${DANGER_LABELS[s.level] || s.level} (${s.level}/5)`,
+  }));
 
   if (dangers.length === 0) return null;
 

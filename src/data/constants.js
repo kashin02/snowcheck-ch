@@ -6,11 +6,3 @@ export const verdictConfig = {
   ok: { label: "Correct", color: "#d97706", bg: "#fffbeb", border: "#fde68a", emoji: "\u{1F7E1}" },
   bad: { label: "Difficile", color: "#dc2626", bg: "#fef2f2", border: "#fecaca", emoji: "\u{1F534}" },
 };
-
-export const DANGER_LEVELS = {
-  low: 1,
-  moderate: 2,
-  considerable: 3,
-  high: 4,
-  very_high: 5,
-};

@@ -192,7 +192,7 @@ export default function useDashboardData() {
   const avalanche = useAvalancheData();
   const snow = useSnowMeasurements();
 
-  const isLoading = weather.loading && avalanche.loading && snow.loading;
+  const isLoading = weather.loading || avalanche.loading || snow.loading;
   const hasAnyData = weather.data || avalanche.data || snow.data;
   const allFailed = weather.error && avalanche.error && snow.error && !hasAnyData;
 

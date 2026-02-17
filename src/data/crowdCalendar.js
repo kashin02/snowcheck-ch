@@ -63,7 +63,10 @@ function isInRange(dateStr, ranges) {
  * @returns {number} crowd score 0-15
  */
 export function computeCalendarCrowdScore(date) {
-  const dateStr = date.toISOString().slice(0, 10);
+  const y = date.getFullYear();
+  const m = String(date.getMonth() + 1).padStart(2, "0");
+  const d = String(date.getDate()).padStart(2, "0");
+  const dateStr = `${y}-${m}-${d}`;
   const dayOfWeek = date.getDay(); // 0=Sun, 6=Sat
   const isWeekend = dayOfWeek === 0 || dayOfWeek === 6;
 
@@ -78,15 +81,6 @@ export function computeCalendarCrowdScore(date) {
   if (isWeekend) score += 5;
   // Friday afternoon effect
   if (dayOfWeek === 5) score += 2;
-
-  // School holidays — each country in holiday adds pressure
-  const allHolidays = [
-    ...SCHOOL_HOLIDAYS_2025_2026.CH,
-    ...SCHOOL_HOLIDAYS_2025_2026.FR_A,
-    ...SCHOOL_HOLIDAYS_2025_2026.FR_B,
-    ...SCHOOL_HOLIDAYS_2025_2026.DE,
-    ...SCHOOL_HOLIDAYS_2025_2026.BE,
-  ];
 
   // Count how many country-holiday-ranges the date falls into
   let holidayCountries = 0;

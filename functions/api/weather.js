@@ -111,7 +111,7 @@ export async function onRequestGet(context) {
   try {
     const cached = await env.CACHE_KV.get(cacheKey, "json");
     if (cached) {
-      return Response.json(cached, { headers: { "X-Cache": "HIT", "Access-Control-Allow-Origin": "*" } });
+      return Response.json(cached, { headers: { "X-Cache": "HIT", "Access-Control-Allow-Origin": "https://snowcheck.ch" } });
     }
   } catch {
     // KV not available (local dev without KV), continue
@@ -121,9 +121,9 @@ export async function onRequestGet(context) {
   const lats = stationCoords.map(s => s.lat).join(",");
   const lons = stationCoords.map(s => s.lon).join(",");
 
-  const url = `https://api.open-meteo.com/v1/forecast?latitude=${lats}&longitude=${lons}&daily=snowfall_sum,sunshine_duration,temperature_2m_max,temperature_2m_min,wind_speed_10m_max,cloud_cover_mean&hourly=snow_depth,visibility,cloud_cover_low,cloud_cover_mid,direct_normal_irradiance&forecast_days=6&timezone=Europe/Zurich`;
+  const url = `https://api.open-meteo.com/v1/forecast?latitude=${lats}&longitude=${lons}&daily=snowfall_sum,sunshine_duration,temperature_2m_max,temperature_2m_min,wind_speed_10m_max,cloud_cover_mean&hourly=visibility,cloud_cover_low,cloud_cover_mid,direct_normal_irradiance&forecast_days=6&timezone=Europe/Zurich`;
 
-  const response = await fetch(url);
+  const response = await fetch(url, { signal: AbortSignal.timeout(15000) });
   if (!response.ok) {
     return Response.json({ error: "Open-Meteo API error" }, { status: 502 });
   }
@@ -135,20 +135,9 @@ export async function onRequestGet(context) {
 
   const data = {};
 
-  // After 14h Swiss time, show tomorrow's conditions
-  const nowCH = new Date(new Date().toLocaleString("en-US", { timeZone: "Europe/Zurich" }));
-  const targetDayIndex = nowCH.getHours() >= 14 ? 1 : 0;
-  const targetDayLabel = targetDayIndex === 0 ? "Aujourd'hui" : "Demain";
-
   stationCoords.forEach((station, idx) => {
     const r = results[idx];
     if (!r || !r.daily) return;
-
-    // Get current snow depth from latest hourly reading
-    const snowDepths = r.hourly?.snow_depth || [];
-    const currentSnowDepth = snowDepths.length > 0
-      ? Math.round((snowDepths.filter(v => v !== null).pop() || 0) * 100) // meters to cm
-      : null;
 
     // Compute jour blanc (whiteout) hours per day from hourly data
     const hourlyTimes = r.hourly?.time || [];
@@ -197,9 +186,6 @@ export async function onRequestGet(context) {
 
     data[station.id] = {
       updatedAt: new Date().toISOString(),
-      currentSnowDepth,
-      targetDayIndex,
-      targetDayLabel,
       forecast,
     };
   });
@@ -213,5 +199,5 @@ export async function onRequestGet(context) {
     // KV not available
   }
 
-  return Response.json(result, { headers: { "X-Cache": "MISS", "Access-Control-Allow-Origin": "*" } });
+  return Response.json(result, { headers: { "X-Cache": "MISS", "Access-Control-Allow-Origin": "https://snowcheck.ch" } });
 }
