@@ -48,7 +48,31 @@ export default function LocationInput({ npa, npaName, setNpa, loading }) {
     setOpen(false);
   }
 
+  // Submit: select focused suggestion, or auto-select first/exact match
+  function handleSubmit() {
+    if (focusIdx >= 0 && suggestions[focusIdx]) {
+      handleSelect(suggestions[focusIdx]);
+      return;
+    }
+    if (suggestions.length > 0) {
+      // Prefer exact NPA code match, otherwise pick first result
+      const exact = suggestions.find(e => e[0] === query.trim());
+      handleSelect(exact || suggestions[0]);
+      return;
+    }
+    // Try a fresh search in case suggestions aren't populated yet
+    const results = searchNpa(query.trim(), 1);
+    if (results.length > 0) {
+      handleSelect(results[0]);
+    }
+  }
+
   function handleKeyDown(e) {
+    if (e.key === "Enter") {
+      e.preventDefault();
+      handleSubmit();
+      return;
+    }
     if (!open || suggestions.length === 0) return;
     if (e.key === "ArrowDown") {
       e.preventDefault();
@@ -56,9 +80,6 @@ export default function LocationInput({ npa, npaName, setNpa, loading }) {
     } else if (e.key === "ArrowUp") {
       e.preventDefault();
       setFocusIdx(i => Math.max(i - 1, 0));
-    } else if (e.key === "Enter" && focusIdx >= 0) {
-      e.preventDefault();
-      handleSelect(suggestions[focusIdx]);
     } else if (e.key === "Escape") {
       setOpen(false);
     }
@@ -74,6 +95,9 @@ export default function LocationInput({ npa, npaName, setNpa, loading }) {
     document.addEventListener("mousedown", onClickOutside);
     return () => document.removeEventListener("mousedown", onClickOutside);
   }, []);
+
+  // Show the Go button when user has typed something but hasn't selected yet
+  const showGoBtn = query.length >= 2 && !npa;
 
   return (
     <div ref={wrapRef} style={{ position: "relative", flex: "0 0 auto" }}>
@@ -100,6 +124,19 @@ export default function LocationInput({ npa, npaName, setNpa, loading }) {
             fontFamily: "var(--font-body)", width: 130,
           }}
         />
+        {showGoBtn && (
+          <span
+            onClick={(e) => { e.stopPropagation(); handleSubmit(); }}
+            style={{
+              cursor: "pointer", fontSize: 10, fontWeight: 700,
+              color: "#fff", background: "#2563eb", borderRadius: 4,
+              padding: "2px 7px", lineHeight: "16px", whiteSpace: "nowrap",
+              userSelect: "none",
+            }}
+          >
+            OK
+          </span>
+        )}
         {npa && (
           <span
             onClick={handleClear}

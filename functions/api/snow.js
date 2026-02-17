@@ -24,7 +24,7 @@ export async function onRequestGet(context) {
   const fetches = IMIS_CODES.map(async (code) => {
     try {
       const url = `https://measurement-api.slf.ch/public/api/imis/station/${code}/measurements?from=${from}&to=${to}`;
-      const res = await fetch(url, { signal: AbortSignal.timeout(8000) });
+      const res = await fetch(url, { signal: AbortSignal.timeout(4000) });
       if (!res.ok) return;
 
       const measurements = await res.json();
@@ -44,6 +44,8 @@ export async function onRequestGet(context) {
         temperature: latest.TA != null ? Math.round(latest.TA * 10) / 10 : null,
         windSpeed: latest.VW != null ? Math.round(latest.VW * 10) / 10 : null,
         windDirection: latest.DW != null ? Math.round(latest.DW) : null,
+        solarRadiation: latest.ISWR != null ? Math.round(latest.ISWR) : null,
+        relativeHumidity: latest.RH != null ? Math.round(latest.RH) : null,
       };
     } catch {
       // Skip failed station
