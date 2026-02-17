@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { formatDuration } from "../utils/format";
 import { verdictConfig, scoreToVerdict } from "../data/constants";
-import { JBI_LEVELS, jbiLevel, JbiTooltip } from "./ForecastRow";
+import { JbiTooltip } from "./JbiShared";
 
 function FactorRow({ icon, label, d, positive, barGradient, activeColor, extra }) {
   if (!d) return null;
