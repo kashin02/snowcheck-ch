@@ -1,75 +1,11 @@
-import { useState } from "react";
 import { verdictConfig } from "../data/constants";
 import { DAYS_FR } from "../data/shared";
-
-export const JBI_LEVELS = [
-  { min: 9, label: "Whiteout total", color: "#7f1d1d", bg: "#fecaca", desc: "Perte d'orientation \u2014 arr\u00eater de skier" },
-  { min: 7, label: "S\u00e9v\u00e8re", color: "#dc2626", bg: "#fee2e2", desc: "Ciel/sol indistinguables \u2014 pistes en for\u00eat uniquement" },
-  { min: 5, label: "Mod\u00e9r\u00e9", color: "#d97706", bg: "#fef3c7", desc: "Horizon flou, bosses invisibles \u2014 ralentir" },
-  { min: 3, label: "L\u00e9ger", color: "#ca8a04", bg: "#fefce8", desc: "Light plat, relief diminu\u00e9 \u2014 lunettes orange" },
-  { min: 0, label: "Aucun", color: "#16a34a", bg: "#ecfdf5", desc: "Ombres nettes, bon contraste" },
-];
-
-export function jbiLevel(jbi) {
-  for (const l of JBI_LEVELS) if (jbi >= l.min) return l;
-  return JBI_LEVELS[JBI_LEVELS.length - 1];
-}
-
-export function JbiTooltip({ onClose }) {
-  return (
-    <div
-      onClick={(e) => { e.stopPropagation(); onClose(); }}
-      style={{
-        position: "absolute", bottom: "100%", left: "50%", transform: "translateX(-50%)",
-        marginBottom: 6, background: "#fff", borderRadius: 8, padding: "10px 12px",
-        border: "1px solid #e2e8f0", boxShadow: "0 4px 16px rgba(0,0,0,0.12)",
-        zIndex: 200, width: 240, cursor: "default",
-      }}
-    >
-      <div style={{ fontSize: 10, fontWeight: 700, color: "#0f172a", marginBottom: 6 }}>
-        Indice Jour Blanc (0-10)
-      </div>
-      {JBI_LEVELS.map((l) => (
-        <div key={l.min} style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 3 }}>
-          <span style={{
-            display: "inline-block", width: 8, height: 8, borderRadius: "50%",
-            background: l.color, flexShrink: 0,
-          }} />
-          <span style={{ fontSize: 9, fontWeight: 700, color: l.color, width: 30, flexShrink: 0 }}>
-            {l.min === 0 ? "0-2" : l.min === 3 ? "3-4" : l.min === 5 ? "5-6" : l.min === 7 ? "7-8" : "9-10"}
-          </span>
-          <span style={{ fontSize: 9, color: "#334155" }}>{l.desc}</span>
-        </div>
-      ))}
-    </div>
-  );
-}
-
-function JbiBadge({ jbi }) {
-  const [showTip, setShowTip] = useState(false);
-  const l = jbiLevel(jbi);
-  return (
-    <div style={{ position: "relative", marginTop: 1 }}>
-      <span
-        onClick={(e) => { e.stopPropagation(); setShowTip(v => !v); }}
-        title={`Jour blanc : ${l.label}`}
-        style={{
-          fontSize: 9, fontWeight: 700, color: l.color, background: l.bg,
-          padding: "1px 4px", borderRadius: 3, cursor: "help",
-          display: "inline-flex", alignItems: "center", gap: 2,
-        }}
-      >
-        {"\uD83C\uDF2B\uFE0F"}{jbi >= 1 ? Math.round(jbi) : "\u2014"}
-      </span>
-      {showTip && <JbiTooltip onClose={() => setShowTip(false)} />}
-    </div>
-  );
-}
+import { JbiBadge } from "./JbiShared";
 
 function CrowdDot({ crowdScore }) {
   if (crowdScore == null) return null;
   const color = crowdScore >= 12 ? "#dc2626" : crowdScore >= 8 ? "#d97706" : crowdScore >= 5 ? "#ca8a04" : "#16a34a";
-  const label = crowdScore >= 12 ? "Bondé" : crowdScore >= 8 ? "Chargé" : crowdScore >= 5 ? "Moyen" : "Calme";
+  const label = crowdScore >= 12 ? "Bond\u00e9" : crowdScore >= 8 ? "Charg\u00e9" : crowdScore >= 5 ? "Moyen" : "Calme";
   return (
     <div style={{ fontSize: 9, fontWeight: 600, color, marginTop: 1 }}>
       {"\uD83D\uDC65"} {label}
@@ -88,7 +24,7 @@ export default function ForecastRow({ forecast, sun5, targetDayIndex, selectedDa
     return (
       <div style={{ flex: 1, minWidth: 0, overflowX: "auto" }}>
         <div style={{ fontSize: 8, fontWeight: 700, color: "#94a3b8", textTransform: "uppercase", letterSpacing: "0.5px", marginBottom: 5 }}>
-          {"Pr\u00E9visions 5 jours"}
+          {"Pr\u00e9visions 5 jours"}
         </div>
         <div style={{ display: "flex", gap: 2, minWidth: "fit-content" }}>
           {displayed.map((sunH, fi) => {
@@ -108,7 +44,7 @@ export default function ForecastRow({ forecast, sun5, targetDayIndex, selectedDa
         </div>
         <div style={{ fontSize: 9, color: "#94a3b8", marginTop: 4 }}>
           {"Total : "}<b style={{ color: totalSun >= 8 ? "#b45309" : "#64748b" }}>{"\u2600"} {totalSun}h</b>
-          <span style={{ marginLeft: 8, fontSize: 9, color: "#d97706", fontStyle: "italic" }}>{"\u26A0\uFE0F Pr\u00E9visions d\u00E9taill\u00E9es momentan\u00E9ment indisponibles"}</span>
+          <span style={{ marginLeft: 8, fontSize: 9, color: "#d97706", fontStyle: "italic" }}>{"\u26A0\uFE0F Pr\u00e9visions d\u00e9taill\u00e9es momentan\u00e9ment indisponibles"}</span>
         </div>
       </div>
     );
@@ -134,7 +70,7 @@ export default function ForecastRow({ forecast, sun5, targetDayIndex, selectedDa
   return (
     <div style={{ flex: 1, minWidth: 0, overflowX: "auto" }}>
       <div style={{ fontSize: 8, fontWeight: 700, color: "#94a3b8", textTransform: "uppercase", letterSpacing: "0.5px", marginBottom: 5 }}>
-        {"Pr\u00E9visions 5 jours"}
+        {"Pr\u00e9visions 5 jours"}
       </div>
       <div style={{ display: "flex", gap: 2, minWidth: "fit-content" }}>
         {displayed.map((f, fi) => {
@@ -173,7 +109,7 @@ export default function ForecastRow({ forecast, sun5, targetDayIndex, selectedDa
       </div>
       <div style={{ fontSize: 9, color: "#94a3b8", marginTop: 4 }}>
         {"Total : "}<b style={{ color: totalSun >= 8 ? "#b45309" : "#64748b" }}>{"\u2600"} {totalSun}h</b>
-        {totalSnow > 0 && <span style={{ marginLeft: 8, fontWeight: 600, color: totalSnow >= 30 ? "#059669" : "#64748b" }}>{"\u2744"} +{totalSnow}{"cm cumul\u00E9s"}</span>}
+        {totalSnow > 0 && <span style={{ marginLeft: 8, fontWeight: 600, color: totalSnow >= 30 ? "#059669" : "#64748b" }}>{"\u2744"} +{totalSnow}{"cm cumul\u00e9s"}</span>}
       </div>
     </div>
   );
