@@ -95,7 +95,7 @@ function computeHourlyJBI(params) {
 
 // ── Process one station result into forecast data ───────────────────────
 
-function processStation(r, station) {
+function processStation(r) {
   if (!r || !r.daily) return null;
 
   const stationElev = r.elevation ?? null;
@@ -199,7 +199,7 @@ export async function fetchWeatherData({ timeout = 20000, retries = 2 } = {}) {
   const data = {};
 
   stationCoords.forEach((station, idx) => {
-    const processed = processStation(allResults[idx], station);
+    const processed = processStation(allResults[idx]);
     if (processed) data[station.id] = processed;
   });
 
