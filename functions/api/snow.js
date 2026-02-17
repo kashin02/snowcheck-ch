@@ -44,6 +44,8 @@ export async function onRequestGet(context) {
         temperature: latest.TA != null ? Math.round(latest.TA * 10) / 10 : null,
         windSpeed: latest.VW != null ? Math.round(latest.VW * 10) / 10 : null,
         windDirection: latest.DW != null ? Math.round(latest.DW) : null,
+        solarRadiation: latest.ISWR != null ? Math.round(latest.ISWR) : null,
+        relativeHumidity: latest.RH != null ? Math.round(latest.RH) : null,
       };
     } catch {
       // Skip failed station

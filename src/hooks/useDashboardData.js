@@ -31,7 +31,7 @@ const scoreSun    = thresholdScore([[8, 35], [6, 28], [4, 20], [2, 12], [1, 5]])
 const scoreFresh  = thresholdScore([[50, 30], [30, 24], [15, 18], [5, 10], [1, 4]]); // max +30
 const scoreDepth  = thresholdScore([[150, 20], [100, 16], [60, 12], [30, 6]]);       // max +20
 const scorePistes = thresholdScore([[100, 15], [60, 12], [30, 8], [15, 4]], 1);      // max +15
-const penaltyJB   = thresholdScore([[6, -30], [4, -22], [2, -12], [1, -5]]);         // max −30
+const penaltyJB   = thresholdScore([[7, -30], [5, -22], [3, -12], [1, -5]]);         // max −30 (JBI 0-10)
 const penaltyWind = thresholdScore([[80, -20], [60, -15], [40, -8], [25, -3]]);      // max −20
 
 // ── Score a single day ──────────────────────────────────────────────────
@@ -43,7 +43,7 @@ function scoreForDay(station, snowData, dayForecast, dateStr, fallbackSun) {
 
   const sunHours = dayForecast?.sunshineHours ?? (fallbackSun || 0);
   const windMax = dayForecast?.windMax ?? 0;
-  const jourBlancH = dayForecast?.jourBlancHours ?? 0;
+  const jourBlancIdx = dayForecast?.jourBlancIndex ?? 0;
   const targetDate = dateStr ? new Date(dateStr + "T12:00:00") : new Date();
   const crowdScore = computeCalendarCrowdScore(targetDate);
 
@@ -51,7 +51,7 @@ function scoreForDay(station, snowData, dayForecast, dateStr, fallbackSun) {
   const freshPts = scoreFresh(fresh72);
   const depthPts = scoreDepth(depth);
   const pistesPts = scorePistes(pistesOpen);
-  const jbPts = penaltyJB(jourBlancH);
+  const jbPts = penaltyJB(jourBlancIdx);
   const windPts = penaltyWind(windMax);
   const crowdPts = -crowdScore;
 
@@ -66,7 +66,7 @@ function scoreForDay(station, snowData, dayForecast, dateStr, fallbackSun) {
       fresh: { pts: freshPts, max: 30, value: fresh72, unit: "cm" },
       depth: { pts: depthPts, max: 20, value: depth, unit: "cm" },
       pistes: { pts: pistesPts, max: 15, value: pistesOpen, unit: "km" },
-      jourBlanc: { pts: jbPts, min: -30, value: jourBlancH, unit: "h" },
+      jourBlanc: { pts: jbPts, min: -30, value: jourBlancIdx, unit: "/10" },
       wind: { pts: windPts, min: -20, value: windMax, unit: "km/h" },
       crowd: { pts: crowdPts, min: -15, value: crowdScore, unit: "/15" },
     },
@@ -110,6 +110,7 @@ export default function useDashboardData() {
             wind: day.windMax || 0,
             accent: (day.snowfallSum || 0) >= 30 || (day.windMax || 0) >= 60,
             sunH: Math.round(day.sunshineHours || 0),
+            jbi: day.jourBlancIndex || 0,
             dayScore: result.score,
             dayVerdict: result.verdict,
           };
