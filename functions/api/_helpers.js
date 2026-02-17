@@ -43,9 +43,13 @@ export async function fetchRetry(url, { timeout = 5000, retries = 2 } = {}) {
   for (let i = 0; i <= retries; i++) {
     if (i > 0) await new Promise(r => setTimeout(r, delays[i] || 1000));
     try {
-      const res = await fetch(url, { signal: AbortSignal.timeout(timeout) });
+      const res = await fetch(url, {
+        signal: AbortSignal.timeout(timeout),
+        headers: { "User-Agent": "snowcheck.ch/1.0" },
+      });
       if (res.ok) return res;
-      lastErr = new Error(`HTTP ${res.status}`);
+      const body = await res.text().catch(() => "");
+      lastErr = new Error(`HTTP ${res.status}: ${body.slice(0, 200)}`);
     } catch (e) {
       lastErr = e;
     }
