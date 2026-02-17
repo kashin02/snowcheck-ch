@@ -12,7 +12,7 @@ const RETRY_INTERVAL = 600;      // 10min — retry failed sources
 // ── Source fetchers (parallel, tight timeouts for Workers limits) ────────
 
 const SOURCE_FETCHERS = {
-  weather:   () => fetchWeatherData({ timeout: 8000, retries: 1 }),
+  weather:   () => fetchWeatherData({ timeout: 12000, retries: 1 }),
   snow:      () => fetchSnowData({ timeout: 6000 }),
   avalanche: () => fetchAvalancheData({ timeout: 6000, retries: 1 }),
 };
