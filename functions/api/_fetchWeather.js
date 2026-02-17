@@ -166,9 +166,10 @@ function processStation(r) {
   return { forecast };
 }
 
-// ── Main fetch — batched to avoid huge single requests ──────────────────
+// ── Main fetch — batched with concurrency limit ─────────────────────────
 
-const BATCH_SIZE = 30;
+const BATCH_SIZE = 15;      // stations per Open-Meteo request
+const CONCURRENCY = 2;      // max parallel requests (gentle on shared IPs)
 
 const hourlyParams = [
   "visibility", "cloud_cover", "cloud_cover_low", "cloud_cover_mid", "cloud_cover_high",
@@ -177,31 +178,57 @@ const hourlyParams = [
 ].join(",");
 const dailyParams = "snowfall_sum,sunshine_duration,temperature_2m_max,temperature_2m_min,wind_speed_10m_max,cloud_cover_mean";
 
+async function fetchBatch(batch, { timeout, retries }) {
+  const lats = batch.map(s => s.lat).join(",");
+  const lons = batch.map(s => s.lon).join(",");
+  const url = `https://api.open-meteo.com/v1/forecast?latitude=${lats}&longitude=${lons}&daily=${dailyParams}&hourly=${hourlyParams}&forecast_days=6&timezone=Europe/Zurich`;
+  const response = await fetchRetry(url, { timeout, retries });
+  const raw = await response.json();
+  return Array.isArray(raw) ? raw : [raw];
+}
+
 export async function fetchWeatherData({ timeout = 20000, retries = 2 } = {}) {
-  // Split stations into batches of BATCH_SIZE
+  // Split stations into batches
   const batches = [];
   for (let i = 0; i < stationCoords.length; i += BATCH_SIZE) {
-    batches.push(stationCoords.slice(i, i + BATCH_SIZE));
+    batches.push({ start: i, stations: stationCoords.slice(i, i + BATCH_SIZE) });
   }
 
-  // Fetch all batches in parallel
-  const batchResponses = await Promise.all(batches.map(async (batch) => {
-    const lats = batch.map(s => s.lat).join(",");
-    const lons = batch.map(s => s.lon).join(",");
-    const url = `https://api.open-meteo.com/v1/forecast?latitude=${lats}&longitude=${lons}&daily=${dailyParams}&hourly=${hourlyParams}&forecast_days=6&timezone=Europe/Zurich`;
-    const response = await fetchRetry(url, { timeout, retries });
-    const raw = await response.json();
-    return Array.isArray(raw) ? raw : [raw];
-  }));
+  // Fetch with limited concurrency (CONCURRENCY batches at a time)
+  const allResults = new Array(stationCoords.length).fill(null);
+  const errors = [];
 
-  // Flatten and process all station results
-  const allResults = batchResponses.flat();
+  for (let i = 0; i < batches.length; i += CONCURRENCY) {
+    const chunk = batches.slice(i, i + CONCURRENCY);
+    const settled = await Promise.allSettled(
+      chunk.map(b => fetchBatch(b.stations, { timeout, retries }))
+    );
+
+    settled.forEach((result, ci) => {
+      const batch = chunk[ci];
+      if (result.status === "fulfilled") {
+        result.value.forEach((stationData, si) => {
+          allResults[batch.start + si] = stationData;
+        });
+      } else {
+        errors.push(`Batch ${i + ci}: ${result.reason?.message || "Unknown error"}`);
+      }
+    });
+  }
+
+  // Process all station results (partial success OK)
   const data = {};
-
   stationCoords.forEach((station, idx) => {
-    const processed = processStation(allResults[idx]);
-    if (processed) data[station.id] = processed;
+    if (allResults[idx]) {
+      const processed = processStation(allResults[idx]);
+      if (processed) data[station.id] = processed;
+    }
   });
+
+  // If zero stations succeeded, throw so dashboard marks weather as failed
+  if (Object.keys(data).length === 0) {
+    throw new Error(`All weather batches failed: ${errors.join("; ")}`);
+  }
 
   return { stations: data };
 }
