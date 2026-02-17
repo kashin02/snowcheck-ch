@@ -15,20 +15,27 @@ const SOURCES = {
 };
 
 // ── Source fetchers ─────────────────────────────────────────────────────
+// Cold-start uses shorter timeouts so the synchronous path stays under
+// the frontend's 15 s timeout budget.
 
-function makeFetcher(name, cached) {
+function makeFetcher(name, cached, { coldStart = false } = {}) {
+  const wTimeout = coldStart ? 8000  : 12000;
+  const sTimeout = coldStart ? 4000  : 6000;
+  const aTimeout = coldStart ? 4000  : 6000;
+  const retries  = coldStart ? 0     : 1;
+
   switch (name) {
-    case "weather":   return fetchWeatherData({ timeout: 12000, retries: 1 });
-    case "snow":      return fetchSnowData({ timeout: 6000, cachedStations: cached?.data?.stations || {} });
-    case "avalanche": return fetchAvalancheData({ timeout: 6000, retries: 1 });
+    case "weather":   return fetchWeatherData({ timeout: wTimeout, retries });
+    case "snow":      return fetchSnowData({ timeout: sTimeout, cachedStations: cached?.data?.stations || {} });
+    case "avalanche": return fetchAvalancheData({ timeout: aTimeout, retries });
   }
 }
 
-async function refreshSource(env, name, cached) {
+async function refreshSource(env, name, cached, opts) {
   const cfg = SOURCES[name];
   const t0 = Date.now();
   try {
-    const data = await makeFetcher(name, cached);
+    const data = await makeFetcher(name, cached, opts);
     const entry = { ok: true, fetchedAt: new Date().toISOString(), ms: Date.now() - t0, data };
     await sourcePut(env, cfg.kvKey, entry, cfg.kvTtl);
     return entry;
@@ -93,20 +100,27 @@ export async function onRequestGet(context) {
   const sources = Object.fromEntries(names.map((n, i) => [n, entries[i]]));
 
   // 2. Categorise each source
-  const missing   = [];   // no data at all → must fetch synchronously
-  const stale     = [];   // data exists but old → background refresh
-  const retryable = [];   // failed + retry interval passed → background retry
+  //    "missing"   = no KV entry at all (true cold start)
+  //    "stale"     = successful data that needs background refresh
+  //    "retryable" = failed entry whose retry interval has elapsed
+  //    Otherwise   = fresh success OR failed waiting for retry → return as-is
+  const missing   = [];
+  const stale     = [];
+  const retryable = [];
 
   for (const [name, cfg] of Object.entries(SOURCES)) {
     const entry = sources[name];
-    if (!entry || (!entry.ok && !entry.data)) { missing.push(name);   continue; }
-    if (isStale(entry, cfg))                  { stale.push(name);     continue; }
-    if (needsRetry(entry, cfg))               { retryable.push(name);           }
+    if (!entry)                              { missing.push(name);   continue; }
+    if (entry.ok && isStale(entry, cfg))     { stale.push(name);     continue; }
+    if (!entry.ok && needsRetry(entry, cfg)) { retryable.push(name);           }
   }
 
-  // 3a. Cold start: fetch missing sources synchronously
+  // 3a. Cold start: fetch truly-missing sources synchronously
+  //     Use shorter timeouts so the total stays under the frontend's 15 s budget.
   if (missing.length > 0) {
-    const fetched = await Promise.all(missing.map(n => refreshSource(env, n, null)));
+    const fetched = await Promise.all(
+      missing.map(n => refreshSource(env, n, null, { coldStart: true })),
+    );
     missing.forEach((n, i) => { sources[n] = fetched[i]; });
   }
 
