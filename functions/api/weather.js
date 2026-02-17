@@ -1,7 +1,7 @@
 import { stationCoords } from "./_stationCoords.js";
+import { cacheGet, cachePut, corsJson } from "./_helpers.js";
 
-const CACHE_TTL = 3600; // 60 minutes
-
+const CACHE_TTL = 3600;
 const DAYS_FR = ["Dim", "Lun", "Mar", "Mer", "Jeu", "Ven", "Sam"];
 
 function getWeatherIcon(snowfall, cloudCover) {
@@ -14,19 +14,9 @@ function getWeatherIcon(snowfall, cloudCover) {
 
 export async function onRequestGet(context) {
   const { env } = context;
-  const cacheKey = "weather:all";
+  const hit = await cacheGet(env, "weather:all");
+  if (hit) return hit;
 
-  // Check cache
-  try {
-    const cached = await env.CACHE_KV.get(cacheKey, "json");
-    if (cached) {
-      return Response.json(cached, { headers: { "X-Cache": "HIT", "Access-Control-Allow-Origin": "https://snowcheck.ch" } });
-    }
-  } catch {
-    // KV not available (local dev without KV), continue
-  }
-
-  // Batch request to Open-Meteo
   const lats = stationCoords.map(s => s.lat).join(",");
   const lons = stationCoords.map(s => s.lon).join(",");
 
@@ -34,14 +24,11 @@ export async function onRequestGet(context) {
 
   const response = await fetch(url, { signal: AbortSignal.timeout(15000) });
   if (!response.ok) {
-    return Response.json({ error: "Open-Meteo API error" }, { status: 502 });
+    return corsJson({ error: "Open-Meteo API error" }, 502);
   }
 
   const raw = await response.json();
-
-  // Open-Meteo returns array when multiple locations
   const results = Array.isArray(raw) ? raw : [raw];
-
   const data = {};
 
   stationCoords.forEach((station, idx) => {
@@ -55,19 +42,17 @@ export async function onRequestGet(context) {
     const hourlyCloudMid = r.hourly?.cloud_cover_mid || [];
     const hourlyDNI = r.hourly?.direct_normal_irradiance || [];
 
-    // Group hourly data by date, count whiteout hours during ski time (8h-16h)
     const jourBlancByDate = {};
     hourlyTimes.forEach((time, hi) => {
       const dateKey = time.slice(0, 10);
       const hour = parseInt(time.slice(11, 13), 10);
-      if (hour < 8 || hour >= 16) return; // only ski hours
+      if (hour < 8 || hour >= 16) return;
 
       const vis = hourlyVisibility[hi];
       const cloudLow = hourlyCloudLow[hi];
       const cloudMid = hourlyCloudMid[hi];
       const dni = hourlyDNI[hi];
 
-      // Jour blanc detection: low visibility OR dense low clouds with no direct sun
       const isJourBlanc =
         (vis != null && vis < 2000) ||
         (cloudLow > 80 && dni != null && dni < 50) ||
@@ -93,20 +78,9 @@ export async function onRequestGet(context) {
       };
     });
 
-    data[station.id] = {
-      updatedAt: new Date().toISOString(),
-      forecast,
-    };
+    data[station.id] = { updatedAt: new Date().toISOString(), forecast };
   });
 
   const result = { updatedAt: new Date().toISOString(), stations: data };
-
-  // Store in cache
-  try {
-    await env.CACHE_KV.put(cacheKey, JSON.stringify(result), { expirationTtl: CACHE_TTL });
-  } catch {
-    // KV not available
-  }
-
-  return Response.json(result, { headers: { "X-Cache": "MISS", "Access-Control-Allow-Origin": "https://snowcheck.ch" } });
+  return cachePut(env, "weather:all", result, CACHE_TTL);
 }

@@ -1,10 +1,6 @@
-export default function Header({ stationCount, lastUpdate }) {
-  const formatDate = (iso) => {
-    if (!iso) return null;
-    const d = new Date(iso);
-    return `${d.toLocaleDateString("fr-CH")} ${d.toLocaleTimeString("fr-CH", { hour: "2-digit", minute: "2-digit" })}`;
-  };
+import { formatDate } from "../utils/format";
 
+export default function Header({ stationCount, lastUpdate }) {
   return (
     <header style={{ padding: "18px 24px 14px", background: "#fff", borderBottom: "1px solid #e2e8f0" }}>
       <div style={{ maxWidth: 1100, margin: "0 auto", display: "flex", alignItems: "baseline", justifyContent: "space-between", flexWrap: "wrap", gap: 6 }}>

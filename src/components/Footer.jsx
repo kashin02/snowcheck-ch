@@ -1,10 +1,6 @@
-export default function Footer({ lastUpdate }) {
-  const formatDate = (iso) => {
-    if (!iso) return null;
-    const d = new Date(iso);
-    return `${d.toLocaleDateString("fr-CH")} ${d.toLocaleTimeString("fr-CH", { hour: "2-digit", minute: "2-digit" })}`;
-  };
+import { formatDate } from "../utils/format";
 
+export default function Footer({ lastUpdate }) {
   const formatted = formatDate(lastUpdate);
 
   return (
