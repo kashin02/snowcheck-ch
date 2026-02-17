@@ -112,7 +112,8 @@ export async function onRequestGet(context) {
   const lats = stationCoords.map(s => s.lat).join(",");
   const lons = stationCoords.map(s => s.lon).join(",");
 
-  // MeteoSwiss ICON-CH: 1-2km resolution, 5-day forecast, optimized for Swiss Alps
+  // Open-Meteo generic endpoint — supports all hourly params needed for JBI
+  // (meteoswiss endpoint lacks visibility, which is critical for JBI scoring)
   const hourlyParams = [
     "visibility", "cloud_cover", "cloud_cover_low", "cloud_cover_mid", "cloud_cover_high",
     "direct_normal_irradiance", "diffuse_radiation",
@@ -120,7 +121,7 @@ export async function onRequestGet(context) {
   ].join(",");
   const dailyParams = "snowfall_sum,sunshine_duration,temperature_2m_max,temperature_2m_min,wind_speed_10m_max,cloud_cover_mean";
 
-  const url = `https://api.open-meteo.com/v1/meteoswiss?latitude=${lats}&longitude=${lons}&daily=${dailyParams}&hourly=${hourlyParams}&forecast_days=6&timezone=Europe/Zurich`;
+  const url = `https://api.open-meteo.com/v1/forecast?latitude=${lats}&longitude=${lons}&daily=${dailyParams}&hourly=${hourlyParams}&forecast_days=6&timezone=Europe/Zurich`;
 
   let response;
   try {
