@@ -4,6 +4,7 @@ import { computeCalendarCrowdScore } from "../data/crowdCalendar";
 import useWeatherData from "./useWeatherData";
 import useAvalancheData from "./useAvalancheData";
 import useSnowMeasurements from "./useSnowMeasurements";
+import { DAYS_FR } from "../data/shared";
 
 // ── Target day: after 14h Swiss time, focus on tomorrow ────────────────
 function getSwissTargetDayIndex() {
@@ -160,8 +161,6 @@ function computeVerdict(station, weatherData, snowData, targetDayIndex = 0) {
 }
 
 // ── Forecast builder ────────────────────────────────────────────────────
-
-const DAYS_FR = ["Dim", "Lun", "Mar", "Mer", "Jeu", "Ven", "Sam"];
 
 function buildForecastForStation(station, weatherData, snowData) {
   const weather = weatherData?.stations?.[station.id];

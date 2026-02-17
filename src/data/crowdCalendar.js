@@ -84,7 +84,7 @@ export function computeCalendarCrowdScore(date) {
 
   // Count how many country-holiday-ranges the date falls into
   let holidayCountries = 0;
-  for (const [key, ranges] of Object.entries(SCHOOL_HOLIDAYS_2025_2026)) {
+  for (const [, ranges] of Object.entries(SCHOOL_HOLIDAYS_2025_2026)) {
     if (isInRange(dateStr, ranges)) holidayCountries++;
   }
 

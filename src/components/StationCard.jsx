@@ -1,16 +1,9 @@
 import { useState } from "react";
 import { verdictConfig } from "../data/constants";
+import { DAYS_FR } from "../data/shared";
+import { formatDuration } from "../utils/format";
 import ForecastRow from "./ForecastRow";
 import VerdictBreakdown from "./VerdictBreakdown";
-
-const DAY_LABELS = ["Dim", "Lun", "Mar", "Mer", "Jeu", "Ven", "Sam"];
-
-function formatDuration(min) {
-  if (min < 60) return `${min}min`;
-  const h = Math.floor(min / 60);
-  const m = min % 60;
-  return m > 0 ? `${h}h${String(m).padStart(2, "0")}` : `${h}h`;
-}
 
 export default function StationCard({ station, forecast, index }) {
   const [level, setLevel] = useState(0); // 0=compact, 1=forecast, 2=breakdown
@@ -35,7 +28,7 @@ export default function StationCard({ station, forecast, index }) {
   const activeForecast = forecast?.[activeDayIndex];
   const activeDayLabel = selectedDay === 0
     ? (station.targetDayLabel || "Aujourd'hui")
-    : activeForecast?.day || DAY_LABELS[new Date(activeForecast?.date).getDay()] || `J+${selectedDay}`;
+    : activeForecast?.day || DAYS_FR[new Date(activeForecast?.date).getDay()] || `J+${selectedDay}`;
 
   function handleDayClick(dayOffset) {
     setSelectedDay(dayOffset);

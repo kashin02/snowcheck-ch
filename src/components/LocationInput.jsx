@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from "react";
-import { searchNpa } from "../hooks/useLocation";
+import { searchNpa, loadNpaData } from "../hooks/useLocation";
 
 export default function LocationInput({ npa, npaName, setNpa, loading }) {
   const [query, setQuery] = useState(npa ? `${npa} ${npaName}` : "");
@@ -92,7 +92,7 @@ export default function LocationInput({ npa, npaName, setNpa, loading }) {
           value={query}
           onChange={handleChange}
           onKeyDown={handleKeyDown}
-          onFocus={() => { if (suggestions.length > 0) setOpen(true); }}
+          onFocus={() => { loadNpaData(); if (suggestions.length > 0) setOpen(true); }}
           placeholder="NPA ou lieu..."
           style={{
             padding: "5px 2px", fontSize: 12, color: "#334155",
