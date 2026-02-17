@@ -168,7 +168,7 @@ function processStation(r) {
 
 // ── Main fetch — batched to avoid huge single requests ──────────────────
 
-const BATCH_SIZE = 30;
+const BATCH_SIZE = 45;
 
 const hourlyParams = [
   "visibility", "cloud_cover", "cloud_cover_low", "cloud_cover_mid", "cloud_cover_high",

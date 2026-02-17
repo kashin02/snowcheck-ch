@@ -1,20 +1,8 @@
-import { cacheGet, cachePut, corsJson } from "./_helpers.js";
-import { fetchSnowData } from "./_fetchSnow.js";
-
-const CACHE_TTL = 1800;
+import { corsJson, sourceGet } from "./_helpers.js";
 
 export async function onRequestGet(context) {
-  const { env } = context;
-  const hit = await cacheGet(env, "snow:all");
-  if (hit) return hit;
-
-  let data;
-  try {
-    data = await fetchSnowData({ timeout: 4000 });
-  } catch {
-    return corsJson({ error: "SLF IMIS API error" }, 502);
-  }
-
-  const result = { updatedAt: new Date().toISOString(), ...data };
-  return cachePut(env, "snow:all", result, CACHE_TTL);
+  const cached = await sourceGet(context.env, "src:snow");
+  if (cached?.ok) return corsJson(cached.data, 200, { "X-Cache": "HIT" });
+  if (cached?.data) return corsJson(cached.data, 200, { "X-Cache": "STALE" });
+  return corsJson({ error: "No cached snow data" }, 503);
 }

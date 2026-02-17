@@ -19,6 +19,18 @@ export async function cachePut(env, key, data, ttl) {
   return corsJson(data, 200, { "X-Cache": "MISS" });
 }
 
+// ── Per-source KV helpers (used by dashboard + read-only endpoints) ──
+
+export async function sourceGet(env, key) {
+  try { return await env.CACHE_KV.get(key, "json"); }
+  catch { return null; }
+}
+
+export async function sourcePut(env, key, data, ttl) {
+  try { await env.CACHE_KV.put(key, JSON.stringify(data), { expirationTtl: ttl }); }
+  catch { /* KV unavailable */ }
+}
+
 /**
  * Fetch with retry + timeout. Retries up to `retries` times with short delays.
  * @param {string} url
