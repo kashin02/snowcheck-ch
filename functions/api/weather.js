@@ -113,7 +113,7 @@ export async function onRequestGet(context) {
   const lons = stationCoords.map(s => s.lon).join(",");
 
   // Open-Meteo generic endpoint — supports all hourly params needed for JBI
-  // (meteoswiss endpoint lacks visibility, DNI, diffuse_radiation, freezing_level_height)
+  // (meteoswiss endpoint lacks visibility, which is critical for JBI scoring)
   const hourlyParams = [
     "visibility", "cloud_cover", "cloud_cover_low", "cloud_cover_mid", "cloud_cover_high",
     "direct_normal_irradiance", "diffuse_radiation",
