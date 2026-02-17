@@ -10,6 +10,7 @@ lerna-debug.log*
 node_modules
 dist
 .wrangler
+_worker_dist
 .dev.vars
 dist-ssr
 *.local
