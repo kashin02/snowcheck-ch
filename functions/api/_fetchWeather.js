@@ -168,7 +168,8 @@ function processStation(r) {
 
 // ── Main fetch — batched with concurrency limit ─────────────────────────
 
-const BATCH_SIZE = 15;      // stations per Open-Meteo request
+
+const BATCH_SIZE = 45;      // ceil(80/45) = 2 batches (optimized from 30)
 const CONCURRENCY = 2;      // max parallel requests (gentle on shared IPs)
 
 const hourlyParams = [

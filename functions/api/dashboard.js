@@ -1,91 +1,88 @@
-import { corsJson } from "./_helpers.js";
+import { corsJson, sourceGet, sourcePut } from "./_helpers.js";
 import { fetchWeatherData } from "./_fetchWeather.js";
 import { fetchSnowData } from "./_fetchSnow.js";
 import { fetchAvalancheData } from "./_fetchAvalanche.js";
 
-const KV_KEY = "dashboard:all";
-const KV_TTL = 7200;            // 2h — generous; logic handles freshness
-const FULL_REFRESH_AGE = 3600;   // 1h — triggers full refresh
-const STALE_AGE = 3300;          // 55min — proactive background refresh
-const RETRY_INTERVAL = 600;      // 10min — retry failed sources
+// ── Per-source configuration ────────────────────────────────────────────
+//  kvTtl:         hard expiry in KV (generous — logic handles freshness)
+//  staleAge:      triggers background refresh (stale-while-revalidate)
+//  retryInterval: wait before retrying a failed source
 
-// ── Source fetchers (parallel, tight timeouts for Workers limits) ────────
-
-const SOURCE_FETCHERS = {
-  weather:   () => fetchWeatherData({ timeout: 12000, retries: 1 }),
-  snow:      () => fetchSnowData({ timeout: 6000 }),
-  avalanche: () => fetchAvalancheData({ timeout: 6000, retries: 1 }),
+const SOURCES = {
+  weather:   { kvKey: "src:weather",   kvTtl: 7200, staleAge: 3300, retryInterval: 600 },
+  snow:      { kvKey: "src:snow",      kvTtl: 3600, staleAge: 1200, retryInterval: 300 },
+  avalanche: { kvKey: "src:avalanche", kvTtl: 7200, staleAge: 3300, retryInterval: 600 },
 };
 
-async function fetchSource(name) {
+// ── Source fetchers ─────────────────────────────────────────────────────
+// Cold-start uses shorter timeouts so the synchronous path stays under
+// the frontend's 15 s timeout budget.
+
+function makeFetcher(name, cached, opts = {}) {
+  const cold = opts.coldStart;
+  switch (name) {
+    case "weather":   return fetchWeatherData({ timeout: cold ? 8000 : 12000, retries: cold ? 0 : 1 });
+    case "snow":      return fetchSnowData({ timeout: cold ? 4000 : 6000, cachedStations: cached?.data?.stations || {} });
+    case "avalanche": return fetchAvalancheData({ timeout: cold ? 4000 : 6000, retries: cold ? 0 : 1 });
+  }
+}
+
+async function refreshSource(env, name, cached, opts = {}) {
+  const cfg = SOURCES[name];
   const t0 = Date.now();
   try {
-    const data = await SOURCE_FETCHERS[name]();
-    return { ok: true, fetchedAt: new Date().toISOString(), ms: Date.now() - t0, data };
+    const data = await makeFetcher(name, cached, opts);
+    const entry = { ok: true, fetchedAt: new Date().toISOString(), ms: Date.now() - t0, data };
+    await sourcePut(env, cfg.kvKey, entry, cfg.kvTtl);
+    return entry;
   } catch (e) {
-    return { ok: false, error: e?.message || "Unknown error", ms: Date.now() - t0, data: null };
+    const entry = {
+      ok: false,
+      error: e?.message || "Unknown error",
+      fetchedAt: cached?.fetchedAt || new Date().toISOString(),
+      lastFailAt: new Date().toISOString(),
+      ms: Date.now() - t0,
+      data: cached?.data || null,
+    };
+    await sourcePut(env, cfg.kvKey, entry, cfg.kvTtl);
+    return entry;
   }
 }
 
-// ── Full refresh: fetch all 3 sources in parallel ───────────────────────
+// ── Freshness helpers ───────────────────────────────────────────────────
 
-async function fullRefresh(env) {
-  const names = ["weather", "snow", "avalanche"];
-  const settled = await Promise.all(names.map(name => fetchSource(name)));
-  const results = Object.fromEntries(names.map((n, i) => [n, settled[i]]));
+function ageSeconds(entry) {
+  if (!entry?.fetchedAt) return Infinity;
+  return (Date.now() - new Date(entry.fetchedAt).getTime()) / 1000;
+}
 
-  const complete = Object.values(results).every(r => r.ok);
+function isStale(entry, cfg) {
+  return ageSeconds(entry) >= cfg.staleAge;
+}
 
-  const dashboard = {
+function needsRetry(entry, cfg) {
+  if (!entry || entry.ok) return false;
+  if (!entry.lastFailAt) return true;
+  return (Date.now() - new Date(entry.lastFailAt).getTime()) / 1000 >= cfg.retryInterval;
+}
+
+// ── Assemble the dashboard response (same shape as before) ──────────────
+
+function assembleDashboard(sources) {
+  const complete = Object.values(sources).every(s => s?.ok);
+  return {
     fetchedAt: new Date().toISOString(),
     complete,
-    nextRetryAfter: complete ? null : new Date(Date.now() + RETRY_INTERVAL * 1000).toISOString(),
     sources: Object.fromEntries(
-      Object.entries(results).map(([k, v]) => [k, { ok: v.ok, fetchedAt: v.fetchedAt, error: v.error || null }])
+      Object.entries(sources).map(([k, v]) => [
+        k,
+        { ok: !!v?.ok, fetchedAt: v?.fetchedAt || null, error: v?.error || null },
+      ]),
     ),
-    weather: results.weather.data,
-    snow: results.snow.data,
-    avalanche: results.avalanche.data,
+    weather:   sources.weather?.data   || null,
+    snow:      sources.snow?.data      || null,
+    avalanche: sources.avalanche?.data || null,
   };
-
-  try {
-    await env.CACHE_KV.put(KV_KEY, JSON.stringify(dashboard), { expirationTtl: KV_TTL });
-  } catch { /* KV unavailable in dev */ }
-
-  return dashboard;
-}
-
-// ── Partial retry: re-fetch only failed sources, merge into cache ───────
-
-async function retryFailed(env, cached) {
-  const failedNames = Object.entries(cached.sources)
-    .filter(([, s]) => !s.ok)
-    .map(([k]) => k);
-
-  if (failedNames.length === 0) return;
-
-  let changed = false;
-
-  // Parallel retry of failed sources
-  const retries = await Promise.all(failedNames.map(name => fetchSource(name)));
-  failedNames.forEach((name, i) => {
-    if (retries[i].ok) {
-      cached[name] = retries[i].data;
-      cached.sources[name] = { ok: true, fetchedAt: retries[i].fetchedAt, error: null };
-      changed = true;
-    }
-  });
-
-  cached.complete = Object.values(cached.sources).every(s => s.ok);
-  cached.nextRetryAfter = cached.complete
-    ? null
-    : new Date(Date.now() + RETRY_INTERVAL * 1000).toISOString();
-
-  if (changed) {
-    try {
-      await env.CACHE_KV.put(KV_KEY, JSON.stringify(cached), { expirationTtl: KV_TTL });
-    } catch { /* KV unavailable */ }
-  }
 }
 
 // ── Endpoint ────────────────────────────────────────────────────────────
@@ -93,38 +90,42 @@ async function retryFailed(env, cached) {
 export async function onRequestGet(context) {
   const { env, waitUntil } = context;
 
-  // 1. Read existing cache
-  let cached = null;
-  try {
-    cached = await env.CACHE_KV.get(KV_KEY, "json");
-  } catch { /* KV unavailable */ }
+  // 1. Read all 3 source caches in parallel
+  const names = Object.keys(SOURCES);
+  const entries = await Promise.all(names.map(n => sourceGet(env, SOURCES[n].kvKey)));
+  const sources = Object.fromEntries(names.map((n, i) => [n, entries[i]]));
 
-  if (cached) {
-    const ageS = (Date.now() - new Date(cached.fetchedAt).getTime()) / 1000;
-    const needsFullRefresh = ageS >= STALE_AGE;
-    const needsRetry = !cached.complete
-      && cached.nextRetryAfter
-      && Date.now() >= new Date(cached.nextRetryAfter).getTime();
+  // 2. Categorise each source
+  //    "missing"   = no KV entry at all (true cold start)
+  //    "stale"     = successful data that needs background refresh
+  //    "retryable" = failed entry whose retry interval has elapsed
+  //    Otherwise   = fresh success OR failed waiting for retry → return as-is
+  const missing   = [];
+  const stale     = [];
+  const retryable = [];
 
-    if (needsFullRefresh) {
-      // Stale: return cached immediately, full refresh in background
-      waitUntil(fullRefresh(env));
-      return corsJson(cached);
-    }
-
-    if (needsRetry) {
-      // Incomplete + retry interval passed: return cached, retry failed in background
-      // Optimistically bump nextRetryAfter to prevent duplicate retries
-      cached.nextRetryAfter = new Date(Date.now() + RETRY_INTERVAL * 1000).toISOString();
-      waitUntil(retryFailed(env, structuredClone(cached)));
-      return corsJson(cached);
-    }
-
-    // Fresh (or incomplete but not yet time to retry) → return as-is
-    return corsJson(cached);
+  for (const [name, cfg] of Object.entries(SOURCES)) {
+    const entry = sources[name];
+    if (!entry)                              { missing.push(name);   continue; }
+    if (entry.ok && isStale(entry, cfg))     { stale.push(name);     continue; }
+    if (!entry.ok && needsRetry(entry, cfg)) { retryable.push(name);           }
   }
 
-  // 2. No cache at all → synchronous full refresh (cold start)
-  const dashboard = await fullRefresh(env);
-  return corsJson(dashboard);
+  // 3a. Cold start: fetch truly-missing sources synchronously
+  //     Use shorter timeouts so the total stays under the frontend's 15 s budget.
+  if (missing.length > 0) {
+    const fetched = await Promise.all(missing.map(n => refreshSource(env, n, null, { coldStart: true })));
+    missing.forEach((n, i) => { sources[n] = fetched[i]; });
+  }
+
+  // 3b. Stale / retryable → return immediately, refresh in background
+  const bgNames = [...stale, ...retryable];
+  if (bgNames.length > 0) {
+    waitUntil(
+      Promise.all(bgNames.map(n => refreshSource(env, n, sources[n]))),
+    );
+  }
+
+  // 4. Assemble and return
+  return corsJson(assembleDashboard(sources));
 }

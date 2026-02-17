@@ -1,20 +1,8 @@
-import { cacheGet, cachePut, corsJson } from "./_helpers.js";
-import { fetchWeatherData } from "./_fetchWeather.js";
-
-const CACHE_TTL = 3600;
+import { corsJson, sourceGet } from "./_helpers.js";
 
 export async function onRequestGet(context) {
-  const { env } = context;
-  const hit = await cacheGet(env, "weather:all");
-  if (hit) return hit;
-
-  let data;
-  try {
-    data = await fetchWeatherData({ timeout: 5000, retries: 2 });
-  } catch {
-    return corsJson({ error: "Open-Meteo API error" }, 502);
-  }
-
-  const result = { updatedAt: new Date().toISOString(), ...data };
-  return cachePut(env, "weather:all", result, CACHE_TTL);
+  const cached = await sourceGet(context.env, "src:weather");
+  if (cached?.ok) return corsJson(cached.data, 200, { "X-Cache": "HIT" });
+  if (cached?.data) return corsJson(cached.data, 200, { "X-Cache": "STALE" });
+  return corsJson({ error: "No cached weather data" }, 503);
 }
