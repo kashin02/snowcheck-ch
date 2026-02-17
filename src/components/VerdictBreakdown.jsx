@@ -1,7 +1,9 @@
+import { useState } from "react";
 import { formatDuration } from "../utils/format";
 import { verdictConfig, scoreToVerdict } from "../data/constants";
+import { JBI_LEVELS, jbiLevel, JbiTooltip } from "./ForecastRow";
 
-function FactorRow({ icon, label, d, positive, barGradient, activeColor }) {
+function FactorRow({ icon, label, d, positive, barGradient, activeColor, extra }) {
   if (!d) return null;
   const pct = positive
     ? (d.max > 0 ? Math.round((d.pts / d.max) * 100) : 0)
@@ -16,13 +18,32 @@ function FactorRow({ icon, label, d, positive, barGradient, activeColor }) {
   return (
     <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 5 }}>
       <span style={{ fontSize: 13, width: 20, textAlign: "center", flexShrink: 0 }}>{icon}</span>
-      <span style={{ fontSize: 11, color: "#334155", width: 90, flexShrink: 0, fontWeight: 500 }}>{label}</span>
+      <span style={{ fontSize: 11, color: "#334155", width: 90, flexShrink: 0, fontWeight: 500, display: "inline-flex", alignItems: "center", gap: 3 }}>
+        {label}{extra}
+      </span>
       <span style={{ fontSize: 10, color: "#64748b", width: 48, textAlign: "right", flexShrink: 0, fontWeight: 600 }}>{d.value}{d.unit}</span>
       <div style={{ flex: 1, height: 8, borderRadius: 4, background: "#e2e8f0", overflow: "hidden" }}>
         <div style={{ width: `${pct}%`, height: "100%", borderRadius: 4, background: barGradient || defaultGradient, transition: "width 0.4s ease" }} />
       </div>
       <span style={{ fontSize: 10, fontWeight: 700, width: 40, textAlign: "right", flexShrink: 0, color: ptsColor }}>{ptsLabel}</span>
     </div>
+  );
+}
+
+function JbiInfoButton() {
+  const [show, setShow] = useState(false);
+  return (
+    <span style={{ position: "relative" }}>
+      <span
+        onClick={(e) => { e.stopPropagation(); setShow(v => !v); }}
+        style={{
+          display: "inline-flex", alignItems: "center", justifyContent: "center",
+          width: 13, height: 13, borderRadius: "50%", fontSize: 8, fontWeight: 700,
+          color: "#64748b", background: "#e2e8f0", cursor: "help", lineHeight: 1,
+        }}
+      >?</span>
+      {show && <JbiTooltip onClose={() => setShow(false)} />}
+    </span>
   );
 }
 
@@ -99,7 +120,10 @@ export default function VerdictBreakdown({ breakdown, score, targetDayLabel, pro
           Facteurs n&eacute;gatifs
         </div>
         {NEGATIVES.map(({ key, icon, label }) => (
-          <FactorRow key={key} icon={icon} label={label} d={breakdown[key]} />
+          <FactorRow
+            key={key} icon={icon} label={label} d={breakdown[key]}
+            extra={key === "jourBlanc" ? <JbiInfoButton /> : null}
+          />
         ))}
       </div>
     </div>

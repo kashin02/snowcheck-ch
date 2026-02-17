@@ -102,6 +102,7 @@ export default function useDashboardData() {
         stationForecast = rawForecast.map((day) => {
           const result = scoreForDay(station, snow.data, day, day.date);
           dayBreakdowns.push(result);
+          const dateObj = day.date ? new Date(day.date + "T12:00:00") : new Date();
           return {
             day: day.dayShort || DAYS_FR[new Date(day.date).getDay()],
             date: day.date,
@@ -111,6 +112,7 @@ export default function useDashboardData() {
             accent: (day.snowfallSum || 0) >= 30 || (day.windMax || 0) >= 60,
             sunH: Math.round(day.sunshineHours || 0),
             jbi: day.jourBlancIndex || 0,
+            crowd: computeCalendarCrowdScore(dateObj),
             dayScore: result.score,
             dayVerdict: result.verdict,
           };

@@ -17,6 +17,7 @@ export default function StationCard({ station, forecast, index }) {
   // Key metrics from the target day
   const sunH = bd?.sun?.value ?? 0;
   const windKmh = bd?.wind?.value ?? 0;
+  const sun5Total = (station.sun5 || []).slice(station.targetDayIndex, station.targetDayIndex + 5).reduce((a, b) => a + b, 0);
 
   // Resolve the active breakdown for the selected day (absolute index)
   const activeDayIndex = selectedDay ?? station.targetDayIndex;
@@ -101,6 +102,7 @@ export default function StationCard({ station, forecast, index }) {
         <div style={{ display: "flex", flexWrap: "wrap", alignItems: "center", gap: "4px 12px", marginTop: 6 }}>
           <span style={{ fontSize: 11, fontWeight: 600, color: sunH >= 3 ? "#b45309" : sunH > 0 ? "#d97706" : "#94a3b8" }}>
             &#x2600;&#xFE0F; {sunH}h
+            {sun5Total > 0 && <span style={{ fontSize: 9, color: "#94a3b8", fontWeight: 500 }}>{" "}({sun5Total}h/5j)</span>}
           </span>
           <span style={{ fontSize: 11, fontWeight: 600, color: "#1e40af" }}>
             &#x1F4CF; {station.snowBase}cm

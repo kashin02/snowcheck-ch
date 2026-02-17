@@ -2,7 +2,7 @@ import { useState } from "react";
 import { verdictConfig } from "../data/constants";
 import { DAYS_FR } from "../data/shared";
 
-const JBI_LEVELS = [
+export const JBI_LEVELS = [
   { min: 9, label: "Whiteout total", color: "#7f1d1d", bg: "#fecaca", desc: "Perte d'orientation \u2014 arr\u00eater de skier" },
   { min: 7, label: "S\u00e9v\u00e8re", color: "#dc2626", bg: "#fee2e2", desc: "Ciel/sol indistinguables \u2014 pistes en for\u00eat uniquement" },
   { min: 5, label: "Mod\u00e9r\u00e9", color: "#d97706", bg: "#fef3c7", desc: "Horizon flou, bosses invisibles \u2014 ralentir" },
@@ -10,12 +10,12 @@ const JBI_LEVELS = [
   { min: 0, label: "Aucun", color: "#16a34a", bg: "#ecfdf5", desc: "Ombres nettes, bon contraste" },
 ];
 
-function jbiLevel(jbi) {
+export function jbiLevel(jbi) {
   for (const l of JBI_LEVELS) if (jbi >= l.min) return l;
   return JBI_LEVELS[JBI_LEVELS.length - 1];
 }
 
-function JbiTooltip({ onClose }) {
+export function JbiTooltip({ onClose }) {
   return (
     <div
       onClick={(e) => { e.stopPropagation(); onClose(); }}
@@ -47,7 +47,6 @@ function JbiTooltip({ onClose }) {
 
 function JbiBadge({ jbi }) {
   const [showTip, setShowTip] = useState(false);
-  if (jbi < 1) return null;
   const l = jbiLevel(jbi);
   return (
     <div style={{ position: "relative", marginTop: 1 }}>
@@ -60,9 +59,20 @@ function JbiBadge({ jbi }) {
           display: "inline-flex", alignItems: "center", gap: 2,
         }}
       >
-        {"\uD83C\uDF2B\uFE0F"}{Math.round(jbi)}
+        {"\uD83C\uDF2B\uFE0F"}{jbi >= 1 ? Math.round(jbi) : "\u2014"}
       </span>
       {showTip && <JbiTooltip onClose={() => setShowTip(false)} />}
+    </div>
+  );
+}
+
+function CrowdDot({ crowdScore }) {
+  if (crowdScore == null) return null;
+  const color = crowdScore >= 12 ? "#dc2626" : crowdScore >= 8 ? "#d97706" : crowdScore >= 5 ? "#ca8a04" : "#16a34a";
+  const label = crowdScore >= 12 ? "Bondé" : crowdScore >= 8 ? "Chargé" : crowdScore >= 5 ? "Moyen" : "Calme";
+  return (
+    <div style={{ fontSize: 9, fontWeight: 600, color, marginTop: 1 }}>
+      {"\uD83D\uDC65"} {label}
     </div>
   );
 }
@@ -146,9 +156,10 @@ export default function ForecastRow({ forecast, sun5, targetDayIndex, selectedDa
               <div style={{ fontSize: 10, fontWeight: 700, color: isSelected ? "#4338ca" : f.accent ? "#dc2626" : "#475569", marginBottom: 2 }}>{f.day}</div>
               <div style={{ fontSize: 16, lineHeight: 1, marginBottom: 2 }}>{f.icon}</div>
               <div style={{ fontSize: 11, fontWeight: 600, color: sunH >= 3 ? "#b45309" : sunH > 0 ? "#d97706" : "#d1d5db" }}>{"\u2600"} {sunH}h</div>
-              <div style={{ fontSize: 11, fontWeight: 600, color: snowCm >= 20 ? "#059669" : snowCm > 0 ? "#3b82f6" : "#d1d5db", marginTop: 1 }}>{"\u2744"} {snowCm > 0 ? `${snowCm}` : "\u2014"}</div>
+              <div style={{ fontSize: 11, fontWeight: 600, color: snowCm >= 20 ? "#059669" : snowCm > 0 ? "#3b82f6" : "#d1d5db", marginTop: 1 }}>{"\u2744"} {snowCm > 0 ? `${snowCm}cm` : "\u2014"}</div>
               {f.wind >= 50 && <div style={{ fontSize: 9, fontWeight: 700, color: "#dc2626", marginTop: 1 }}>{"\uD83D\uDCA8"} {f.wind}</div>}
               <JbiBadge jbi={f.jbi || 0} />
+              <CrowdDot crowdScore={f.crowd} />
               {f.dayScore != null && vc && (
                 <div style={{ marginTop: 3, paddingTop: 3, borderTop: "1px solid #e2e8f0", fontSize: 10, fontWeight: 700, color: vc.color }}>
                   <span style={{ display: "inline-block", padding: "1px 5px", borderRadius: 3, background: vc.bg, fontSize: 9, lineHeight: "14px" }}>
