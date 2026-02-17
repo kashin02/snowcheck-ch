@@ -1,5 +1,5 @@
 import { stationCoords } from "./_stationCoords.js";
-import { cacheGet, cachePut, corsJson } from "./_helpers.js";
+import { cacheGet, cachePut, corsJson, fetchRetry } from "./_helpers.js";
 
 const CACHE_TTL = 3600;
 const DAYS_FR = ["Dim", "Lun", "Mar", "Mer", "Jeu", "Ven", "Sam"];
@@ -22,8 +22,10 @@ export async function onRequestGet(context) {
 
   const url = `https://api.open-meteo.com/v1/forecast?latitude=${lats}&longitude=${lons}&daily=snowfall_sum,sunshine_duration,temperature_2m_max,temperature_2m_min,wind_speed_10m_max,cloud_cover_mean&hourly=visibility,cloud_cover_low,cloud_cover_mid,direct_normal_irradiance&forecast_days=6&timezone=Europe/Zurich`;
 
-  const response = await fetch(url, { signal: AbortSignal.timeout(15000) });
-  if (!response.ok) {
+  let response;
+  try {
+    response = await fetchRetry(url, { timeout: 5000, retries: 2 });
+  } catch {
     return corsJson({ error: "Open-Meteo API error" }, 502);
   }
 

@@ -24,7 +24,7 @@ export async function onRequestGet(context) {
   const fetches = IMIS_CODES.map(async (code) => {
     try {
       const url = `https://measurement-api.slf.ch/public/api/imis/station/${code}/measurements?from=${from}&to=${to}`;
-      const res = await fetch(url, { signal: AbortSignal.timeout(8000) });
+      const res = await fetch(url, { signal: AbortSignal.timeout(4000) });
       if (!res.ok) return;
 
       const measurements = await res.json();

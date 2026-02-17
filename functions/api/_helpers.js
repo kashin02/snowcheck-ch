@@ -18,3 +18,25 @@ export async function cachePut(env, key, data, ttl) {
   } catch { /* KV unavailable */ }
   return corsJson(data, 200, { "X-Cache": "MISS" });
 }
+
+/**
+ * Fetch with retry + timeout. Retries up to `retries` times with short delays.
+ * @param {string} url
+ * @param {{ timeout?: number, retries?: number }} opts
+ * @returns {Promise<Response>}
+ */
+export async function fetchRetry(url, { timeout = 5000, retries = 2 } = {}) {
+  const delays = [0, 600, 1200];
+  let lastErr;
+  for (let i = 0; i <= retries; i++) {
+    if (i > 0) await new Promise(r => setTimeout(r, delays[i] || 1000));
+    try {
+      const res = await fetch(url, { signal: AbortSignal.timeout(timeout) });
+      if (res.ok) return res;
+      lastErr = new Error(`HTTP ${res.status}`);
+    } catch (e) {
+      lastErr = e;
+    }
+  }
+  throw lastErr;
+}

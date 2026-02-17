@@ -1,4 +1,4 @@
-import { cacheGet, cachePut, corsJson } from "./_helpers.js";
+import { cacheGet, cachePut, corsJson, fetchRetry } from "./_helpers.js";
 
 const CACHE_TTL = 3600;
 
@@ -10,8 +10,10 @@ export async function onRequestGet(context) {
   const hit = await cacheGet(env, "avalanche:bulletin");
   if (hit) return hit;
 
-  const response = await fetch("https://aws.slf.ch/api/bulletin/caaml/fr/json", { signal: AbortSignal.timeout(10000) });
-  if (!response.ok) {
+  let response;
+  try {
+    response = await fetchRetry("https://aws.slf.ch/api/bulletin/caaml/fr/json", { timeout: 5000, retries: 2 });
+  } catch {
     return corsJson({ error: "SLF API error" }, 502);
   }
 
