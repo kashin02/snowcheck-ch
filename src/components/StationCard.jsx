@@ -1,20 +1,13 @@
 import { useState } from "react";
 import { verdictConfig } from "../data/constants";
+import { DAYS_FR } from "../data/shared";
+import { formatDuration } from "../utils/format";
 import ForecastRow from "./ForecastRow";
 import VerdictBreakdown from "./VerdictBreakdown";
 
-const DAY_LABELS = ["Dim", "Lun", "Mar", "Mer", "Jeu", "Ven", "Sam"];
-
-function formatDuration(min) {
-  if (min < 60) return `${min}min`;
-  const h = Math.floor(min / 60);
-  const m = min % 60;
-  return m > 0 ? `${h}h${String(m).padStart(2, "0")}` : `${h}h`;
-}
-
 export default function StationCard({ station, forecast, index }) {
   const [level, setLevel] = useState(0); // 0=compact, 1=forecast, 2=breakdown
-  const [selectedDay, setSelectedDay] = useState(0); // offset within displayed 5 days
+  const [selectedDay, setSelectedDay] = useState(null); // absolute forecast index, null = target day
   const v = verdictConfig[station.verdict];
   const { pistesOpen, pistesTotal } = station.operational;
   const isTomorrow = station.targetDayLabel === "Demain";
@@ -25,20 +18,20 @@ export default function StationCard({ station, forecast, index }) {
   const sunH = bd?.sun?.value ?? 0;
   const windKmh = bd?.wind?.value ?? 0;
 
-  // Resolve the active breakdown for the selected day
-  const activeDayIndex = station.targetDayIndex + selectedDay;
+  // Resolve the active breakdown for the selected day (absolute index)
+  const activeDayIndex = selectedDay ?? station.targetDayIndex;
   const activeData = station.dayBreakdowns?.[activeDayIndex];
   const activeBreakdown = activeData?.breakdown ?? station.verdictBreakdown;
   const activeScore = activeData?.score ?? station.verdictScore;
 
   // Build a label for the selected day
   const activeForecast = forecast?.[activeDayIndex];
-  const activeDayLabel = selectedDay === 0
+  const activeDayLabel = (selectedDay == null || selectedDay === station.targetDayIndex)
     ? (station.targetDayLabel || "Aujourd'hui")
-    : activeForecast?.day || DAY_LABELS[new Date(activeForecast?.date).getDay()] || `J+${selectedDay}`;
+    : activeForecast?.day || DAYS_FR[new Date(activeForecast?.date).getDay()] || `J+${activeDayIndex - station.targetDayIndex}`;
 
-  function handleDayClick(dayOffset) {
-    setSelectedDay(dayOffset);
+  function handleDayClick(absoluteIndex) {
+    setSelectedDay(absoluteIndex);
     // Auto-open breakdown when clicking a day
     if (level < 2) setLevel(2);
   }
@@ -54,7 +47,7 @@ export default function StationCard({ station, forecast, index }) {
     }}>
       {/* -- L0: Compact summary ----------------------------------------- */}
       <div
-        onClick={() => { setLevel(l => l > 0 ? 0 : 1); setSelectedDay(0); }}
+        onClick={() => { setLevel(l => l > 0 ? 0 : 1); setSelectedDay(null); }}
         style={{ padding: "10px 14px", cursor: "pointer", userSelect: "none" }}
       >
         {/* Row 1: Name + Score */}

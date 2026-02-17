@@ -1,3 +1,5 @@
+import { cacheGet, cachePut } from "./_helpers.js";
+
 const CACHE_TTL = 1800; // 30 minutes
 
 const IMIS_CODES = [
@@ -9,17 +11,8 @@ const IMIS_CODES = [
 
 export async function onRequestGet(context) {
   const { env } = context;
-  const cacheKey = "snow:all";
-
-  // Check cache
-  try {
-    const cached = await env.CACHE_KV.get(cacheKey, "json");
-    if (cached) {
-      return Response.json(cached, { headers: { "X-Cache": "HIT", "Access-Control-Allow-Origin": "*" } });
-    }
-  } catch {
-    // KV not available
-  }
+  const hit = await cacheGet(env, "snow:all");
+  if (hit) return hit;
 
   const now = new Date();
   const threeDaysAgo = new Date(now.getTime() - 72 * 60 * 60 * 1000);
@@ -28,17 +21,15 @@ export async function onRequestGet(context) {
 
   const data = {};
 
-  // Fetch measurements in parallel
   const fetches = IMIS_CODES.map(async (code) => {
     try {
       const url = `https://measurement-api.slf.ch/public/api/imis/station/${code}/measurements?from=${from}&to=${to}`;
-      const res = await fetch(url);
+      const res = await fetch(url, { signal: AbortSignal.timeout(8000) });
       if (!res.ok) return;
 
       const measurements = await res.json();
       if (!Array.isArray(measurements) || measurements.length === 0) return;
 
-      // Get latest measurement
       const latest = measurements[measurements.length - 1];
       const oldest = measurements[0];
 
@@ -62,13 +53,5 @@ export async function onRequestGet(context) {
   await Promise.all(fetches);
 
   const result = { updatedAt: new Date().toISOString(), stations: data };
-
-  // Store in cache
-  try {
-    await env.CACHE_KV.put(cacheKey, JSON.stringify(result), { expirationTtl: CACHE_TTL });
-  } catch {
-    // KV not available
-  }
-
-  return Response.json(result, { headers: { "X-Cache": "MISS", "Access-Control-Allow-Origin": "*" } });
+  return cachePut(env, "snow:all", result, CACHE_TTL);
 }

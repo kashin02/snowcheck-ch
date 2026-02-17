@@ -7,10 +7,9 @@ export const verdictConfig = {
   bad: { label: "Difficile", color: "#dc2626", bg: "#fef2f2", border: "#fecaca", emoji: "\u{1F534}" },
 };
 
-export const DANGER_LEVELS = {
-  low: 1,
-  moderate: 2,
-  considerable: 3,
-  high: 4,
-  very_high: 5,
-};
+export function scoreToVerdict(score) {
+  if (score >= 70) return "top";
+  if (score >= 45) return "good";
+  if (score >= 20) return "ok";
+  return "bad";
+}

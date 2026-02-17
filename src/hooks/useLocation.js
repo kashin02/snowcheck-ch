@@ -1,11 +1,25 @@
 import { useState, useEffect, useCallback, useRef } from "react";
-import { npaData } from "../data/npaData";
 
-// Build a Map for fast NPA→entry lookup
-const npaMap = new Map();
-for (const entry of npaData) {
-  npaMap.set(entry[0], entry);
+// Lazy-loaded NPA data (saves ~80KB from initial bundle)
+let _npaData = null;
+let _npaMap = null;
+let _loadPromise = null;
+
+export function loadNpaData() {
+  if (!_loadPromise) {
+    _loadPromise = import("../data/npaData").then(m => {
+      _npaData = m.npaData;
+      _npaMap = new Map();
+      for (const entry of _npaData) {
+        _npaMap.set(entry[0], entry);
+      }
+    });
+  }
+  return _loadPromise;
 }
+
+// Start loading immediately but don't block
+loadNpaData();
 
 const LS_NPA_KEY = "snowcheck-npa";
 const LS_CACHE_KEY = "snowcheck-routing-cache";
@@ -39,7 +53,7 @@ export function searchNpa(query, limit = 8) {
   const isNum = /^\d+$/.test(query);
   const results = [];
 
-  for (const entry of npaData) {
+  for (const entry of (_npaData || [])) {
     if (results.length >= limit) break;
     if (isNum) {
       if (entry[0].startsWith(query)) results.push(entry);
@@ -77,7 +91,7 @@ export default function useLocation(stations) {
 
   // Resolve NPA to coordinates
   const userCoords = npa ? (() => {
-    const entry = npaMap.get(npa);
+    const entry = _npaMap?.get(npa);
     return entry ? { lat: entry[2], lon: entry[3], name: entry[1] } : null;
   })() : null;
 
@@ -95,7 +109,7 @@ export default function useLocation(stations) {
   // Resolve saved NPA name on mount
   useEffect(() => {
     if (npa && !npaName) {
-      const entry = npaMap.get(npa);
+      const entry = _npaMap?.get(npa);
       if (entry) setNpaName(entry[1]);
     }
   }, [npa, npaName]);
@@ -137,7 +151,7 @@ export default function useLocation(stations) {
         stations.forEach((s, i) => {
           const duration = data.durations?.[0]?.[i + 1];
           const distance = data.distances?.[0]?.[i + 1];
-          if (duration != null && duration !== null) {
+          if (duration != null) {
             times[s.id] = {
               durationMin: Math.round(duration / 60),
               distanceKm: Math.round(distance / 1000),
@@ -145,7 +159,9 @@ export default function useLocation(stations) {
           }
         });
         setTravelTimes(times);
-        writeRoutingCache(npa, times);
+        if (Object.keys(times).length > 0) {
+          writeRoutingCache(npa, times);
+        }
       })
       .catch(err => {
         if (err.name !== "AbortError") setTravelTimes(null);

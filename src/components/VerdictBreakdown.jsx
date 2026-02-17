@@ -1,10 +1,43 @@
-function formatDuration(min) {
-  if (min == null) return "";
-  if (min < 60) return `${min}min`;
-  const h = Math.floor(min / 60);
-  const m = min % 60;
-  return m > 0 ? `${h}h${String(m).padStart(2, "0")}` : `${h}h`;
+import { formatDuration } from "../utils/format";
+import { verdictConfig, scoreToVerdict } from "../data/constants";
+
+function FactorRow({ icon, label, d, positive, barGradient, activeColor }) {
+  if (!d) return null;
+  const pct = positive
+    ? (d.max > 0 ? Math.round((d.pts / d.max) * 100) : 0)
+    : (d.min < 0 ? Math.round((Math.abs(d.pts) / Math.abs(d.min)) * 100) : 0);
+  const defaultGradient = positive
+    ? "linear-gradient(90deg, #34d399, #059669)"
+    : (d.pts < 0 ? "linear-gradient(90deg, #fca5a5, #dc2626)" : "transparent");
+  const active = positive ? d.pts > 0 : d.pts < 0;
+  const ptsColor = active ? (activeColor || (positive ? "#059669" : "#dc2626")) : "#cbd5e1";
+  const ptsLabel = positive ? `+${d.pts}/${d.max}` : `${d.pts}/${Math.abs(d.min)}`;
+
+  return (
+    <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 5 }}>
+      <span style={{ fontSize: 13, width: 20, textAlign: "center", flexShrink: 0 }}>{icon}</span>
+      <span style={{ fontSize: 11, color: "#334155", width: 90, flexShrink: 0, fontWeight: 500 }}>{label}</span>
+      <span style={{ fontSize: 10, color: "#64748b", width: 48, textAlign: "right", flexShrink: 0, fontWeight: 600 }}>{d.value}{d.unit}</span>
+      <div style={{ flex: 1, height: 8, borderRadius: 4, background: "#e2e8f0", overflow: "hidden" }}>
+        <div style={{ width: `${pct}%`, height: "100%", borderRadius: 4, background: barGradient || defaultGradient, transition: "width 0.4s ease" }} />
+      </div>
+      <span style={{ fontSize: 10, fontWeight: 700, width: 40, textAlign: "right", flexShrink: 0, color: ptsColor }}>{ptsLabel}</span>
+    </div>
+  );
 }
+
+const POSITIVES = [
+  { key: "sun", icon: "\u2600\uFE0F", label: "Soleil" },
+  { key: "fresh", icon: "\u2744\uFE0F", label: "Neige fra\u00EEche" },
+  { key: "depth", icon: "\uD83D\uDCCF", label: "Hauteur neige" },
+  { key: "pistes", icon: "\uD83C\uDFBF", label: "Pistes ouvertes" },
+];
+
+const NEGATIVES = [
+  { key: "jourBlanc", icon: "\uD83C\uDF2B\uFE0F", label: "Jour blanc" },
+  { key: "wind", icon: "\uD83D\uDCA8", label: "Vent" },
+  { key: "crowd", icon: "\uD83D\uDC65", label: "Fr\u00E9quentation" },
+];
 
 export default function VerdictBreakdown({ breakdown, score, targetDayLabel, proximityBonus, travelTime }) {
   if (!breakdown) return null;
@@ -13,21 +46,7 @@ export default function VerdictBreakdown({ breakdown, score, targetDayLabel, pro
   const totalScore = hasProximity ? score + proximityBonus : score;
   const factorCount = hasProximity ? 8 : 7;
 
-  const positives = [
-    { key: "sun", icon: "\u2600\uFE0F", label: "Soleil" },
-    { key: "fresh", icon: "\u2744\uFE0F", label: "Neige fra\u00EEche" },
-    { key: "depth", icon: "\uD83D\uDCCF", label: "Hauteur neige" },
-    { key: "pistes", icon: "\uD83C\uDFBF", label: "Pistes ouvertes" },
-  ];
-
-  const negatives = [
-    { key: "jourBlanc", icon: "\uD83C\uDF2B\uFE0F", label: "Jour blanc" },
-    { key: "wind", icon: "\uD83D\uDCA8", label: "Vent" },
-    { key: "crowd", icon: "\uD83D\uDC65", label: "Fr\u00E9quentation" },
-  ];
-
-  const scoreColor = totalScore >= 70 ? "#059669" : totalScore >= 45 ? "#2563eb" : totalScore >= 20 ? "#d97706" : "#dc2626";
-  const scoreBg = totalScore >= 70 ? "#ecfdf5" : totalScore >= 45 ? "#eff6ff" : totalScore >= 20 ? "#fffbeb" : "#fef2f2";
+  const v = verdictConfig[scoreToVerdict(totalScore)] || {};
 
   return (
     <div style={{ padding: "14px 14px 16px", borderTop: "1px solid #f1f5f9", background: "#fafbfc" }}>
@@ -35,15 +54,15 @@ export default function VerdictBreakdown({ breakdown, score, targetDayLabel, pro
       <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 14 }}>
         <div style={{
           width: 48, height: 48, borderRadius: "50%",
-          background: scoreBg, border: `2.5px solid ${scoreColor}`,
+          background: v.bg || "#f8fafc", border: `2.5px solid ${v.color || "#94a3b8"}`,
           display: "flex", alignItems: "center", justifyContent: "center",
-          fontFamily: "var(--font-display)", fontSize: 20, fontWeight: 800, color: scoreColor,
+          fontFamily: "var(--font-display)", fontSize: 20, fontWeight: 800, color: v.color || "#94a3b8",
         }}>
           {totalScore}
         </div>
         <div>
           <div style={{ fontSize: 12, fontWeight: 700, color: "#0f172a" }}>
-            Score {targetDayLabel.toLowerCase()}
+            Score {targetDayLabel?.toLowerCase()}
           </div>
           <div style={{ fontSize: 10, color: "#94a3b8" }}>
             {hasProximity
@@ -59,54 +78,15 @@ export default function VerdictBreakdown({ breakdown, score, targetDayLabel, pro
         <div style={{ fontSize: 9, fontWeight: 700, color: "#059669", textTransform: "uppercase", letterSpacing: "0.5px", marginBottom: 6 }}>
           Facteurs positifs
         </div>
-        {positives.map(({ key, icon, label }) => {
-          const d = breakdown[key];
-          const pct = d.max > 0 ? Math.round((d.pts / d.max) * 100) : 0;
-          return (
-            <div key={key} style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 5 }}>
-              <span style={{ fontSize: 13, width: 20, textAlign: "center", flexShrink: 0 }}>{icon}</span>
-              <span style={{ fontSize: 11, color: "#334155", width: 90, flexShrink: 0, fontWeight: 500 }}>{label}</span>
-              <span style={{ fontSize: 10, color: "#64748b", width: 48, textAlign: "right", flexShrink: 0, fontWeight: 600 }}>
-                {d.value}{d.unit}
-              </span>
-              <div style={{ flex: 1, height: 8, borderRadius: 4, background: "#e2e8f0", overflow: "hidden" }}>
-                <div style={{
-                  width: `${pct}%`, height: "100%", borderRadius: 4,
-                  background: "linear-gradient(90deg, #34d399, #059669)",
-                  transition: "width 0.4s ease",
-                }} />
-              </div>
-              <span style={{
-                fontSize: 10, fontWeight: 700, width: 40, textAlign: "right", flexShrink: 0,
-                color: d.pts > 0 ? "#059669" : "#cbd5e1",
-              }}>
-                +{d.pts}/{d.max}
-              </span>
-            </div>
-          );
-        })}
-        {/* Proximity bonus row */}
+        {POSITIVES.map(({ key, icon, label }) => (
+          <FactorRow key={key} icon={icon} label={label} d={breakdown[key]} positive />
+        ))}
         {hasProximity && (
-          <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 5 }}>
-            <span style={{ fontSize: 13, width: 20, textAlign: "center", flexShrink: 0 }}>{"\uD83D\uDE97"}</span>
-            <span style={{ fontSize: 11, color: "#334155", width: 90, flexShrink: 0, fontWeight: 500 }}>Proximit&eacute;</span>
-            <span style={{ fontSize: 10, color: "#64748b", width: 48, textAlign: "right", flexShrink: 0, fontWeight: 600 }}>
-              {formatDuration(travelTime.durationMin)}
-            </span>
-            <div style={{ flex: 1, height: 8, borderRadius: 4, background: "#e2e8f0", overflow: "hidden" }}>
-              <div style={{
-                width: `${Math.round((proximityBonus / 15) * 100)}%`, height: "100%", borderRadius: 4,
-                background: "linear-gradient(90deg, #7dd3fc, #0284c7)",
-                transition: "width 0.4s ease",
-              }} />
-            </div>
-            <span style={{
-              fontSize: 10, fontWeight: 700, width: 40, textAlign: "right", flexShrink: 0,
-              color: proximityBonus > 0 ? "#0284c7" : "#cbd5e1",
-            }}>
-              +{proximityBonus}/15
-            </span>
-          </div>
+          <FactorRow
+            icon={"\uD83D\uDE97"} label="Proximit\u00E9" positive
+            d={{ pts: proximityBonus, max: 15, value: formatDuration(travelTime.durationMin), unit: "" }}
+            barGradient="linear-gradient(90deg, #7dd3fc, #0284c7)" activeColor="#0284c7"
+          />
         )}
       </div>
 
@@ -118,32 +98,9 @@ export default function VerdictBreakdown({ breakdown, score, targetDayLabel, pro
         <div style={{ fontSize: 9, fontWeight: 700, color: "#dc2626", textTransform: "uppercase", letterSpacing: "0.5px", marginBottom: 6 }}>
           Facteurs n&eacute;gatifs
         </div>
-        {negatives.map(({ key, icon, label }) => {
-          const d = breakdown[key];
-          const pct = d.min < 0 ? Math.round((Math.abs(d.pts) / Math.abs(d.min)) * 100) : 0;
-          return (
-            <div key={key} style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 5 }}>
-              <span style={{ fontSize: 13, width: 20, textAlign: "center", flexShrink: 0 }}>{icon}</span>
-              <span style={{ fontSize: 11, color: "#334155", width: 90, flexShrink: 0, fontWeight: 500 }}>{label}</span>
-              <span style={{ fontSize: 10, color: "#64748b", width: 48, textAlign: "right", flexShrink: 0, fontWeight: 600 }}>
-                {d.value}{d.unit}
-              </span>
-              <div style={{ flex: 1, height: 8, borderRadius: 4, background: "#e2e8f0", overflow: "hidden" }}>
-                <div style={{
-                  width: `${pct}%`, height: "100%", borderRadius: 4,
-                  background: d.pts < 0 ? "linear-gradient(90deg, #fca5a5, #dc2626)" : "transparent",
-                  transition: "width 0.4s ease",
-                }} />
-              </div>
-              <span style={{
-                fontSize: 10, fontWeight: 700, width: 40, textAlign: "right", flexShrink: 0,
-                color: d.pts < 0 ? "#dc2626" : "#cbd5e1",
-              }}>
-                {d.pts}/{Math.abs(d.min)}
-              </span>
-            </div>
-          );
-        })}
+        {NEGATIVES.map(({ key, icon, label }) => (
+          <FactorRow key={key} icon={icon} label={label} d={breakdown[key]} />
+        ))}
       </div>
     </div>
   );

@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from "react";
-import { searchNpa } from "../hooks/useLocation";
+import { searchNpa, loadNpaData } from "../hooks/useLocation";
 
 export default function LocationInput({ npa, npaName, setNpa, loading }) {
   const [query, setQuery] = useState(npa ? `${npa} ${npaName}` : "");
@@ -24,7 +24,7 @@ export default function LocationInput({ npa, npaName, setNpa, loading }) {
     if (val.length >= 2) {
       const results = searchNpa(val, 8);
       setSuggestions(results);
-      setOpen(results.length > 0);
+      setOpen(true);
     } else {
       setSuggestions([]);
       setOpen(false);
@@ -92,7 +92,7 @@ export default function LocationInput({ npa, npaName, setNpa, loading }) {
           value={query}
           onChange={handleChange}
           onKeyDown={handleKeyDown}
-          onFocus={() => { if (suggestions.length > 0) setOpen(true); }}
+          onFocus={() => { loadNpaData(); if (suggestions.length > 0) setOpen(true); }}
           placeholder="NPA ou lieu..."
           style={{
             padding: "5px 2px", fontSize: 12, color: "#334155",
@@ -134,6 +134,18 @@ export default function LocationInput({ npa, npaName, setNpa, loading }) {
               {" "}{entry[1]}
             </div>
           ))}
+        </div>
+      )}
+
+      {/* No results message */}
+      {open && suggestions.length === 0 && query.length >= 2 && !npa && (
+        <div style={{
+          position: "absolute", top: "100%", left: 0, right: 0,
+          marginTop: 2, background: "#fff", borderRadius: 6,
+          border: "1px solid #e2e8f0", boxShadow: "0 4px 12px rgba(0,0,0,0.1)",
+          zIndex: 100, padding: "10px 12px",
+        }}>
+          <span style={{ fontSize: 11, color: "#94a3b8" }}>Aucun r&eacute;sultat pour &laquo;{query}&raquo;</span>
         </div>
       )}
     </div>

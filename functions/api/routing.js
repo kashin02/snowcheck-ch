@@ -1,4 +1,12 @@
+import { cacheGet, cachePut, corsJson } from "./_helpers.js";
+
 const CACHE_TTL = 86400; // 24 hours — routes don't change
+
+async function hashKey(str) {
+  const encoded = new TextEncoder().encode(str);
+  const hash = await crypto.subtle.digest("SHA-256", encoded);
+  return Array.from(new Uint8Array(hash)).map(b => b.toString(16).padStart(2, "0")).join("").slice(0, 32);
+}
 
 export async function onRequestGet(context) {
   const { env } = context;
@@ -6,57 +14,38 @@ export async function onRequestGet(context) {
   const coords = url.searchParams.get("coords");
 
   if (!coords) {
-    return Response.json({ error: "Missing coords parameter" }, { status: 400 });
+    return corsJson({ error: "Missing coords parameter" }, 400);
   }
 
-  // Cache key based on coords (same NPA → same result)
-  const cacheKey = `routing:${coords.slice(0, 30)}`;
-
-  try {
-    const cached = await env.CACHE_KV.get(cacheKey, "json");
-    if (cached) {
-      return Response.json(cached, {
-        headers: { "X-Cache": "HIT", "Access-Control-Allow-Origin": "*" },
-      });
-    }
-  } catch {
-    // KV not available
+  if (!/^[\d.,;\s-]+$/.test(coords)) {
+    return corsJson({ error: "Invalid coords format" }, 400);
+  }
+  const pairCount = coords.split(";").length;
+  if (pairCount > 100) {
+    return corsJson({ error: "Too many coordinates (max 100)" }, 400);
   }
 
-  // Call OSRM table API — sources=0 means only compute FROM the first coord TO all others
+  const cacheKey = `routing:${await hashKey(coords)}`;
+  const hit = await cacheGet(env, cacheKey);
+  if (hit) return hit;
+
   const osrmUrl = `https://router.project-osrm.org/table/v1/driving/${coords}?sources=0&annotations=duration,distance`;
 
   const res = await fetch(osrmUrl, {
     headers: { "User-Agent": "snowcheck-ch/1.0" },
+    signal: AbortSignal.timeout(10000),
   });
 
   if (!res.ok) {
-    return Response.json({ error: "OSRM API error" }, { status: 502 });
+    return corsJson({ error: "OSRM API error" }, 502);
   }
 
   const data = await res.json();
 
   if (data.code !== "Ok") {
-    return Response.json({ error: data.code, message: data.message }, { status: 502 });
+    return corsJson({ error: data.code, message: data.message }, 502);
   }
 
-  const result = {
-    durations: data.durations,
-    distances: data.distances,
-  };
-
-  // Cache result
-  try {
-    await env.CACHE_KV.put(cacheKey, JSON.stringify(result), { expirationTtl: CACHE_TTL });
-  } catch {
-    // KV not available
-  }
-
-  return Response.json(result, {
-    headers: {
-      "X-Cache": "MISS",
-      "Access-Control-Allow-Origin": "*",
-      "Cache-Control": "public, max-age=86400",
-    },
-  });
+  const result = { durations: data.durations, distances: data.distances };
+  return cachePut(env, cacheKey, result, CACHE_TTL);
 }
