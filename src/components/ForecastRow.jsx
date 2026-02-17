@@ -14,9 +14,21 @@ const VERDICT_BG = {
 
 export default function ForecastRow({ forecast, sun5, targetDayIndex, selectedDay, onDayClick }) {
   if (!forecast || !sun5) return null;
-  // After 14h, skip today and start from tomorrow — always show up to 5 days
-  const displayed = forecast.slice(targetDayIndex, targetDayIndex + 5);
-  const displayedSun = sun5.slice(targetDayIndex, targetDayIndex + 5);
+
+  // After 15h, skip today — ensure no past/today entries leak through
+  let startIdx = targetDayIndex;
+  if (targetDayIndex > 0) {
+    try {
+      const today = new Intl.DateTimeFormat("sv-SE", { timeZone: "Europe/Zurich" }).format(new Date());
+      while (startIdx < forecast.length && forecast[startIdx]?.date && forecast[startIdx].date <= today) {
+        startIdx++;
+      }
+      if (startIdx >= forecast.length) startIdx = targetDayIndex;
+    } catch { /* trust targetDayIndex */ }
+  }
+
+  const displayed = forecast.slice(startIdx, startIdx + 5);
+  const displayedSun = sun5.slice(startIdx, startIdx + 5);
   const totalSun = displayedSun.reduce((a, b) => a + b, 0);
   const totalSnow = displayed.reduce((sum, f) => sum + (parseInt(f.snow) || 0), 0);
 
@@ -29,10 +41,11 @@ export default function ForecastRow({ forecast, sun5, targetDayIndex, selectedDa
         {displayed.map((f, fi) => {
           const sunH = displayedSun[fi];
           const snowCm = parseInt(f.snow) || 0;
-          const isSelected = fi === selectedDay;
+          const absoluteIdx = startIdx + fi;
+          const isSelected = selectedDay == null ? fi === 0 : absoluteIdx === selectedDay;
           return (
             <div key={fi}
-              onClick={(e) => { e.stopPropagation(); onDayClick?.(fi); }}
+              onClick={(e) => { e.stopPropagation(); onDayClick?.(absoluteIdx); }}
               style={{
                 flex: "1 1 0", minWidth: 58, padding: "5px 4px 4px", borderRadius: 5, textAlign: "center",
                 cursor: "pointer", userSelect: "none",

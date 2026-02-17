@@ -9,6 +9,10 @@ import StationCardSkeleton from "./components/StationCardSkeleton";
 import ErrorMessage from "./components/ErrorMessage";
 import Footer from "./components/Footer";
 
+// Strip accents/diacritics for search (e.g. "pleiades" matches "Pléiades")
+function normalize(str) {
+  return str.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
+}
 
 export default function App() {
   const { stations, avalanche, isLoading, allFailed, lastUpdate } = useDashboardData();
@@ -19,7 +23,7 @@ export default function App() {
   const filtered = useMemo(() => {
     let s = stations;
     if (region !== "Tous") s = s.filter(x => x.region === region);
-    if (search) s = s.filter(x => x.name.toLowerCase().includes(search.toLowerCase()));
+    if (search) s = s.filter(x => normalize(x.name).includes(normalize(search)));
 
     // Enrich with travel times + proximity bonus when location is set
     if (location.travelTimes) {

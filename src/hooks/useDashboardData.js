@@ -6,10 +6,18 @@ import useAvalancheData from "./useAvalancheData";
 import useSnowMeasurements from "./useSnowMeasurements";
 import { DAYS_FR } from "../data/shared";
 
-// ── Target day: after 14h Swiss time, focus on tomorrow ────────────────
+// ── Target day: after 15h Swiss time, focus on tomorrow ────────────────
 function getSwissTargetDayIndex() {
-  const nowCH = new Date(new Date().toLocaleString("en-US", { timeZone: "Europe/Zurich" }));
-  return nowCH.getHours() >= 14 ? 1 : 0;
+  try {
+    const hour = parseInt(
+      new Intl.DateTimeFormat("en-US", { timeZone: "Europe/Zurich", hour: "numeric", hour12: false }).format(new Date()),
+      10,
+    );
+    return hour >= 15 ? 1 : 0;
+  } catch {
+    const nowCH = new Date(new Date().toLocaleString("en-US", { timeZone: "Europe/Zurich" }));
+    return nowCH.getHours() >= 15 ? 1 : 0;
+  }
 }
 
 // ── Scoring helpers (new weighted algorithm, score out of 100) ──────────
