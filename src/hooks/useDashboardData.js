@@ -2,9 +2,7 @@ import { useMemo } from "react";
 import { stations as staticStations } from "../data/stations";
 import { computeCalendarCrowdScore } from "../data/crowdCalendar";
 import { scoreToVerdict } from "../data/constants";
-import useWeatherData from "./useWeatherData";
-import useAvalancheData from "./useAvalancheData";
-import useSnowMeasurements from "./useSnowMeasurements";
+import useFetchApi from "./useFetchApi";
 import { DAYS_FR } from "../data/shared";
 
 // ── Target day: after 15h Swiss time, focus on tomorrow ────────────────
@@ -76,23 +74,24 @@ function scoreForDay(station, snowData, dayForecast, dateStr, fallbackSun) {
 // ── Hook ────────────────────────────────────────────────────────────────
 
 export default function useDashboardData() {
-  const weather = useWeatherData();
-  const avalanche = useAvalancheData();
-  const snow = useSnowMeasurements();
+  const dashboard = useFetchApi("/api/dashboard");
 
-  const isLoading = weather.loading || avalanche.loading || snow.loading;
-  const hasAnyData = weather.data || avalanche.data || snow.data;
-  const allFailed = weather.error && avalanche.error && snow.error && !hasAnyData;
+  const weatherData = dashboard.data?.weather || null;
+  const snowData = dashboard.data?.snow || null;
+  const avalancheData = dashboard.data?.avalanche || null;
 
-  const lastUpdate = weather.data?.updatedAt || snow.data?.updatedAt || null;
+  const isLoading = dashboard.loading;
+  const allFailed = !!dashboard.error && !dashboard.data;
+  const lastUpdate = dashboard.data?.fetchedAt || null;
+  const sourceStatus = dashboard.data?.sources || null;
 
   const enrichedStations = useMemo(() => {
     const targetDayIndex = getSwissTargetDayIndex();
     const targetDayLabel = targetDayIndex === 0 ? "Aujourd'hui" : "Demain";
 
     return staticStations.map(station => {
-      const snowMeasurement = snow.data?.stations?.[station.imisCode];
-      const rawForecast = weather.data?.stations?.[station.id]?.forecast;
+      const snowMeasurement = snowData?.stations?.[station.imisCode];
+      const rawForecast = weatherData?.stations?.[station.id]?.forecast;
 
       // Build forecast display + day breakdowns in one pass
       let stationForecast = null;
@@ -100,7 +99,7 @@ export default function useDashboardData() {
 
       if (rawForecast) {
         stationForecast = rawForecast.map((day) => {
-          const result = scoreForDay(station, snow.data, day, day.date);
+          const result = scoreForDay(station, snowData, day, day.date);
           dayBreakdowns.push(result);
           const dateObj = day.date ? new Date(day.date + "T12:00:00") : new Date();
           return {
@@ -121,7 +120,7 @@ export default function useDashboardData() {
 
       // Target day: use pre-computed breakdown or compute with static sun5 fallback
       const target = dayBreakdowns[targetDayIndex]
-        || scoreForDay(station, snow.data, null, null, station.sun5?.[targetDayIndex]);
+        || scoreForDay(station, snowData, null, null, station.sun5?.[targetDayIndex]);
 
       return {
         ...station,
@@ -132,7 +131,7 @@ export default function useDashboardData() {
         freshForecast: stationForecast
           ? Math.round(stationForecast.reduce((sum, f) => sum + (parseInt(f.snow, 10) || 0), 0))
           : station.freshForecast,
-        avalancheLevel: avalanche.data?.regions?.[station.slfRegionId]?.level ?? null,
+        avalancheLevel: avalancheData?.regions?.[station.slfRegionId]?.level ?? null,
         verdict: target.verdict,
         verdictScore: target.score,
         verdictBreakdown: target.breakdown,
@@ -141,19 +140,15 @@ export default function useDashboardData() {
         targetDayIndex,
       };
     });
-  }, [weather.data, avalanche.data, snow.data]);
+  }, [weatherData, snowData, avalancheData]);
 
   return {
     stations: enrichedStations,
-    avalanche: avalanche.data,
+    avalanche: avalancheData,
     isLoading,
     allFailed,
-    hasAnyData,
+    hasAnyData: !!dashboard.data,
     lastUpdate,
-    errors: {
-      weather: weather.error,
-      avalanche: avalanche.error,
-      snow: snow.error,
-    },
+    sourceStatus,
   };
 }

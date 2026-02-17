@@ -1,7 +1,10 @@
 import { formatDate } from "../utils/format";
 
-export default function Footer({ lastUpdate }) {
+export default function Footer({ lastUpdate, sourceStatus }) {
   const formatted = formatDate(lastUpdate);
+  const allOk = !sourceStatus || Object.values(sourceStatus).every(s => s.ok);
+  const dotColor = allOk ? "#22c55e" : "#f59e0b";
+  const statusText = allOk ? "Donn\u00e9es \u00e0 jour" : "Donn\u00e9es partielles";
 
   return (
     <footer style={{ borderTop: "1px solid #e2e8f0", padding: "14px 24px", background: "#fff" }}>
@@ -13,8 +16,8 @@ export default function Footer({ lastUpdate }) {
         <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
           {formatted && (
             <>
-              <span style={{ width: 6, height: 6, borderRadius: "50%", background: "#22c55e" }} />
-              <span style={{ fontSize: 9, color: "#94a3b8" }}>Donn&eacute;es &agrave; jour &middot; {formatted}</span>
+              <span style={{ width: 6, height: 6, borderRadius: "50%", background: dotColor }} />
+              <span style={{ fontSize: 9, color: "#94a3b8" }}>{statusText} &middot; {formatted}</span>
             </>
           )}
           {!formatted && (

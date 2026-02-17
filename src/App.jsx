@@ -3,19 +3,20 @@ import useDashboardData from "./hooks/useDashboardData";
 import useLocation, { proximityBonus } from "./hooks/useLocation";
 import Header from "./components/Header";
 import DangerBanner from "./components/DangerBanner";
+import DataStatusBanner from "./components/DataStatusBanner";
 import FilterBar from "./components/FilterBar";
 import StationCard from "./components/StationCard";
 import StationCardSkeleton from "./components/StationCardSkeleton";
 import ErrorMessage from "./components/ErrorMessage";
 import Footer from "./components/Footer";
 
-// Strip accents/diacritics for search (e.g. "pleiades" matches "Pléiades")
+// Strip accents/diacritics for search (e.g. "pleiades" matches "Pl\u00e9iades")
 function normalize(str) {
   return str.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
 }
 
 export default function App() {
-  const { stations, avalanche, isLoading, allFailed, lastUpdate } = useDashboardData();
+  const { stations, avalanche, isLoading, allFailed, lastUpdate, sourceStatus } = useDashboardData();
   const location = useLocation(stations);
   const [region, setRegion] = useState("Tous");
   const [search, setSearch] = useState("");
@@ -49,6 +50,7 @@ export default function App() {
       <div style={{ minHeight: "100vh", background: "#f8fafc", fontFamily: "var(--font-body)", overflowX: "hidden" }}>
         <Header stationCount={stations.length} lastUpdate={lastUpdate} />
         <DangerBanner avalancheData={avalanche} />
+        <DataStatusBanner sourceStatus={sourceStatus} fetchedAt={lastUpdate} />
         <FilterBar
           region={region} setRegion={setRegion}
           search={search} setSearch={setSearch}
@@ -72,7 +74,7 @@ export default function App() {
           }
         </section>
 
-        <Footer lastUpdate={lastUpdate} />
+        <Footer lastUpdate={lastUpdate} sourceStatus={sourceStatus} />
       </div>
     </>
   );

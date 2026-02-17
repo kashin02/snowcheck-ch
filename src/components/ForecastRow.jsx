@@ -108,7 +108,7 @@ export default function ForecastRow({ forecast, sun5, targetDayIndex, selectedDa
         </div>
         <div style={{ fontSize: 9, color: "#94a3b8", marginTop: 4 }}>
           {"Total : "}<b style={{ color: totalSun >= 8 ? "#b45309" : "#64748b" }}>{"\u2600"} {totalSun}h</b>
-          <span style={{ marginLeft: 8, fontSize: 9, color: "#cbd5e1", fontStyle: "italic" }}>{"Chargement des d\u00E9tails\u2026"}</span>
+          <span style={{ marginLeft: 8, fontSize: 9, color: "#d97706", fontStyle: "italic" }}>{"\u26A0\uFE0F Pr\u00E9visions d\u00E9taill\u00E9es momentan\u00E9ment indisponibles"}</span>
         </div>
       </div>
     );
