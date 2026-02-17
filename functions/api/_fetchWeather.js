@@ -93,98 +93,114 @@ function computeHourlyJBI(params) {
   return Math.min(10, Math.round((weighted + synergy) * 10) / 10);
 }
 
-// ── Main fetch ──────────────────────────────────────────────────────────
+// ── Process one station result into forecast data ───────────────────────
+
+function processStation(r, station) {
+  if (!r || !r.daily) return null;
+
+  const stationElev = r.elevation ?? null;
+
+  const hTime    = r.hourly?.time || [];
+  const hVis     = r.hourly?.visibility || [];
+  const hCC      = r.hourly?.cloud_cover || [];
+  const hCCL     = r.hourly?.cloud_cover_low || [];
+  const hCCM     = r.hourly?.cloud_cover_mid || [];
+  const hCCH     = r.hourly?.cloud_cover_high || [];
+  const hDNI     = r.hourly?.direct_normal_irradiance || [];
+  const hDiff    = r.hourly?.diffuse_radiation || [];
+  const hWMO     = r.hourly?.weather_code || [];
+  const hRH      = r.hourly?.relative_humidity_2m || [];
+  const hSnow    = r.hourly?.snowfall || [];
+  const hFreeze  = r.hourly?.freezing_level_height || [];
+  const hIsDay   = r.hourly?.is_day || [];
+
+  const cumulSnow24 = [];
+  for (let i = 0; i < hSnow.length; i++) {
+    let sum = 0;
+    for (let j = Math.max(0, i - 23); j <= i; j++) sum += (hSnow[j] || 0);
+    cumulSnow24[i] = sum;
+  }
+
+  const jbiByDate = {};
+  hTime.forEach((time, hi) => {
+    const dateKey = time.slice(0, 10);
+    const isDay = hIsDay[hi] === 1;
+    const hour = parseInt(time.slice(11, 13), 10);
+    if (hour < 9 || hour > 16) return;
+
+    const jbi = computeHourlyJBI({
+      vis: hVis[hi], dni: hDNI[hi], diffuse: hDiff[hi],
+      cloudLow: hCCL[hi], cloudMid: hCCM[hi], cloudHigh: hCCH[hi],
+      wmo: hWMO[hi], snowfall: hSnow[hi], rh: hRH[hi],
+      freezingLevel: hFreeze[hi], stationElev, isDay,
+      cloudCover: hCC[hi], recentSnow: cumulSnow24[hi] || 0,
+    });
+
+    if (!jbiByDate[dateKey]) jbiByDate[dateKey] = { sum: 0, count: 0, peak: 0, hours: 0 };
+    const d = jbiByDate[dateKey];
+    d.sum += jbi;
+    d.count++;
+    if (jbi > d.peak) d.peak = jbi;
+    if (jbi >= 5) d.hours++;
+  });
+
+  const forecast = r.daily.time.map((date, di) => {
+    const d = new Date(date);
+    const jb = jbiByDate[date];
+    return {
+      date,
+      dayShort: DAYS_FR[d.getDay()],
+      snowfallSum: Math.round((r.daily.snowfall_sum?.[di] || 0) * 10) / 10,
+      sunshineHours: Math.round((r.daily.sunshine_duration?.[di] || 0) / 3600 * 10) / 10,
+      tempMax: Math.round((r.daily.temperature_2m_max?.[di] || 0) * 10) / 10,
+      tempMin: Math.round((r.daily.temperature_2m_min?.[di] || 0) * 10) / 10,
+      windMax: Math.round(r.daily.wind_speed_10m_max?.[di] || 0),
+      cloudCover: Math.round(r.daily.cloud_cover_mean?.[di] || 0),
+      jourBlancIndex: jb ? Math.round(jb.sum / jb.count * 10) / 10 : 0,
+      jourBlancPeak: jb?.peak || 0,
+      jourBlancHours: jb?.hours || 0,
+      icon: getWeatherIcon(r.daily.snowfall_sum?.[di] || 0, r.daily.cloud_cover_mean?.[di] || 0),
+    };
+  });
+
+  return { forecast };
+}
+
+// ── Main fetch — batched to avoid huge single requests ──────────────────
+
+const BATCH_SIZE = 30;
+
+const hourlyParams = [
+  "visibility", "cloud_cover", "cloud_cover_low", "cloud_cover_mid", "cloud_cover_high",
+  "direct_normal_irradiance", "diffuse_radiation",
+  "weather_code", "relative_humidity_2m", "snowfall", "freezing_level_height", "is_day",
+].join(",");
+const dailyParams = "snowfall_sum,sunshine_duration,temperature_2m_max,temperature_2m_min,wind_speed_10m_max,cloud_cover_mean";
 
 export async function fetchWeatherData({ timeout = 20000, retries = 2 } = {}) {
-  const lats = stationCoords.map(s => s.lat).join(",");
-  const lons = stationCoords.map(s => s.lon).join(",");
+  // Split stations into batches of BATCH_SIZE
+  const batches = [];
+  for (let i = 0; i < stationCoords.length; i += BATCH_SIZE) {
+    batches.push(stationCoords.slice(i, i + BATCH_SIZE));
+  }
 
-  // Open-Meteo generic endpoint — supports all hourly params needed for JBI
-  // (meteoswiss endpoint lacks visibility, which is critical for JBI scoring)
-  const hourlyParams = [
-    "visibility", "cloud_cover", "cloud_cover_low", "cloud_cover_mid", "cloud_cover_high",
-    "direct_normal_irradiance", "diffuse_radiation",
-    "weather_code", "relative_humidity_2m", "snowfall", "freezing_level_height", "is_day",
-  ].join(",");
-  const dailyParams = "snowfall_sum,sunshine_duration,temperature_2m_max,temperature_2m_min,wind_speed_10m_max,cloud_cover_mean";
+  // Fetch all batches in parallel
+  const batchResponses = await Promise.all(batches.map(async (batch) => {
+    const lats = batch.map(s => s.lat).join(",");
+    const lons = batch.map(s => s.lon).join(",");
+    const url = `https://api.open-meteo.com/v1/forecast?latitude=${lats}&longitude=${lons}&daily=${dailyParams}&hourly=${hourlyParams}&forecast_days=6&timezone=Europe/Zurich`;
+    const response = await fetchRetry(url, { timeout, retries });
+    const raw = await response.json();
+    return Array.isArray(raw) ? raw : [raw];
+  }));
 
-  const url = `https://api.open-meteo.com/v1/forecast?latitude=${lats}&longitude=${lons}&daily=${dailyParams}&hourly=${hourlyParams}&forecast_days=6&timezone=Europe/Zurich`;
-
-  const response = await fetchRetry(url, { timeout, retries });
-  const raw = await response.json();
-  const results = Array.isArray(raw) ? raw : [raw];
+  // Flatten and process all station results
+  const allResults = batchResponses.flat();
   const data = {};
 
   stationCoords.forEach((station, idx) => {
-    const r = results[idx];
-    if (!r || !r.daily) return;
-
-    const stationElev = r.elevation ?? null;
-
-    const hTime    = r.hourly?.time || [];
-    const hVis     = r.hourly?.visibility || [];
-    const hCC      = r.hourly?.cloud_cover || [];
-    const hCCL     = r.hourly?.cloud_cover_low || [];
-    const hCCM     = r.hourly?.cloud_cover_mid || [];
-    const hCCH     = r.hourly?.cloud_cover_high || [];
-    const hDNI     = r.hourly?.direct_normal_irradiance || [];
-    const hDiff    = r.hourly?.diffuse_radiation || [];
-    const hWMO     = r.hourly?.weather_code || [];
-    const hRH      = r.hourly?.relative_humidity_2m || [];
-    const hSnow    = r.hourly?.snowfall || [];
-    const hFreeze  = r.hourly?.freezing_level_height || [];
-    const hIsDay   = r.hourly?.is_day || [];
-
-    const cumulSnow24 = [];
-    for (let i = 0; i < hSnow.length; i++) {
-      let sum = 0;
-      for (let j = Math.max(0, i - 23); j <= i; j++) sum += (hSnow[j] || 0);
-      cumulSnow24[i] = sum;
-    }
-
-    const jbiByDate = {};
-    hTime.forEach((time, hi) => {
-      const dateKey = time.slice(0, 10);
-      const isDay = hIsDay[hi] === 1;
-      const hour = parseInt(time.slice(11, 13), 10);
-      if (hour < 9 || hour > 16) return;
-
-      const jbi = computeHourlyJBI({
-        vis: hVis[hi], dni: hDNI[hi], diffuse: hDiff[hi],
-        cloudLow: hCCL[hi], cloudMid: hCCM[hi], cloudHigh: hCCH[hi],
-        wmo: hWMO[hi], snowfall: hSnow[hi], rh: hRH[hi],
-        freezingLevel: hFreeze[hi], stationElev, isDay,
-        cloudCover: hCC[hi], recentSnow: cumulSnow24[hi] || 0,
-      });
-
-      if (!jbiByDate[dateKey]) jbiByDate[dateKey] = { sum: 0, count: 0, peak: 0, hours: 0 };
-      const d = jbiByDate[dateKey];
-      d.sum += jbi;
-      d.count++;
-      if (jbi > d.peak) d.peak = jbi;
-      if (jbi >= 5) d.hours++;
-    });
-
-    const forecast = r.daily.time.map((date, di) => {
-      const d = new Date(date);
-      const jb = jbiByDate[date];
-      return {
-        date,
-        dayShort: DAYS_FR[d.getDay()],
-        snowfallSum: Math.round((r.daily.snowfall_sum?.[di] || 0) * 10) / 10,
-        sunshineHours: Math.round((r.daily.sunshine_duration?.[di] || 0) / 3600 * 10) / 10,
-        tempMax: Math.round((r.daily.temperature_2m_max?.[di] || 0) * 10) / 10,
-        tempMin: Math.round((r.daily.temperature_2m_min?.[di] || 0) * 10) / 10,
-        windMax: Math.round(r.daily.wind_speed_10m_max?.[di] || 0),
-        cloudCover: Math.round(r.daily.cloud_cover_mean?.[di] || 0),
-        jourBlancIndex: jb ? Math.round(jb.sum / jb.count * 10) / 10 : 0,
-        jourBlancPeak: jb?.peak || 0,
-        jourBlancHours: jb?.hours || 0,
-        icon: getWeatherIcon(r.daily.snowfall_sum?.[di] || 0, r.daily.cloud_cover_mean?.[di] || 0),
-      };
-    });
-
-    data[station.id] = { forecast };
+    const processed = processStation(allResults[idx], station);
+    if (processed) data[station.id] = processed;
   });
 
   return { stations: data };
