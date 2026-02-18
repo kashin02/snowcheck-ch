@@ -16,6 +16,14 @@ export default function App() {
   const location = useLocation(stations);
   const [region, setRegion] = useState("Tous");
   const [search, setSearch] = useState("");
+  const [maxDurationMin, setMaxDurationMinState] = useState(
+    () => Number(localStorage.getItem("snowcheck-max-duration")) || 300
+  );
+
+  function setMaxDurationMin(val) {
+    setMaxDurationMinState(val);
+    localStorage.setItem("snowcheck-max-duration", val);
+  }
 
   const filtered = useMemo(() => {
     let s = stations;
@@ -36,10 +44,15 @@ export default function App() {
       });
     }
 
+    // Filter by max travel duration when location is set
+    if (location.travelTimes && maxDurationMin < 300) {
+      s = s.filter(st => !st.travelTime || st.travelTime.durationMin <= maxDurationMin);
+    }
+
     // Sort by combined score (with proximity) or base score
     const key = location.travelTimes ? "combinedScore" : "verdictScore";
     return [...s].sort((a, b) => (b[key] ?? -1) - (a[key] ?? -1));
-  }, [stations, region, search, location.travelTimes]);
+  }, [stations, region, search, location.travelTimes, maxDurationMin]);
 
   return (
     <>
@@ -52,6 +65,8 @@ export default function App() {
           search={search} setSearch={setSearch}
           filtered={filtered}
           location={location}
+          maxDurationMin={maxDurationMin}
+          setMaxDurationMin={setMaxDurationMin}
         />
 
         {allFailed && <ErrorMessage />}

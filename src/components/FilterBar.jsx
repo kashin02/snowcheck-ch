@@ -2,7 +2,15 @@ import { regions } from "../data/regions";
 import { verdictConfig } from "../data/constants";
 import LocationInput from "./LocationInput";
 
-export default function FilterBar({ region, setRegion, search, setSearch, filtered, location }) {
+function formatDuration(min) {
+  if (min >= 300) return "Toutes";
+  if (min < 60) return `${min} min`;
+  const h = Math.floor(min / 60);
+  const m = min % 60;
+  return m === 0 ? `${h}h` : `${h}h${m}`;
+}
+
+export default function FilterBar({ region, setRegion, search, setSearch, filtered, location, maxDurationMin, setMaxDurationMin }) {
   return (
     <div style={{ background: "#fff", borderBottom: "1px solid #e2e8f0", position: "sticky", top: 0, zIndex: 10 }}>
       <div style={{ maxWidth: 1100, margin: "0 auto", padding: "8px 24px" }}>
@@ -31,6 +39,22 @@ export default function FilterBar({ region, setRegion, search, setSearch, filter
             })}
           </div>
         </div>
+        {location.travelTimes && (
+          <div style={{ display: "flex", alignItems: "center", gap: 8, marginTop: 6 }}>
+            <span style={{ fontSize: 11, color: "#64748b", whiteSpace: "nowrap" }}>
+              {"\uD83D\uDE97"} max : <b style={{ color: "#2563eb" }}>{formatDuration(maxDurationMin)}</b>
+            </span>
+            <input
+              type="range"
+              min="30"
+              max="300"
+              step="15"
+              value={maxDurationMin}
+              onChange={e => setMaxDurationMin(Number(e.target.value))}
+              style={{ flex: 1, accentColor: "#2563eb", cursor: "pointer" }}
+            />
+          </div>
+        )}
       </div>
     </div>
   );
