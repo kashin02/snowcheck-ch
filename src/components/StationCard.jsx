@@ -61,14 +61,14 @@ export default function StationCard({ station, forecast, index }) {
             {tt && (
               <span style={{
                 padding: "2px 6px", borderRadius: 4, fontSize: 9, fontWeight: 600,
-                color: "#0369a1", background: "#f0f9ff", border: "1px solid #bae6fd",
+                color: "#2D4D72", background: "#EBF8FB", border: "1px solid #A8DDE9",
                 display: "inline-flex", alignItems: "center", gap: 3,
               }}>
                 {"\uD83D\uDE97"} {formatDuration(tt.durationMin)} &middot; {tt.distanceKm}km
               </span>
             )}
             {isTomorrow && (
-              <span style={{ padding: "2px 6px", borderRadius: 4, fontSize: 9, fontWeight: 600, color: "#7c3aed", background: "#f5f3ff", border: "1px solid #ddd6fe" }}>
+              <span style={{ padding: "2px 6px", borderRadius: 4, fontSize: 9, fontWeight: 600, color: "#2D4D72", background: "#EBF8FB", border: "1px solid #A8DDE9" }}>
                 Demain
               </span>
             )}
@@ -104,7 +104,7 @@ export default function StationCard({ station, forecast, index }) {
             &#x2600;&#xFE0F; {sunH}h
             {sun5Total > 0 && <span style={{ fontSize: 9, color: "#94a3b8", fontWeight: 500 }}>{" "}({sun5Total}h/5j)</span>}
           </span>
-          <span style={{ fontSize: 11, fontWeight: 600, color: "#1e40af" }}>
+          <span style={{ fontSize: 11, fontWeight: 600, color: "#2D4D72" }}>
             &#x1F4CF; {station.snowBase}cm
           </span>
           {station.fresh72 > 0 && (
@@ -148,14 +148,14 @@ export default function StationCard({ station, forecast, index }) {
               {station.webcamUrl && (
                 <a href={station.webcamUrl} target="_blank" rel="noopener noreferrer"
                   onClick={(e) => e.stopPropagation()}
-                  style={{ fontSize: 10, fontWeight: 600, color: "#2563eb", textDecoration: "none", display: "inline-flex", alignItems: "center", gap: 3 }}>
+                  style={{ fontSize: 10, fontWeight: 600, color: "#42BDD6", textDecoration: "none", display: "inline-flex", alignItems: "center", gap: 3 }}>
                   &#x1F4F7; Webcam
                 </a>
               )}
               {station.pisteMapUrl && (
                 <a href={station.pisteMapUrl} target="_blank" rel="noopener noreferrer"
                   onClick={(e) => e.stopPropagation()}
-                  style={{ fontSize: 10, fontWeight: 600, color: "#2563eb", textDecoration: "none", display: "inline-flex", alignItems: "center", gap: 3 }}>
+                  style={{ fontSize: 10, fontWeight: 600, color: "#42BDD6", textDecoration: "none", display: "inline-flex", alignItems: "center", gap: 3 }}>
                   &#x1F5FA;&#xFE0F; Plan des pistes
                 </a>
               )}

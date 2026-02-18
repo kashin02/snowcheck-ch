@@ -30,7 +30,7 @@ export default function FilterBar({ region, setRegion, search, setSearch, filter
             loading={location.loading}
           />
           {regions.map(r => (
-            <button key={r} className="fbtn" onClick={() => setRegion(region === r ? "Tous" : r)} style={{ padding: "4px 11px", borderRadius: 14, fontSize: 11, fontWeight: 500, fontFamily: "var(--font-body)", background: region === r ? "#2563eb" : "#f1f5f9", color: region === r ? "#fff" : "#64748b", whiteSpace: "nowrap", flex: "0 0 auto" }}>{r}</button>
+            <button key={r} className="fbtn" onClick={() => setRegion(region === r ? "Tous" : r)} style={{ padding: "4px 11px", borderRadius: 14, fontSize: 11, fontWeight: 500, fontFamily: "var(--font-body)", background: region === r ? "#42BDD6" : "#f1f5f9", color: region === r ? "#fff" : "#64748b", whiteSpace: "nowrap", flex: "0 0 auto" }}>{r}</button>
           ))}
           <div style={{ marginLeft: "auto", display: "flex", gap: 8, flex: "0 0 auto" }}>
             {Object.entries(verdictConfig).map(([k, v]) => {
@@ -42,7 +42,7 @@ export default function FilterBar({ region, setRegion, search, setSearch, filter
         {location.travelTimes && (
           <div style={{ display: "flex", alignItems: "center", gap: 8, marginTop: 6 }}>
             <span style={{ fontSize: 11, color: "#64748b", whiteSpace: "nowrap" }}>
-              {"\uD83D\uDE97"} max : <b style={{ color: "#2563eb" }}>{formatDuration(maxDurationMin)}</b>
+              {"\uD83D\uDE97"} max : <b style={{ color: "#42BDD6" }}>{formatDuration(maxDurationMin)}</b>
             </span>
             <input
               type="range"
@@ -51,7 +51,7 @@ export default function FilterBar({ region, setRegion, search, setSearch, filter
               step="15"
               value={maxDurationMin}
               onChange={e => setMaxDurationMin(Number(e.target.value))}
-              style={{ flex: 1, accentColor: "#2563eb", cursor: "pointer" }}
+              style={{ flex: 1, accentColor: "#42BDD6", cursor: "pointer" }}
             />
           </div>
         )}

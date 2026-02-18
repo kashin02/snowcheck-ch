@@ -85,14 +85,14 @@ export default function ForecastRow({ forecast, sun5, targetDayIndex, selectedDa
               style={{
                 flex: "1 1 0", minWidth: 58, padding: "5px 4px 4px", borderRadius: 5, textAlign: "center",
                 cursor: "pointer", userSelect: "none",
-                background: isSelected ? "#eef2ff" : f.accent ? "#fef2f2" : "#f8fafc",
-                border: isSelected ? "2px solid #6366f1" : f.accent ? "1.5px solid #fecaca" : "1px solid #f1f5f9",
+                background: isSelected ? "#EBF8FB" : f.accent ? "#fef2f2" : "#f8fafc",
+                border: isSelected ? "2px solid #42BDD6" : f.accent ? "1.5px solid #fecaca" : "1px solid #f1f5f9",
                 transition: "border 0.15s, background 0.15s",
               }}>
-              <div style={{ fontSize: 10, fontWeight: 700, color: isSelected ? "#4338ca" : f.accent ? "#dc2626" : "#475569", marginBottom: 2 }}>{f.day}</div>
+              <div style={{ fontSize: 10, fontWeight: 700, color: isSelected ? "#2D4D72" : f.accent ? "#dc2626" : "#475569", marginBottom: 2 }}>{f.day}</div>
               <div style={{ fontSize: 16, lineHeight: 1, marginBottom: 2 }}>{f.icon}</div>
               <div style={{ fontSize: 11, fontWeight: 600, color: sunH >= 3 ? "#b45309" : sunH > 0 ? "#d97706" : "#d1d5db" }}>{"\u2600"} {sunH}h</div>
-              <div style={{ fontSize: 11, fontWeight: 600, color: snowCm >= 20 ? "#059669" : snowCm > 0 ? "#3b82f6" : "#d1d5db", marginTop: 1 }}>{"\u2744"} {snowCm > 0 ? `${snowCm}cm` : "\u2014"}</div>
+              <div style={{ fontSize: 11, fontWeight: 600, color: snowCm >= 20 ? "#059669" : snowCm > 0 ? "#42BDD6" : "#d1d5db", marginTop: 1 }}>{"\u2744"} {snowCm > 0 ? `${snowCm}cm` : "\u2014"}</div>
               {f.wind >= 50 && <div style={{ fontSize: 9, fontWeight: 700, color: "#dc2626", marginTop: 1 }}>{"\uD83D\uDCA8"} {f.wind}</div>}
               <JbiBadge jbi={f.jbi || 0} />
               <CrowdDot crowdScore={f.crowd} />

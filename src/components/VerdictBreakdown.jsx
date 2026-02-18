@@ -106,7 +106,7 @@ export default function VerdictBreakdown({ breakdown, score, targetDayLabel, pro
           <FactorRow
             icon={"\uD83D\uDE97"} label="Proximit\u00E9" positive
             d={{ pts: proximityBonus, max: 15, value: formatDuration(travelTime.durationMin), unit: "" }}
-            barGradient="linear-gradient(90deg, #7dd3fc, #0284c7)" activeColor="#0284c7"
+            barGradient="linear-gradient(90deg, #A8DDE9, #42BDD6)" activeColor="#42BDD6"
           />
         )}
       </div>

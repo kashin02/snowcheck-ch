@@ -103,8 +103,8 @@ export default function LocationInput({ npa, npaName, setNpa, loading }) {
     <div ref={wrapRef} style={{ position: "relative", flex: "0 0 auto" }}>
       <div style={{
         display: "flex", alignItems: "center", gap: 4,
-        background: npa ? "#eff6ff" : "#f8fafc",
-        border: `1px solid ${npa ? "#bfdbfe" : "#e2e8f0"}`,
+        background: npa ? "#EBF8FB" : "#f8fafc",
+        border: `1px solid ${npa ? "#A8DDE9" : "#e2e8f0"}`,
         borderRadius: 6, padding: "0 6px",
         transition: "all 0.15s",
       }}>
@@ -129,7 +129,7 @@ export default function LocationInput({ npa, npaName, setNpa, loading }) {
             onClick={(e) => { e.stopPropagation(); handleSubmit(); }}
             style={{
               cursor: "pointer", fontSize: 10, fontWeight: 700,
-              color: "#fff", background: "#2563eb", borderRadius: 4,
+              color: "#fff", background: "#42BDD6", borderRadius: 4,
               padding: "2px 7px", lineHeight: "16px", whiteSpace: "nowrap",
               userSelect: "none",
             }}
@@ -161,13 +161,13 @@ export default function LocationInput({ npa, npaName, setNpa, loading }) {
               onClick={() => handleSelect(entry)}
               style={{
                 padding: "7px 10px", cursor: "pointer", fontSize: 12,
-                background: i === focusIdx ? "#eff6ff" : "transparent",
+                background: i === focusIdx ? "#EBF8FB" : "transparent",
                 color: "#334155",
                 borderBottom: i < suggestions.length - 1 ? "1px solid #f1f5f9" : "none",
               }}
               onMouseEnter={() => setFocusIdx(i)}
             >
-              <span style={{ fontWeight: 700, color: "#2563eb" }}>{entry[0]}</span>
+              <span style={{ fontWeight: 700, color: "#42BDD6" }}>{entry[0]}</span>
               {" "}{entry[1]}
             </div>
           ))}
