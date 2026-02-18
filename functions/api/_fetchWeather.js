@@ -188,6 +188,9 @@ async function fetchBatch(batch, { timeout, retries }) {
   return Array.isArray(raw) ? raw : [raw];
 }
 
+// Exported for testing
+export { visScore, flatLightScore, cloudScore, precipScore, humidityScore, immersionScore, computeHourlyJBI, processStation, getWeatherIcon };
+
 export async function fetchWeatherData({ timeout = 20000, retries = 2 } = {}) {
   // Split stations into batches
   const batches = [];

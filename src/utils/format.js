@@ -1,3 +1,7 @@
+export function normalize(str) {
+  return str.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
+}
+
 export function formatDuration(min) {
   if (min == null) return "";
   if (min < 60) return `${min}min`;

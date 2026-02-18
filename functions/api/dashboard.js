@@ -85,6 +85,9 @@ function assembleDashboard(sources) {
   };
 }
 
+// Exported for testing
+export { SOURCES, assembleDashboard, ageSeconds, isStale, needsRetry, refreshSource };
+
 // ── Endpoint ────────────────────────────────────────────────────────────
 
 export async function onRequestGet(context) {

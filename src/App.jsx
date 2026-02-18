@@ -9,11 +9,7 @@ import StationCard from "./components/StationCard";
 import StationCardSkeleton from "./components/StationCardSkeleton";
 import ErrorMessage from "./components/ErrorMessage";
 import Footer from "./components/Footer";
-
-// Strip accents/diacritics for search (e.g. "pleiades" matches "Pl\u00e9iades")
-function normalize(str) {
-  return str.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
-}
+import { normalize } from "./utils/format";
 
 export default function App() {
   const { stations, avalanche, isLoading, allFailed, lastUpdate, sourceStatus } = useDashboardData();
