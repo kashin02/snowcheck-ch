@@ -4,6 +4,15 @@ import { computeCalendarCrowdScore } from "../src/data/crowdCalendar";
 // Helper: create a Date at noon to avoid timezone shift issues
 const d = (str) => new Date(str + "T12:00:00");
 
+// Scoring recap (for reference in comments):
+//   Peak range            → 15 (immediate)
+//   Weekend               → +5
+//   Friday                → +2
+//   CH cantons (0-26):  ≥19 → +6 | ≥7 → +4 | ≥1 → +2
+//   Foreign (0-6):      ≥4  → +4 | ≥2 → +3 | ≥1 → +2
+//   Public holiday        → +3
+//   Capped at 15
+
 // ─────────────────────────────────────────────────────────────────────────
 // 1. Peak periods → always returns 15
 // ─────────────────────────────────────────────────────────────────────────
@@ -44,29 +53,32 @@ describe("peak boundary edges", () => {
   it("day before Christmas peak is NOT peak (2025-12-19, Fri)", () => {
     const score = computeCalendarCrowdScore(d("2025-12-19"));
     expect(score).not.toBe(15);
-    // Friday → +2, no school holidays yet → 0
+    // Friday → +2; no CH cantons yet; no foreign holidays yet → 0
     expect(score).toBe(2);
   });
 
   it("day after Christmas peak is NOT peak (2026-01-05, Mon)", () => {
     const score = computeCalendarCrowdScore(d("2026-01-05"));
     expect(score).not.toBe(15);
-    // Monday → base 0, holidays: FR_A + FR_B + DE → 3 countries → +8
-    expect(score).toBe(8);
+    // Mon → 0; CH: CH_TI still on holiday (Dec 22-Jan 6) = 1 canton → +2
+    // Foreign: FR_A ✓ + FR_B ✓ + DE ✓ = 3 → +3. Total = 5.
+    expect(score).toBe(5);
   });
 
   it("day before February peak is NOT peak (2026-02-13, Fri)", () => {
     const score = computeCalendarCrowdScore(d("2026-02-13"));
     expect(score).not.toBe(15);
-    // Friday → +2, holidays: CH(02-07 to 02-22) + FR_A(02-07 to 02-23) → 2 → +6
+    // Friday → +2; CH: 8 Romand cantons (Feb 7-22) → ≥7 → +4
+    // Foreign: FR_A (Feb 7-23) = 1 → +2
     expect(score).toBe(8);
   });
 
   it("day after February peak is NOT peak (2026-02-23, Mon)", () => {
     const score = computeCalendarCrowdScore(d("2026-02-23"));
     expect(score).not.toBe(15);
-    // Monday → base 0, holidays: FR_A(02-07 to 02-23) + FR_B(02-21 to 03-09) → 2 → +6
-    expect(score).toBe(6);
+    // Mon → 0; CH: 0 cantons (all ended Feb 22) → +0
+    // Foreign: FR_A (Feb 7-23) ✓ + FR_B (Feb 21-Mar 9) ✓ + NL (Feb 14-Mar 1) ✓ = 3 → +3
+    expect(score).toBe(3);
   });
 });
 
@@ -107,106 +119,133 @@ describe("Friday bonus", () => {
 });
 
 // ─────────────────────────────────────────────────────────────────────────
-// 5. School holidays — country overlap scoring
+// 5. Swiss canton holiday scoring (26 cantons, two-wave February)
 // ─────────────────────────────────────────────────────────────────────────
-describe("school holidays country overlap", () => {
-  it("1 country on holiday: +4 (2026-02-24, Tue — FR_B only)", () => {
-    // FR_B: 02-21 to 03-09 → YES. Others: no.
-    expect(computeCalendarCrowdScore(d("2026-02-24"))).toBe(4);
-  });
-
-  it("2 countries on holiday: +6 (2026-02-10, Tue — CH + FR_A)", () => {
-    // CH: 02-07 to 02-22 ✓, FR_A: 02-07 to 02-23 ✓, others: no
+describe("Swiss canton holiday scoring", () => {
+  it("8 Romand cantons on holiday: CH +4 (2026-02-10, Tue)", () => {
+    // CH: GE VD NE JU FR VS BE BS on holiday (Feb 7-22) = 8 → ≥7 → +4
+    // Foreign: FR_A (Feb 7-23) = 1 → +2
     expect(computeCalendarCrowdScore(d("2026-02-10"))).toBe(6);
   });
 
-  it("3+ countries on holiday: +8 (2026-01-05, Mon — FR_A + FR_B + DE)", () => {
-    // FR_A: 12-20 to 01-05 ✓, FR_B: 12-20 to 01-05 ✓, DE: 12-22 to 01-05 ✓
-    // CH: 12-20 to 01-04 → NO (ends 01-04), BE: 12-22 to 01-04 → NO
-    expect(computeCalendarCrowdScore(d("2026-01-05"))).toBe(8);
+  it("0 CH cantons outside holiday windows: +0 (2026-02-24, Tue)", () => {
+    // CH: 0 cantons (all ended Feb 22) → +0
+    // Foreign: FR_B (Feb 21-Mar 9) ✓ + NL (Feb 14-Mar 1) ✓ = 2 → +3
+    expect(computeCalendarCrowdScore(d("2026-02-24"))).toBe(3);
   });
 
-  it("4+ countries on holiday: +8 (2026-04-06, Mon — CH + FR_A + DE + BE)", () => {
-    // CH: 03-28 to 04-12 ✓, FR_A: 04-04 to 04-20 ✓
-    // DE: 03-30 to 04-10 ✓, BE: 04-04 to 04-19 ✓ → 4 countries
-    // + public holiday (Lundi de Pâques) → +3
-    expect(computeCalendarCrowdScore(d("2026-04-06"))).toBe(8 + 3);
+  it("only GR + TI on holiday before Easter for others (2026-03-28, Sat)", () => {
+    // CH: CH_GR + CH_TI start Mar 28 = 2 → ≥1 → +2
+    // Foreign: DE (Mar 30-Apr 10 → NO), others → 0 → +0
+    // Weekend: +5
+    expect(computeCalendarCrowdScore(d("2026-03-28"))).toBe(7);
   });
 
-  it("no countries on holiday: +0 (2026-06-15, Mon)", () => {
+  it("all 26 CH cantons on holiday at Easter (2026-04-05, Sun)", () => {
+    // CH: 24 cantons (Apr 4-17) + GR + TI (Mar 28-Apr 12) = 26 → ≥19 → +6
+    // Foreign: FR_A ✓ + DE ✓ + BE ✓ + NL ✓ + UK ✓ = 5 → ≥4 → +4
+    // Weekend: +5. Total = 15 (clamped)
+    expect(computeCalendarCrowdScore(d("2026-04-05"))).toBe(15);
+  });
+});
+
+// ─────────────────────────────────────────────────────────────────────────
+// 6. Foreign country scoring
+// ─────────────────────────────────────────────────────────────────────────
+describe("foreign country holiday scoring", () => {
+  it("1 foreign country: +2 (2026-02-17, Tue — DE only)", () => {
+    // In PEAK range Feb 14-22 → 15. Let's use a date with only DE.
+    // DE Faschingsferien: Feb 16-20. Use a date outside Feb PEAK for a non-peak check.
+    // This date IS in peak → skip; use 2026-02-25 (Wed) with only FR_B + NL for +3.
+    // Instead test Jan 5: FR_A + FR_B + DE = 3 → +3 already tested.
+    // Test with DE alone: no good date avoids CH+FR_A overlap well.
+    // Use 2026-03-31 (Tue): DE (Mar 30-Apr 10 ✓), FR_A → NO, FR_B → NO, others → NO = 1 → +2
+    // CH: GR + TI (Mar 28-Apr 12) = 2 → +2. Total = 4.
+    expect(computeCalendarCrowdScore(d("2026-03-31"))).toBe(4);
+  });
+
+  it("2 foreign countries: +3 (2026-02-24, Tue — FR_B + NL)", () => {
+    // CH: 0 → +0; FR_B ✓ + NL ✓ = 2 → +3
+    expect(computeCalendarCrowdScore(d("2026-02-24"))).toBe(3);
+  });
+
+  it("3 foreign countries: +3 (2026-01-05, Mon — FR_A + FR_B + DE)", () => {
+    // CH: CH_TI still on (Dec 22-Jan 6) = 1 → +2
+    // Foreign: FR_A ✓ + FR_B ✓ + DE ✓ = 3 → +3. Total = 5.
+    expect(computeCalendarCrowdScore(d("2026-01-05"))).toBe(5);
+  });
+
+  it("5 foreign countries: +4 (2026-04-06, Mon — FR_A+DE+BE+NL+UK)", () => {
+    // CH: 26 → +6; Foreign: FR_A ✓ + DE ✓ + BE ✓ + NL ✓ + UK ✓ = 5 → +4
+    // public (Lundi Pâques) → +3. Total = 13.
+    expect(computeCalendarCrowdScore(d("2026-04-06"))).toBe(13);
+  });
+
+  it("no foreign countries on holiday: +0 (2026-06-15, Mon)", () => {
     expect(computeCalendarCrowdScore(d("2026-06-15"))).toBe(0);
   });
 });
 
 // ─────────────────────────────────────────────────────────────────────────
-// 6. Public holidays
+// 7. Public holidays
 // ─────────────────────────────────────────────────────────────────────────
 describe("public holidays", () => {
-  it("Vendredi Saint adds +3 on top of base (2026-04-03, Fri)", () => {
-    // Friday → +2, CH + DE holidays → 2 countries → +6, public → +3
-    expect(computeCalendarCrowdScore(d("2026-04-03"))).toBe(2 + 6 + 3);
+  it("Vendredi Saint adds +3 (2026-04-03, Fri)", () => {
+    // Friday → +2; CH: GR + TI (Mar 28-Apr 12) = 2 → +2
+    // Foreign: DE (Mar 30-Apr 10) = 1 → +2; public → +3. Total = 9.
+    expect(computeCalendarCrowdScore(d("2026-04-03"))).toBe(9);
   });
 
   it("Lundi de Pâques adds +3 (2026-04-06, Mon)", () => {
-    // Monday → base 0, 4 countries → +8, public → +3
-    expect(computeCalendarCrowdScore(d("2026-04-06"))).toBe(11);
+    // Mon → 0; CH: 26 → +6; Foreign: 5 → +4; public → +3. Total = 13.
+    expect(computeCalendarCrowdScore(d("2026-04-06"))).toBe(13);
   });
 
   it("Ascension adds +3 (2026-05-14, Thu)", () => {
-    // Thursday → base 0, no school holidays in May → 0, public → +3
+    // Thu → 0; no school holidays in May; public → +3
     expect(computeCalendarCrowdScore(d("2026-05-14"))).toBe(3);
   });
 
   it("Lundi de Pentecôte adds +3 (2026-05-25, Mon)", () => {
-    // Monday → base 0, no school holidays → 0, public → +3
+    // Mon → 0; no school holidays; public → +3
     expect(computeCalendarCrowdScore(d("2026-05-25"))).toBe(3);
   });
 
   it("public holiday inside peak still returns 15 (2025-12-25)", () => {
-    // Peak overrides everything
     expect(computeCalendarCrowdScore(d("2025-12-25"))).toBe(15);
   });
 });
 
 // ─────────────────────────────────────────────────────────────────────────
-// 7. Combined scenarios
+// 8. Combined scenarios
 // ─────────────────────────────────────────────────────────────────────────
 describe("combined scenarios", () => {
-  it("Saturday during CH holidays: 5 + 6 = 11 (2026-02-07, Sat)", () => {
-    // Weekend → +5, CH(02-07 to 02-22) + FR_A(02-07 to 02-23) → 2 → +6
+  it("Saturday during Romand CH holidays: 5 + 4 + 2 = 11 (2026-02-07, Sat)", () => {
+    // Weekend → +5; CH: 8 Romand → +4; Foreign: FR_A = 1 → +2
     expect(computeCalendarCrowdScore(d("2026-02-07"))).toBe(11);
   });
 
-  it("Friday during 2 country holidays: 2 + 6 = 8 (2026-02-13, Fri)", () => {
-    // Friday → +2, CH + FR_A → 2 → +6
+  it("Friday during Romand holidays + FR_A: 2 + 4 + 2 = 8 (2026-02-13, Fri)", () => {
+    // Friday → +2; CH: 8 → +4; Foreign: FR_A = 1 → +2
     expect(computeCalendarCrowdScore(d("2026-02-13"))).toBe(8);
   });
 
-  it("Sunday during Easter (4 countries + public): capped at 15 (2026-04-05, Sun)", () => {
-    // Weekend → +5, CH + FR_A + DE + BE → 4 → +8. Total = 13, not public holiday
-    // 2026-04-05 is not a public holiday
-    expect(computeCalendarCrowdScore(d("2026-04-05"))).toBe(13);
+  it("Easter Saturday with all CH + 5 foreign: capped at 15 (2026-04-04, Sat)", () => {
+    // Weekend → +5; CH: 26 → +6; Foreign: FR_A+DE+BE+NL+UK = 5 → +4. Total = 15.
+    expect(computeCalendarCrowdScore(d("2026-04-04"))).toBe(15);
   });
 
-  it("Saturday during Easter with 5 countries: weekend(5) + holidays(8) = 13 (2026-04-04, Sat)", () => {
-    // Weekend → +5
-    // CH: 03-28 to 04-12 ✓, FR_A: 04-04 to 04-20 ✓, DE: 03-30 to 04-10 ✓, BE: 04-04 to 04-19 ✓
-    // FR_B: 04-18 to 05-04 → NO
-    // 4 countries → +8
-    expect(computeCalendarCrowdScore(d("2026-04-04"))).toBe(13);
+  it("Easter Sunday with all CH + 5 foreign: capped at 15 (2026-04-05, Sun)", () => {
+    // Weekend → +5; CH: 26 → +6; Foreign: 5 → +4. Total = 15.
+    expect(computeCalendarCrowdScore(d("2026-04-05"))).toBe(15);
   });
 });
 
 // ─────────────────────────────────────────────────────────────────────────
-// 8. Clamp to max 15
+// 9. Clamp to max 15
 // ─────────────────────────────────────────────────────────────────────────
 describe("clamp to 15", () => {
-  it("score is always <= 15", () => {
-    // Test a date that could theoretically exceed 15:
-    // Lundi de Pâques: 0 + 8(4 countries) + 3(public) = 11 → under 15
-    // Even the worst case non-peak: weekend(5) + 3+countries(8) + public(3) = 16 → clamped
-    // We can't easily construct this date with the current data,
-    // but verify the function never exceeds 15 across a wide range
+  it("score is always <= 15 across key dates", () => {
     const testDates = [
       "2025-12-20", "2025-12-25", "2025-12-31", "2026-01-01", "2026-01-04",
       "2026-01-05", "2026-02-07", "2026-02-10", "2026-02-14", "2026-02-22",
@@ -222,7 +261,7 @@ describe("clamp to 15", () => {
 });
 
 // ─────────────────────────────────────────────────────────────────────────
-// 9. Edge cases
+// 10. Edge cases
 // ─────────────────────────────────────────────────────────────────────────
 describe("edge cases", () => {
   it("date far outside any range returns 0 on weekday", () => {
