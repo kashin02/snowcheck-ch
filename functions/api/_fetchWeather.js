@@ -189,9 +189,14 @@ async function fetchBatch(batch, { timeout, retries, apiKey }) {
   const lats = batch.map(s => s.lat).join(",");
   const lons = batch.map(s => s.lon).join(",");
   const url = openMeteoUrl(lats, lons, apiKey);
-  const response = await fetchRetry(url, { timeout, retries });
-  const raw = await response.json();
-  return Array.isArray(raw) ? raw : [raw];
+  try {
+    const response = await fetchRetry(url, { timeout, retries });
+    const raw = await response.json();
+    return Array.isArray(raw) ? raw : [raw];
+  } catch (e) {
+    const host = apiKey ? "customer-api.open-meteo.com" : "api.open-meteo.com";
+    throw new Error(`[${host}] ${e.message}`);
+  }
 }
 
 // Exported for testing

@@ -22,6 +22,10 @@ export async function onRequestGet(context) {
 
   return corsJson({
     now: new Date().toISOString(),
+    config: {
+      apiKeySet: !!env.OPEN_METEO_API_KEY,
+      apiKeyLength: env.OPEN_METEO_API_KEY?.length || 0,
+    },
     sources: {
       weather: summary(weather),
       snow: summary(snow),
