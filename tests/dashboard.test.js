@@ -9,6 +9,7 @@ vi.mock("../functions/api/_helpers.js", () => ({
   })),
   sourceGet: vi.fn(),
   sourcePut: vi.fn(),
+  logFetch: vi.fn(),
 }));
 
 vi.mock("../functions/api/_fetchWeather.js", () => ({
@@ -53,9 +54,9 @@ describe("SOURCES configuration", () => {
   it("weather has correct config", () => {
     expect(SOURCES.weather).toEqual({
       kvKey: "src:weather",
-      kvTtl: 7200,
-      staleAge: 3300,
-      retryInterval: 600,
+      kvTtl: 21600,
+      staleAge: 10800,
+      retryInterval: 3600,
     });
   });
 
@@ -65,9 +66,13 @@ describe("SOURCES configuration", () => {
     expect(SOURCES.snow.retryInterval).toBe(300); // 5min
   });
 
-  it("avalanche matches weather timing", () => {
-    expect(SOURCES.avalanche.kvTtl).toBe(SOURCES.weather.kvTtl);
-    expect(SOURCES.avalanche.staleAge).toBe(SOURCES.weather.staleAge);
+  it("avalanche has correct config", () => {
+    expect(SOURCES.avalanche).toEqual({
+      kvKey: "src:avalanche",
+      kvTtl: 7200,
+      staleAge: 3300,
+      retryInterval: 600,
+    });
   });
 });
 
@@ -103,8 +108,8 @@ describe("ageSeconds", () => {
 // ─────────────────────────────────────────────────────────────────────────
 describe("isStale", () => {
   it("returns true when age >= staleAge", () => {
-    const old = { fetchedAt: new Date(Date.now() - 3400000).toISOString() }; // 3400s
-    expect(isStale(old, SOURCES.weather)).toBe(true); // staleAge = 3300
+    const old = { fetchedAt: new Date(Date.now() - 11000000).toISOString() }; // 11000s > 10800
+    expect(isStale(old, SOURCES.weather)).toBe(true); // staleAge = 10800
   });
 
   it("returns false when age < staleAge", () => {
@@ -144,7 +149,7 @@ describe("needsRetry", () => {
   it("returns true when retry interval has elapsed", () => {
     const failed = {
       ok: false,
-      lastFailAt: new Date(Date.now() - 700000).toISOString(), // 700s > 600s retryInterval
+      lastFailAt: new Date(Date.now() - 3700000).toISOString(), // 3700s > 3600s retryInterval
     };
     expect(needsRetry(failed, SOURCES.weather)).toBe(true);
   });
@@ -152,7 +157,7 @@ describe("needsRetry", () => {
   it("returns false when retry interval has NOT elapsed", () => {
     const failed = {
       ok: false,
-      lastFailAt: new Date(Date.now() - 100000).toISOString(), // 100s < 600s
+      lastFailAt: new Date(Date.now() - 100000).toISOString(), // 100s < 3600s
     };
     expect(needsRetry(failed, SOURCES.weather)).toBe(false);
   });
@@ -320,7 +325,7 @@ describe("onRequestGet", () => {
     it("returns cached immediately and triggers background refresh", async () => {
       const staleWeather = {
         ...freshWeatherEntry,
-        fetchedAt: new Date(Date.now() - 3400000).toISOString(), // 3400s > 3300 staleAge
+        fetchedAt: new Date(Date.now() - 11000000).toISOString(), // 11000s > 10800 staleAge
       };
 
       sourceGet
@@ -432,11 +437,11 @@ describe("onRequestGet", () => {
     it("triggers background refresh for both stale and retryable sources", async () => {
       const staleWeather = {
         ...freshWeatherEntry,
-        fetchedAt: new Date(Date.now() - 4000000).toISOString(), // very stale
+        fetchedAt: new Date(Date.now() - 11000000).toISOString(), // very stale
       };
       const retryableAvalanche = {
         ok: false,
-        lastFailAt: new Date(Date.now() - 700000).toISOString(), // > 600s retryInterval
+        lastFailAt: new Date(Date.now() - 700000).toISOString(), // > 600s avalanche retryInterval
         data: null,
       };
 
@@ -515,7 +520,7 @@ describe("refreshSource", () => {
     const snowPut = putCalls.find(c => c[1] === "src:snow");
     const avalanchePut = putCalls.find(c => c[1] === "src:avalanche");
 
-    expect(weatherPut[3]).toBe(7200);   // kvTtl
+    expect(weatherPut[3]).toBe(21600);  // kvTtl
     expect(snowPut[3]).toBe(3600);
     expect(avalanchePut[3]).toBe(7200);
   });

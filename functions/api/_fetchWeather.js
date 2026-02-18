@@ -179,10 +179,16 @@ const hourlyParams = [
 ].join(",");
 const dailyParams = "snowfall_sum,sunshine_duration,temperature_2m_max,temperature_2m_min,wind_speed_10m_max,cloud_cover_mean";
 
-async function fetchBatch(batch, { timeout, retries }) {
+function openMeteoUrl(lats, lons, apiKey) {
+  const host = apiKey ? "customer-api.open-meteo.com" : "api.open-meteo.com";
+  const keyParam = apiKey ? `&apikey=${apiKey}` : "";
+  return `https://${host}/v1/forecast?latitude=${lats}&longitude=${lons}&daily=${dailyParams}&hourly=${hourlyParams}&forecast_days=6&timezone=Europe/Zurich${keyParam}`;
+}
+
+async function fetchBatch(batch, { timeout, retries, apiKey }) {
   const lats = batch.map(s => s.lat).join(",");
   const lons = batch.map(s => s.lon).join(",");
-  const url = `https://api.open-meteo.com/v1/forecast?latitude=${lats}&longitude=${lons}&daily=${dailyParams}&hourly=${hourlyParams}&forecast_days=6&timezone=Europe/Zurich`;
+  const url = openMeteoUrl(lats, lons, apiKey);
   const response = await fetchRetry(url, { timeout, retries });
   const raw = await response.json();
   return Array.isArray(raw) ? raw : [raw];
@@ -191,7 +197,7 @@ async function fetchBatch(batch, { timeout, retries }) {
 // Exported for testing
 export { visScore, flatLightScore, cloudScore, precipScore, humidityScore, immersionScore, computeHourlyJBI, processStation, getWeatherIcon };
 
-export async function fetchWeatherData({ timeout = 20000, retries = 2 } = {}) {
+export async function fetchWeatherData({ timeout = 20000, retries = 2, apiKey } = {}) {
   // Split stations into batches
   const batches = [];
   for (let i = 0; i < stationCoords.length; i += BATCH_SIZE) {
@@ -205,7 +211,7 @@ export async function fetchWeatherData({ timeout = 20000, retries = 2 } = {}) {
   for (let i = 0; i < batches.length; i += CONCURRENCY) {
     const chunk = batches.slice(i, i + CONCURRENCY);
     const settled = await Promise.allSettled(
-      chunk.map(b => fetchBatch(b.stations, { timeout, retries }))
+      chunk.map(b => fetchBatch(b.stations, { timeout, retries, apiKey }))
     );
 
     settled.forEach((result, ci) => {

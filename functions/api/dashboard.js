@@ -1,4 +1,4 @@
-import { corsJson, sourceGet, sourcePut } from "./_helpers.js";
+import { corsJson, sourceGet, sourcePut, logFetch } from "./_helpers.js";
 import { fetchWeatherData } from "./_fetchWeather.js";
 import { fetchSnowData } from "./_fetchSnow.js";
 import { fetchAvalancheData } from "./_fetchAvalanche.js";
@@ -9,7 +9,7 @@ import { fetchAvalancheData } from "./_fetchAvalanche.js";
 //  retryInterval: wait before retrying a failed source
 
 const SOURCES = {
-  weather:   { kvKey: "src:weather",   kvTtl: 7200, staleAge: 3300, retryInterval: 600 },
+  weather:   { kvKey: "src:weather",   kvTtl: 21600, staleAge: 10800, retryInterval: 3600 },
   snow:      { kvKey: "src:snow",      kvTtl: 3600, staleAge: 1200, retryInterval: 300 },
   avalanche: { kvKey: "src:avalanche", kvTtl: 7200, staleAge: 3300, retryInterval: 600 },
 };
@@ -21,7 +21,7 @@ const SOURCES = {
 function makeFetcher(name, cached, opts = {}) {
   const cold = opts.coldStart;
   switch (name) {
-    case "weather":   return fetchWeatherData({ timeout: cold ? 8000 : 12000, retries: cold ? 0 : 1 });
+    case "weather":   return fetchWeatherData({ timeout: cold ? 8000 : 12000, retries: cold ? 0 : 1, apiKey: opts.apiKey });
     case "snow":      return fetchSnowData({ timeout: cold ? 4000 : 6000, cachedStations: cached?.data?.stations || {} });
     case "avalanche": return fetchAvalancheData({ timeout: cold ? 4000 : 6000, retries: cold ? 0 : 1 });
   }
@@ -29,22 +29,26 @@ function makeFetcher(name, cached, opts = {}) {
 
 async function refreshSource(env, name, cached, opts = {}) {
   const cfg = SOURCES[name];
+  opts.apiKey = opts.apiKey || env.OPEN_METEO_API_KEY;
   const t0 = Date.now();
   try {
     const data = await makeFetcher(name, cached, opts);
     const entry = { ok: true, fetchedAt: new Date().toISOString(), ms: Date.now() - t0, data };
     await sourcePut(env, cfg.kvKey, entry, cfg.kvTtl);
+    await logFetch(env, name, { ok: true, ms: entry.ms });
     return entry;
   } catch (e) {
+    const error = e?.message || "Unknown error";
     const entry = {
       ok: false,
-      error: e?.message || "Unknown error",
+      error,
       fetchedAt: cached?.fetchedAt || new Date().toISOString(),
       lastFailAt: new Date().toISOString(),
       ms: Date.now() - t0,
       data: cached?.data || null,
     };
     await sourcePut(env, cfg.kvKey, entry, cfg.kvTtl);
+    await logFetch(env, name, { ok: false, ms: entry.ms, error });
     return entry;
   }
 }
