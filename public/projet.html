@@ -37,8 +37,11 @@
       justify-content: space-between;
       gap: 12px;
     }
-    .logo { text-decoration: none; display: inline-flex; align-items: center; }
-    .logo img { height: 72px; width: auto; }
+    .logo { text-decoration: none; display: inline-flex; align-items: center; gap: 10px; }
+    .logo img { height: 52px; width: auto; }
+    .logo-text { font-family: 'DM Serif Display', serif; font-size: 26px; line-height: 1; }
+    .logo-text .snow  { color: #42BDD6; }
+    .logo-text .check { color: #2D4D72; }
     .back-link {
       font-size: 12px;
       color: #64748b;
@@ -189,8 +192,11 @@
       flex-wrap: wrap;
       gap: 8px;
     }
-    .footer-left { display: inline-flex; align-items: center; }
-    .footer-left img { height: 40px; width: auto; }
+    .footer-left { display: inline-flex; align-items: center; gap: 8px; }
+    .footer-left img { height: 28px; width: auto; }
+    .footer-left .logo-text { font-family: 'DM Serif Display', serif; font-size: 16px; line-height: 1; }
+    .footer-left .snow  { color: #42BDD6; }
+    .footer-left .check { color: #2D4D72; }
     .footer-links {
       display: flex;
       align-items: center;
@@ -217,7 +223,10 @@
 
 <header>
   <div class="header-inner">
-    <a class="logo" href="/"><img src="/logo.png" alt="snowcheck.ch" /></a>
+    <a class="logo" href="/">
+      <img src="/logo-icon.png" alt="" />
+      <span class="logo-text"><span class="snow">snow</span><span class="check">check.ch</span></span>
+    </a>
     <a class="back-link" href="/">&#8592; Retour à l'application</a>
   </div>
 </header>
@@ -331,7 +340,10 @@
 
 <footer>
   <div class="footer-inner">
-    <div class="footer-left"><img src="/logo.png" alt="snowcheck.ch" /></div>
+    <div class="footer-left">
+      <img src="/logo-icon.png" alt="" />
+      <span class="logo-text"><span class="snow">snow</span><span class="check">check.ch</span></span>
+    </div>
     <div class="footer-links">
       <a href="https://www.linkedin.com/in/michaelbarbezat/" target="_blank" rel="noopener noreferrer">LinkedIn</a>
       <span>&middot;</span>
