@@ -20,7 +20,7 @@
       line-height: 1.65;
     }
 
-    a { color: #2563eb; text-decoration: none; }
+    a { color: #42BDD6; text-decoration: none; }
     a:hover { text-decoration: underline; }
 
     /* ── Header ── */
@@ -37,13 +37,8 @@
       justify-content: space-between;
       gap: 12px;
     }
-    .logo {
-      font-family: 'DM Serif Display', serif;
-      font-size: 20px;
-      color: #0f172a;
-      text-decoration: none;
-    }
-    .logo span { color: #3b82f6; }
+    .logo { text-decoration: none; display: inline-flex; align-items: center; }
+    .logo img { height: 72px; width: auto; }
     .back-link {
       font-size: 12px;
       color: #64748b;
@@ -136,7 +131,7 @@
       border: 1px solid;
     }
     .pill-top    { color: #059669; background: #ecfdf5; border-color: #a7f3d0; }
-    .pill-good   { color: #2563eb; background: #eff6ff; border-color: #bfdbfe; }
+    .pill-good   { color: #2D4D72; background: #EBF8FB; border-color: #A8DDE9; }
     .pill-ok     { color: #d97706; background: #fffbeb; border-color: #fde68a; }
     .pill-bad    { color: #dc2626; background: #fef2f2; border-color: #fecaca; }
 
@@ -194,12 +189,8 @@
       flex-wrap: wrap;
       gap: 8px;
     }
-    .footer-left {
-      font-family: 'DM Serif Display', serif;
-      font-size: 14px;
-      color: #0f172a;
-    }
-    .footer-left span { color: #3b82f6; }
+    .footer-left { display: inline-flex; align-items: center; }
+    .footer-left img { height: 40px; width: auto; }
     .footer-links {
       display: flex;
       align-items: center;
@@ -226,7 +217,7 @@
 
 <header>
   <div class="header-inner">
-    <a class="logo" href="/">snowcheck<span>.ch</span></a>
+    <a class="logo" href="/"><img src="/logo.png" alt="snowcheck.ch" /></a>
     <a class="back-link" href="/">&#8592; Retour à l'application</a>
   </div>
 </header>
@@ -340,7 +331,7 @@
 
 <footer>
   <div class="footer-inner">
-    <div class="footer-left">snowcheck<span>.ch</span></div>
+    <div class="footer-left"><img src="/logo.png" alt="snowcheck.ch" /></div>
     <div class="footer-links">
       <a href="https://www.linkedin.com/in/michaelbarbezat/" target="_blank" rel="noopener noreferrer">LinkedIn</a>
       <span>&middot;</span>

@@ -1,7 +1,7 @@
 export const stations = [
   // ──────────────────────────── VALAIS (22) ────────────────────────────
   {
-    id: "saas-fee", name: "Saas-Fee", region: "Valais", alt: "1800\u20133600m",
+    id: "saas-fee", name: "Saas-Fee", region: "Valais", alt: "1800–3600m",
     coordinates: { lat: 46.1082, lon: 7.9275 },
     imisCode: "SAA2", slfRegionId: "CH-4223",
     operational: { pistesOpen: 58, pistesTotal: 100, liftsOpen: 18, liftsTotal: 23 },
@@ -11,7 +11,7 @@ export const stations = [
     pisteMapUrl: "https://www.saas-fee.ch/en/winter-in-the-saas-valley/piste-map",
   },
   {
-    id: "grimentz-zinal", name: "Grimentz-Zinal", region: "Valais", alt: "1570\u20132900m",
+    id: "grimentz-zinal", name: "Grimentz-Zinal", region: "Valais", alt: "1570–2900m",
     coordinates: { lat: 46.1833, lon: 7.5833 },
     imisCode: "ANV3", slfRegionId: "CH-4124",
     operational: { pistesOpen: 88, pistesTotal: 115, liftsOpen: 21, liftsTotal: 21 },
@@ -21,7 +21,7 @@ export const stations = [
     pisteMapUrl: "https://www.valdanniviers.ch/en/Z15412/map-grimentz-zinal",
   },
   {
-    id: "anzere", name: "Anz\u00e8re", region: "Valais", alt: "1500\u20132420m",
+    id: "anzere", name: "Anzère", region: "Valais", alt: "1500–2420m",
     coordinates: { lat: 46.3000, lon: 7.4000 },
     imisCode: "ANZ2", slfRegionId: "CH-2122",
     operational: { pistesOpen: 24, pistesTotal: 57, liftsOpen: 10, liftsTotal: 12 },
@@ -31,7 +31,7 @@ export const stations = [
     pisteMapUrl: "https://www.anzere.ch/en/ski-lifts/ski-area/",
   },
   {
-    id: "st-luc-chandolin", name: "St-Luc/Chandolin", region: "Valais", alt: "1650\u20133000m",
+    id: "st-luc-chandolin", name: "St-Luc/Chandolin", region: "Valais", alt: "1650–3000m",
     coordinates: { lat: 46.2167, lon: 7.6000 },
     imisCode: "STL2", slfRegionId: "CH-4124",
     operational: { pistesOpen: 50, pistesTotal: 60, liftsOpen: 10, liftsTotal: 12 },
@@ -41,7 +41,7 @@ export const stations = [
     pisteMapUrl: "https://www.valdanniviers.ch/en/Z15413/map-slc",
   },
   {
-    id: "arolla", name: "Arolla", region: "Valais", alt: "2000\u20133000m",
+    id: "arolla", name: "Arolla", region: "Valais", alt: "2000–3000m",
     coordinates: { lat: 46.0333, lon: 7.4833 },
     imisCode: "ARO2", slfRegionId: "CH-4114",
     operational: { pistesOpen: 6, pistesTotal: 6, liftsOpen: 3, liftsTotal: 6 },
@@ -51,7 +51,7 @@ export const stations = [
     pisteMapUrl: "https://www.valdherens.ch/en/espace-dent-blanche-ski-sector-arolla-fp42182",
   },
   {
-    id: "leukerbad", name: "Leukerbad", region: "Valais", alt: "1411\u20132610m",
+    id: "leukerbad", name: "Leukerbad", region: "Valais", alt: "1411–2610m",
     coordinates: { lat: 46.3833, lon: 7.6333 },
     imisCode: "MUN2", slfRegionId: "CH-2122",
     operational: { pistesOpen: 20, pistesTotal: 25, liftsOpen: 9, liftsTotal: 9 },
@@ -61,7 +61,7 @@ export const stations = [
     pisteMapUrl: "https://leukerbad.ch/en/open-lifts",
   },
   {
-    id: "blatten-belalp", name: "Blatten-Belalp", region: "Valais", alt: "1322\u20132562m",
+    id: "blatten-belalp", name: "Blatten-Belalp", region: "Valais", alt: "1322–2562m",
     coordinates: { lat: 46.3719, lon: 7.8656 },
     imisCode: "BEL2", slfRegionId: "CH-4212",
     operational: { pistesOpen: 30, pistesTotal: 45, liftsOpen: 8, liftsTotal: 10 },
@@ -71,7 +71,7 @@ export const stations = [
     pisteMapUrl: "https://www.belalp.ch/en/winter/slopes-lifts",
   },
   {
-    id: "vercorin", name: "Vercorin", region: "Valais", alt: "1300\u20132500m",
+    id: "vercorin", name: "Vercorin", region: "Valais", alt: "1300–2500m",
     coordinates: { lat: 46.2500, lon: 7.5333 },
     imisCode: null, slfRegionId: "CH-4124",
     operational: { pistesOpen: 25, pistesTotal: 36, liftsOpen: 6, liftsTotal: 8 },
@@ -81,7 +81,7 @@ export const stations = [
     pisteMapUrl: "https://www.vercorin.ch/en/winter/ski-area",
   },
   {
-    id: "ovronnaz", name: "Ovronnaz", region: "Valais", alt: "1340\u20132500m",
+    id: "ovronnaz", name: "Ovronnaz", region: "Valais", alt: "1340–2500m",
     coordinates: { lat: 46.2000, lon: 7.1667 },
     imisCode: null, slfRegionId: "CH-2111",
     operational: { pistesOpen: 15, pistesTotal: 30, liftsOpen: 5, liftsTotal: 7 },
@@ -91,7 +91,7 @@ export const stations = [
     pisteMapUrl: "https://www.ovronnaz.ch/en/winter/ski-area",
   },
   {
-    id: "evolene", name: "Evol\u00e8ne", region: "Valais", alt: "1400\u20132700m",
+    id: "evolene", name: "Evolène", region: "Valais", alt: "1400–2700m",
     coordinates: { lat: 46.1117, lon: 7.4917 },
     imisCode: "EVO2", slfRegionId: "CH-4114",
     operational: { pistesOpen: 20, pistesTotal: 36, liftsOpen: 5, liftsTotal: 8 },
@@ -101,7 +101,7 @@ export const stations = [
     pisteMapUrl: "https://www.valdherens.ch/en/espace-dent-blanche",
   },
   {
-    id: "la-forclaz", name: "La Forclaz", region: "Valais", alt: "1700\u20132500m",
+    id: "la-forclaz", name: "La Forclaz", region: "Valais", alt: "1700–2500m",
     coordinates: { lat: 46.1300, lon: 7.5000 },
     imisCode: null, slfRegionId: "CH-4114",
     operational: { pistesOpen: 10, pistesTotal: 15, liftsOpen: 3, liftsTotal: 4 },
@@ -111,17 +111,7 @@ export const stations = [
     pisteMapUrl: "https://www.valdherens.ch/en/espace-dent-blanche",
   },
   {
-    id: "champex-lac", name: "Champex-Lac", region: "Valais", alt: "1470\u20132200m",
-    coordinates: { lat: 46.0667, lon: 7.1167 },
-    imisCode: "CHX2", slfRegionId: "CH-4111",
-    operational: { pistesOpen: 7, pistesTotal: 7, liftsOpen: 4, liftsTotal: 4 },
-    snowBase: 152, snowMin: 80, fresh72: 50, freshForecast: 40,
-    quality: "Poudreuse", verdict: "top", sun5: [0, 2, 0, 1, 3],
-    webcamUrl: "https://www.champex.ch/en/webcams",
-    pisteMapUrl: "https://www.saint-bernard.ch/en/ski-lifts/interactive-map-openings-13984/",
-  },
-  {
-    id: "les-marecotes", name: "Les Mar\u00e9cottes", region: "Valais", alt: "1100\u20132200m",
+    id: "les-marecotes", name: "Les Marécottes", region: "Valais", alt: "1100–2200m",
     coordinates: { lat: 46.1090, lon: 7.0083 },
     imisCode: null, slfRegionId: "CH-4111",
     operational: { pistesOpen: 10, pistesTotal: 15, liftsOpen: 4, liftsTotal: 6 },
@@ -131,7 +121,7 @@ export const stations = [
     pisteMapUrl: "https://www.saint-bernard.ch/en/ski-lifts/interactive-map-openings-13984/",
   },
   {
-    id: "nax-mont-noble", name: "Nax \u2013 Mont-Noble", region: "Valais", alt: "1300\u20132362m",
+    id: "nax-mont-noble", name: "Nax – Mont-Noble", region: "Valais", alt: "1300–2362m",
     coordinates: { lat: 46.2333, lon: 7.4333 },
     imisCode: null, slfRegionId: "CH-4114",
     operational: { pistesOpen: 5, pistesTotal: 11, liftsOpen: 3, liftsTotal: 7 },
@@ -141,7 +131,7 @@ export const stations = [
     pisteMapUrl: "https://www.nax.ch/en/winter/ski-area",
   },
   {
-    id: "eischoll", name: "Eischoll", region: "Valais", alt: "1200\u20132100m",
+    id: "eischoll", name: "Eischoll", region: "Valais", alt: "1200–2100m",
     coordinates: { lat: 46.3167, lon: 7.7833 },
     imisCode: null, slfRegionId: "CH-4222",
     operational: { pistesOpen: 8, pistesTotal: 13, liftsOpen: 3, liftsTotal: 4 },
@@ -151,7 +141,7 @@ export const stations = [
     pisteMapUrl: null,
   },
   {
-    id: "unterbaech", name: "Unterb\u00e4ch", region: "Valais", alt: "1230\u20132200m",
+    id: "unterbaech", name: "Unterbäch", region: "Valais", alt: "1230–2200m",
     coordinates: { lat: 46.3000, lon: 7.8000 },
     imisCode: null, slfRegionId: "CH-4222",
     operational: { pistesOpen: 12, pistesTotal: 20, liftsOpen: 4, liftsTotal: 5 },
@@ -161,7 +151,7 @@ export const stations = [
     pisteMapUrl: "https://www.unterbaech.ch/en/winter/slopes",
   },
   {
-    id: "gspon", name: "Gspon", region: "Valais", alt: "1893\u20132868m",
+    id: "gspon", name: "Gspon", region: "Valais", alt: "1893–2868m",
     coordinates: { lat: 46.2333, lon: 7.9167 },
     imisCode: null, slfRegionId: "CH-4223",
     operational: { pistesOpen: 3, pistesTotal: 5, liftsOpen: 2, liftsTotal: 2 },
@@ -171,7 +161,7 @@ export const stations = [
     pisteMapUrl: null,
   },
   {
-    id: "rosswald", name: "Rosswald", region: "Valais", alt: "1500\u20132400m",
+    id: "rosswald", name: "Rosswald", region: "Valais", alt: "1500–2400m",
     coordinates: { lat: 46.3333, lon: 8.0500 },
     imisCode: "SIM2", slfRegionId: "CH-2131",
     operational: { pistesOpen: 8, pistesTotal: 13, liftsOpen: 3, liftsTotal: 3 },
@@ -181,7 +171,7 @@ export const stations = [
     pisteMapUrl: null,
   },
   {
-    id: "jeizinen", name: "Jeizinen", region: "Valais", alt: "1500\u20132093m",
+    id: "jeizinen", name: "Jeizinen", region: "Valais", alt: "1500–2093m",
     coordinates: { lat: 46.3333, lon: 7.7167 },
     imisCode: null, slfRegionId: "CH-4222",
     operational: { pistesOpen: 5, pistesTotal: 10, liftsOpen: 2, liftsTotal: 3 },
@@ -191,7 +181,7 @@ export const stations = [
     pisteMapUrl: null,
   },
   {
-    id: "visperterminen", name: "Visperterminen", region: "Valais", alt: "1340\u20132400m",
+    id: "visperterminen", name: "Visperterminen", region: "Valais", alt: "1340–2400m",
     coordinates: { lat: 46.2667, lon: 7.9000 },
     imisCode: null, slfRegionId: "CH-4223",
     operational: { pistesOpen: 3, pistesTotal: 5, liftsOpen: 2, liftsTotal: 2 },
@@ -201,7 +191,7 @@ export const stations = [
     pisteMapUrl: null,
   },
   {
-    id: "mayens-de-conthey", name: "Mayens de Conthey", region: "Valais", alt: "1300\u20132100m",
+    id: "mayens-de-conthey", name: "Mayens de Conthey", region: "Valais", alt: "1300–2100m",
     coordinates: { lat: 46.2400, lon: 7.3100 },
     imisCode: null, slfRegionId: "CH-2122",
     operational: { pistesOpen: 2, pistesTotal: 4, liftsOpen: 2, liftsTotal: 3 },
@@ -211,7 +201,7 @@ export const stations = [
     pisteMapUrl: null,
   },
   {
-    id: "lauchernalp", name: "Lauchernalp", region: "Valais", alt: "1969\u20133111m",
+    id: "lauchernalp", name: "Lauchernalp", region: "Valais", alt: "1969–3111m",
     coordinates: { lat: 46.4000, lon: 7.7500 },
     imisCode: null, slfRegionId: "CH-4221",
     operational: { pistesOpen: 15, pistesTotal: 25, liftsOpen: 4, liftsTotal: 5 },
@@ -221,7 +211,7 @@ export const stations = [
     pisteMapUrl: "https://www.loetschental.ch/en/winter/ski-area",
   },
   {
-    id: "moosalp", name: "Moosalp", region: "Valais", alt: "2000\u20132460m",
+    id: "moosalp", name: "Moosalp", region: "Valais", alt: "2000–2460m",
     coordinates: { lat: 46.3000, lon: 7.8500 },
     imisCode: null, slfRegionId: "CH-4222",
     operational: { pistesOpen: 3, pistesTotal: 5, liftsOpen: 2, liftsTotal: 3 },
@@ -232,7 +222,7 @@ export const stations = [
   },
   // ──────────────────────────── VAUD (10) ────────────────────────────
   {
-    id: "glacier-3000", name: "Glacier 3000", region: "Vaud", alt: "1350\u20133000m",
+    id: "glacier-3000", name: "Glacier 3000", region: "Vaud", alt: "1350–3000m",
     coordinates: { lat: 46.3567, lon: 7.2033 },
     imisCode: "DIA2", slfRegionId: "CH-1224",
     operational: { pistesOpen: 22, pistesTotal: 31, liftsOpen: 10, liftsTotal: 12 },
@@ -242,7 +232,7 @@ export const stations = [
     pisteMapUrl: "https://www.glacier3000.ch/en/activities/ski-snowboard",
   },
   {
-    id: "villars-gryon", name: "Villars-Gryon", region: "Vaud", alt: "1200\u20132120m",
+    id: "villars-gryon", name: "Villars-Gryon", region: "Vaud", alt: "1200–2120m",
     coordinates: { lat: 46.3000, lon: 7.0500 },
     imisCode: "CHA2", slfRegionId: "CH-1114",
     operational: { pistesOpen: 50, pistesTotal: 65, liftsOpen: 18, liftsTotal: 20 },
@@ -252,7 +242,7 @@ export const stations = [
     pisteMapUrl: "https://www.tvgd.ch/en-US/map/",
   },
   {
-    id: "leysin", name: "Leysin", region: "Vaud", alt: "1260\u20132205m",
+    id: "leysin", name: "Leysin", region: "Vaud", alt: "1260–2205m",
     coordinates: { lat: 46.3500, lon: 7.0167 },
     imisCode: "CHA3", slfRegionId: "CH-1114",
     operational: { pistesOpen: 28, pistesTotal: 60, liftsOpen: 9, liftsTotal: 13 },
@@ -262,7 +252,7 @@ export const stations = [
     pisteMapUrl: "https://www.tlml.ch/de-DE/Pistenplan/",
   },
   {
-    id: "les-pleiades", name: "Les Pl\u00e9iades", region: "Vaud", alt: "1360\u20131397m",
+    id: "les-pleiades", name: "Les Pléiades", region: "Vaud", alt: "1360–1397m",
     coordinates: { lat: 46.4667, lon: 6.8500 },
     imisCode: "PLI2", slfRegionId: "CH-1111",
     operational: { pistesOpen: 3, pistesTotal: 15, liftsOpen: 7, liftsTotal: 10 },
@@ -272,7 +262,7 @@ export const stations = [
     pisteMapUrl: "https://www.lespleiades.ch/domaine.html",
   },
   {
-    id: "les-diablerets", name: "Les Diablerets", region: "Vaud", alt: "1200\u20132200m",
+    id: "les-diablerets", name: "Les Diablerets", region: "Vaud", alt: "1200–2200m",
     coordinates: { lat: 46.3500, lon: 7.2167 },
     imisCode: "DIA2", slfRegionId: "CH-1224",
     operational: { pistesOpen: 10, pistesTotal: 15, liftsOpen: 5, liftsTotal: 7 },
@@ -282,7 +272,7 @@ export const stations = [
     pisteMapUrl: "https://www.villars-diablerets.ch/en/ski-area",
   },
   {
-    id: "les-mosses", name: "Les Mosses \u2013 La L\u00e9cherette", region: "Vaud", alt: "1445\u20131870m",
+    id: "les-mosses", name: "Les Mosses – La Lécherette", region: "Vaud", alt: "1445–1870m",
     coordinates: { lat: 46.3950, lon: 7.1050 },
     imisCode: null, slfRegionId: "CH-1114",
     operational: { pistesOpen: 20, pistesTotal: 38, liftsOpen: 8, liftsTotal: 12 },
@@ -292,7 +282,7 @@ export const stations = [
     pisteMapUrl: "https://www.aigle-leysin-lesmosses.ch/en/les-mosses",
   },
   {
-    id: "les-rochers-de-naye", name: "Rochers-de-Naye", region: "Vaud", alt: "1600\u20132042m",
+    id: "les-rochers-de-naye", name: "Rochers-de-Naye", region: "Vaud", alt: "1600–2042m",
     coordinates: { lat: 46.4300, lon: 6.9833 },
     imisCode: null, slfRegionId: "CH-1114",
     operational: { pistesOpen: 2, pistesTotal: 4, liftsOpen: 2, liftsTotal: 3 },
@@ -302,7 +292,7 @@ export const stations = [
     pisteMapUrl: null,
   },
   {
-    id: "les-rasses", name: "Les Rasses", region: "Vaud", alt: "1200\u20131607m",
+    id: "les-rasses", name: "Les Rasses", region: "Vaud", alt: "1200–1607m",
     coordinates: { lat: 46.7800, lon: 6.5100 },
     imisCode: null, slfRegionId: "CH-1111",
     operational: { pistesOpen: 10, pistesTotal: 20, liftsOpen: 5, liftsTotal: 8 },
@@ -312,7 +302,7 @@ export const stations = [
     pisteMapUrl: "https://www.les-rasses.ch/plan-des-pistes",
   },
   {
-    id: "vallee-de-joux", name: "Vall\u00e9e de Joux", region: "Vaud", alt: "1000\u20131450m",
+    id: "vallee-de-joux", name: "Vallée de Joux", region: "Vaud", alt: "1000–1450m",
     coordinates: { lat: 46.6167, lon: 6.2500 },
     imisCode: null, slfRegionId: "CH-1111",
     operational: { pistesOpen: 10, pistesTotal: 23, liftsOpen: 5, liftsTotal: 7 },
@@ -322,7 +312,7 @@ export const stations = [
     pisteMapUrl: "https://www.myvalleedejoux.ch/en/ski-area",
   },
   {
-    id: "saint-cergue", name: "Saint-Cergue", region: "Vaud", alt: "1040\u20131250m",
+    id: "saint-cergue", name: "Saint-Cergue", region: "Vaud", alt: "1040–1250m",
     coordinates: { lat: 46.4500, lon: 6.1600 },
     imisCode: null, slfRegionId: "CH-1111",
     operational: { pistesOpen: 2, pistesTotal: 3, liftsOpen: 4, liftsTotal: 8 },
@@ -331,9 +321,9 @@ export const stations = [
     webcamUrl: null,
     pisteMapUrl: null,
   },
-  // ──────────────────────────── BERNE (24) ────────────────────────────
+  // ──────────────────────────── BERNE (26) ────────────────────────────
   {
-    id: "gstaad", name: "Gstaad", region: "Berne", alt: "1050\u20132160m",
+    id: "gstaad", name: "Gstaad", region: "Berne", alt: "1050–2160m",
     coordinates: { lat: 46.4750, lon: 7.2867 },
     imisCode: "LAU2", slfRegionId: "CH-1225",
     operational: { pistesOpen: 100, pistesTotal: 173, liftsOpen: 25, liftsTotal: 31 },
@@ -343,7 +333,57 @@ export const stations = [
     pisteMapUrl: "https://www.gstaad.ch/interaktivekarte/index.php?lang=en",
   },
   {
-    id: "meiringen-hasliberg", name: "Meiringen-Hasliberg", region: "Berne", alt: "600\u20132433m",
+    id: "rougemont-eggli", name: "Rougemont / Eggli", region: "Berne", alt: "1000–2000m",
+    coordinates: { lat: 46.4800, lon: 7.3100 },
+    imisCode: null, slfRegionId: "CH-1225",
+    operational: { pistesOpen: 20, pistesTotal: 35, liftsOpen: 6, liftsTotal: 8 },
+    snowBase: 60, snowMin: 20, fresh72: 5, freshForecast: 20,
+    quality: "Compacte", verdict: "ok", sun5: [0, 2, 0, 1, 3],
+    webcamUrl: null,
+    pisteMapUrl: null,
+  },
+  {
+    id: "zweisimmen-rinderberg", name: "Zweisimmen / Rinderberg", region: "Berne", alt: "949–2000m",
+    coordinates: { lat: 46.5500, lon: 7.3900 },
+    imisCode: null, slfRegionId: "CH-1225",
+    operational: { pistesOpen: 25, pistesTotal: 40, liftsOpen: 7, liftsTotal: 9 },
+    snowBase: 60, snowMin: 20, fresh72: 5, freshForecast: 20,
+    quality: "Compacte", verdict: "ok", sun5: [0, 2, 0, 1, 3],
+    webcamUrl: null,
+    pisteMapUrl: null,
+  },
+  {
+    id: "saanenmoeser", name: "Saanenmöser", region: "Berne", alt: "1278–1902m",
+    coordinates: { lat: 46.4900, lon: 7.2700 },
+    imisCode: null, slfRegionId: "CH-1225",
+    operational: { pistesOpen: 15, pistesTotal: 25, liftsOpen: 5, liftsTotal: 7 },
+    snowBase: 60, snowMin: 20, fresh72: 5, freshForecast: 20,
+    quality: "Compacte", verdict: "ok", sun5: [0, 2, 0, 1, 3],
+    webcamUrl: null,
+    pisteMapUrl: null,
+  },
+  {
+    id: "schoenried", name: "Schönried", region: "Berne", alt: "1230–2017m",
+    coordinates: { lat: 46.5000, lon: 7.2600 },
+    imisCode: null, slfRegionId: "CH-1225",
+    operational: { pistesOpen: 15, pistesTotal: 25, liftsOpen: 5, liftsTotal: 7 },
+    snowBase: 60, snowMin: 20, fresh72: 5, freshForecast: 20,
+    quality: "Compacte", verdict: "ok", sun5: [0, 2, 0, 1, 3],
+    webcamUrl: null,
+    pisteMapUrl: null,
+  },
+  {
+    id: "st-stephan", name: "St. Stephan", region: "Berne", alt: "1000–1900m",
+    coordinates: { lat: 46.4900, lon: 7.4200 },
+    imisCode: null, slfRegionId: "CH-1225",
+    operational: { pistesOpen: 15, pistesTotal: 25, liftsOpen: 5, liftsTotal: 6 },
+    snowBase: 50, snowMin: 15, fresh72: 5, freshForecast: 20,
+    quality: "Compacte", verdict: "ok", sun5: [0, 2, 0, 1, 3],
+    webcamUrl: null,
+    pisteMapUrl: null,
+  },
+  {
+    id: "meiringen-hasliberg", name: "Meiringen-Hasliberg", region: "Berne", alt: "600–2433m",
     coordinates: { lat: 46.7333, lon: 8.1833 },
     imisCode: "GUT2", slfRegionId: "CH-1244",
     operational: { pistesOpen: 45, pistesTotal: 60, liftsOpen: 12, liftsTotal: 15 },
@@ -353,7 +393,7 @@ export const stations = [
     pisteMapUrl: "https://www.meiringen-hasliberg.ch/en/Info/Map",
   },
   {
-    id: "wiriehorn", name: "Wiriehorn", region: "Berne", alt: "1050\u20132304m",
+    id: "wiriehorn", name: "Wiriehorn", region: "Berne", alt: "1050–2304m",
     coordinates: { lat: 46.6300, lon: 7.4500 },
     imisCode: null, slfRegionId: "CH-1225",
     operational: { pistesOpen: 15, pistesTotal: 30, liftsOpen: 6, liftsTotal: 8 },
@@ -363,7 +403,7 @@ export const stations = [
     pisteMapUrl: "https://www.wiriehorn.ch/en/winter/slopes",
   },
   {
-    id: "axalp", name: "Axalp", region: "Berne", alt: "1536\u20132320m",
+    id: "axalp", name: "Axalp", region: "Berne", alt: "1536–2320m",
     coordinates: { lat: 46.7200, lon: 8.0500 },
     imisCode: null, slfRegionId: "CH-1244",
     operational: { pistesOpen: 10, pistesTotal: 15, liftsOpen: 4, liftsTotal: 6 },
@@ -373,7 +413,7 @@ export const stations = [
     pisteMapUrl: "https://www.axalp.ch/winter/piste-map",
   },
   {
-    id: "beatenberg-niederhorn", name: "Beatenberg-Niederhorn", region: "Berne", alt: "1129\u20131963m",
+    id: "beatenberg-niederhorn", name: "Beatenberg-Niederhorn", region: "Berne", alt: "1129–1963m",
     coordinates: { lat: 46.7000, lon: 7.7800 },
     imisCode: null, slfRegionId: "CH-1228",
     operational: { pistesOpen: 5, pistesTotal: 9, liftsOpen: 3, liftsTotal: 5 },
@@ -383,7 +423,7 @@ export const stations = [
     pisteMapUrl: "https://www.niederhorn.ch/en/winter",
   },
   {
-    id: "grimmialp", name: "Grimmialp", region: "Berne", alt: "1220\u20131750m",
+    id: "grimmialp", name: "Grimmialp", region: "Berne", alt: "1220–1750m",
     coordinates: { lat: 46.6200, lon: 7.4700 },
     imisCode: null, slfRegionId: "CH-1225",
     operational: { pistesOpen: 8, pistesTotal: 15, liftsOpen: 4, liftsTotal: 5 },
@@ -393,7 +433,7 @@ export const stations = [
     pisteMapUrl: null,
   },
   {
-    id: "schwarzsee", name: "Schwarzsee", region: "Fribourg", alt: "1050\u20131750m",
+    id: "schwarzsee", name: "Schwarzsee (Lac Noir)", region: "Berne", alt: "1050–1750m",
     coordinates: { lat: 46.6700, lon: 7.2800 },
     imisCode: null, slfRegionId: "CH-1213",
     operational: { pistesOpen: 15, pistesTotal: 30, liftsOpen: 5, liftsTotal: 7 },
@@ -403,7 +443,7 @@ export const stations = [
     pisteMapUrl: "https://www.schwarzsee.ch/en/winter/ski-area",
   },
   {
-    id: "jaunpass", name: "Jaunpass", region: "Berne", alt: "1000\u20131800m",
+    id: "jaunpass", name: "Jaunpass", region: "Berne", alt: "1000–1800m",
     coordinates: { lat: 46.5900, lon: 7.3400 },
     imisCode: "JAU2", slfRegionId: "CH-1213",
     operational: { pistesOpen: 5, pistesTotal: 10, liftsOpen: 3, liftsTotal: 4 },
@@ -413,7 +453,7 @@ export const stations = [
     pisteMapUrl: null,
   },
   {
-    id: "eriz", name: "Eriz", region: "Berne", alt: "1100\u20131440m",
+    id: "eriz", name: "Eriz", region: "Berne", alt: "1100–1440m",
     coordinates: { lat: 46.7800, lon: 7.8000 },
     imisCode: null, slfRegionId: "CH-1226",
     operational: { pistesOpen: 3, pistesTotal: 6, liftsOpen: 2, liftsTotal: 3 },
@@ -423,7 +463,7 @@ export const stations = [
     pisteMapUrl: null,
   },
   {
-    id: "bumbach-schangnau", name: "Bumbach-Schangnau", region: "Berne", alt: "930\u20131300m",
+    id: "bumbach-schangnau", name: "Bumbach-Schangnau", region: "Berne", alt: "930–1300m",
     coordinates: { lat: 46.8100, lon: 7.8500 },
     imisCode: null, slfRegionId: "CH-1226",
     operational: { pistesOpen: 2, pistesTotal: 5, liftsOpen: 2, liftsTotal: 3 },
@@ -433,7 +473,7 @@ export const stations = [
     pisteMapUrl: null,
   },
   {
-    id: "habkern", name: "Habkern", region: "Berne", alt: "1100\u20131600m",
+    id: "habkern", name: "Habkern", region: "Berne", alt: "1100–1600m",
     coordinates: { lat: 46.7200, lon: 7.8700 },
     imisCode: null, slfRegionId: "CH-1226",
     operational: { pistesOpen: 4, pistesTotal: 8, liftsOpen: 2, liftsTotal: 2 },
@@ -443,7 +483,7 @@ export const stations = [
     pisteMapUrl: null,
   },
   {
-    id: "springenboden", name: "Springenboden", region: "Berne", alt: "1100\u20131500m",
+    id: "springenboden", name: "Springenboden", region: "Berne", alt: "1100–1500m",
     coordinates: { lat: 46.6000, lon: 7.4500 },
     imisCode: null, slfRegionId: "CH-1225",
     operational: { pistesOpen: 3, pistesTotal: 5, liftsOpen: 2, liftsTotal: 2 },
@@ -453,7 +493,7 @@ export const stations = [
     pisteMapUrl: null,
   },
   {
-    id: "gantrisch-gurnigel", name: "Gantrisch Gurnigel", region: "Berne", alt: "1100\u20131590m",
+    id: "gantrisch-gurnigel", name: "Gantrisch Gurnigel", region: "Berne", alt: "1100–1590m",
     coordinates: { lat: 46.7300, lon: 7.4500 },
     imisCode: null, slfRegionId: "CH-1231",
     operational: { pistesOpen: 3, pistesTotal: 6, liftsOpen: 2, liftsTotal: 3 },
@@ -463,7 +503,7 @@ export const stations = [
     pisteMapUrl: null,
   },
   {
-    id: "kiental", name: "Kiental", region: "Berne", alt: "960\u20131700m",
+    id: "kiental", name: "Kiental", region: "Berne", alt: "960–1700m",
     coordinates: { lat: 46.6300, lon: 7.7300 },
     imisCode: null, slfRegionId: "CH-1226",
     operational: { pistesOpen: 3, pistesTotal: 5, liftsOpen: 2, liftsTotal: 3 },
@@ -473,7 +513,7 @@ export const stations = [
     pisteMapUrl: null,
   },
   {
-    id: "aeschiallmend", name: "Aeschiallmend", region: "Berne", alt: "860\u20131050m",
+    id: "aeschiallmend", name: "Aeschiallmend", region: "Berne", alt: "860–1050m",
     coordinates: { lat: 46.6500, lon: 7.7000 },
     imisCode: null, slfRegionId: "CH-1226",
     operational: { pistesOpen: 1, pistesTotal: 2, liftsOpen: 1, liftsTotal: 1 },
@@ -483,7 +523,7 @@ export const stations = [
     pisteMapUrl: null,
   },
   {
-    id: "heimenschwand", name: "Heimenschwand", region: "Berne", alt: "1080\u20131300m",
+    id: "heimenschwand", name: "Heimenschwand", region: "Berne", alt: "1080–1300m",
     coordinates: { lat: 46.8000, lon: 7.7000 },
     imisCode: null, slfRegionId: "CH-1226",
     operational: { pistesOpen: 1, pistesTotal: 1, liftsOpen: 1, liftsTotal: 1 },
@@ -493,7 +533,7 @@ export const stations = [
     pisteMapUrl: null,
   },
   {
-    id: "linden", name: "Linden", region: "Berne", alt: "800\u20131000m",
+    id: "linden", name: "Linden", region: "Berne", alt: "800–1000m",
     coordinates: { lat: 46.8500, lon: 7.6800 },
     imisCode: null, slfRegionId: "CH-1226",
     operational: { pistesOpen: 1, pistesTotal: 1, liftsOpen: 1, liftsTotal: 1 },
@@ -503,7 +543,7 @@ export const stations = [
     pisteMapUrl: null,
   },
   {
-    id: "ottenleue", name: "Ottenleue", region: "Berne", alt: "900\u20131100m",
+    id: "ottenleue", name: "Ottenleue", region: "Berne", alt: "900–1100m",
     coordinates: { lat: 46.7800, lon: 7.3800 },
     imisCode: null, slfRegionId: "CH-1231",
     operational: { pistesOpen: 1, pistesTotal: 2, liftsOpen: 1, liftsTotal: 1 },
@@ -513,7 +553,7 @@ export const stations = [
     pisteMapUrl: null,
   },
   {
-    id: "selital", name: "Selital", region: "Berne", alt: "800\u20131050m",
+    id: "selital", name: "Selital", region: "Berne", alt: "800–1050m",
     coordinates: { lat: 46.8300, lon: 7.5200 },
     imisCode: null, slfRegionId: "CH-1231",
     operational: { pistesOpen: 1, pistesTotal: 2, liftsOpen: 1, liftsTotal: 1 },
@@ -523,7 +563,7 @@ export const stations = [
     pisteMapUrl: null,
   },
   {
-    id: "tramelan", name: "Tramelan", region: "Berne", alt: "1000\u20131200m",
+    id: "tramelan", name: "Tramelan", region: "Berne", alt: "1000–1200m",
     coordinates: { lat: 47.2200, lon: 7.1000 },
     imisCode: null, slfRegionId: "CH-1113",
     operational: { pistesOpen: 3, pistesTotal: 5, liftsOpen: 2, liftsTotal: 3 },
@@ -533,7 +573,7 @@ export const stations = [
     pisteMapUrl: null,
   },
   {
-    id: "homberg", name: "Homberg", region: "Berne", alt: "700\u2013900m",
+    id: "homberg", name: "Homberg", region: "Berne", alt: "700–900m",
     coordinates: { lat: 47.1700, lon: 7.7000 },
     imisCode: null, slfRegionId: "CH-1113",
     operational: { pistesOpen: 1, pistesTotal: 1, liftsOpen: 1, liftsTotal: 1 },
@@ -542,9 +582,9 @@ export const stations = [
     webcamUrl: null,
     pisteMapUrl: null,
   },
-  // ──────────────────────────── FRIBOURG (7) ────────────────────────────
+  // ──────────────────────────── FRIBOURG (6) ────────────────────────────
   {
-    id: "charmey", name: "Charmey", region: "Fribourg", alt: "900\u20131630m",
+    id: "charmey", name: "Charmey", region: "Fribourg", alt: "900–1630m",
     coordinates: { lat: 46.6167, lon: 7.1667 },
     imisCode: "JAU2", slfRegionId: "CH-1213",
     operational: { pistesOpen: 7, pistesTotal: 9, liftsOpen: 3, liftsTotal: 4 },
@@ -554,7 +594,7 @@ export const stations = [
     pisteMapUrl: "https://www.charmey.ch/en/slopes-map/",
   },
   {
-    id: "moleson", name: "Mol\u00e9son", region: "Fribourg", alt: "1100\u20132002m",
+    id: "moleson", name: "Moléson", region: "Fribourg", alt: "1100–2002m",
     coordinates: { lat: 46.5500, lon: 7.0167 },
     imisCode: "MOL2", slfRegionId: "CH-1213",
     operational: { pistesOpen: 10, pistesTotal: 26, liftsOpen: 6, liftsTotal: 12 },
@@ -564,7 +604,7 @@ export const stations = [
     pisteMapUrl: "https://www.moleson.ch/en/ski/",
   },
   {
-    id: "la-berra", name: "La Berra", region: "Fribourg", alt: "1050\u20131634m",
+    id: "la-berra", name: "La Berra", region: "Fribourg", alt: "1050–1634m",
     coordinates: { lat: 46.6333, lon: 7.2167 },
     imisCode: "BER2", slfRegionId: "CH-1213",
     operational: { pistesOpen: 1, pistesTotal: 1, liftsOpen: 1, liftsTotal: 2 },
@@ -574,7 +614,7 @@ export const stations = [
     pisteMapUrl: "https://www.laberra.ch/en/facility-openings",
   },
   {
-    id: "jaun", name: "Jaun-Gastlosen", region: "Fribourg", alt: "1000\u20131800m",
+    id: "jaun", name: "Jaun-Gastlosen", region: "Fribourg", alt: "1000–1800m",
     coordinates: { lat: 46.6100, lon: 7.2700 },
     imisCode: "JAU2", slfRegionId: "CH-1213",
     operational: { pistesOpen: 12, pistesTotal: 25, liftsOpen: 4, liftsTotal: 5 },
@@ -584,7 +624,7 @@ export const stations = [
     pisteMapUrl: "https://www.jaun.ch/en/winter/ski-area",
   },
   {
-    id: "les-paccots", name: "Les Paccots", region: "Fribourg", alt: "1060\u20131580m",
+    id: "les-paccots", name: "Les Paccots", region: "Fribourg", alt: "1060–1580m",
     coordinates: { lat: 46.5500, lon: 6.9200 },
     imisCode: null, slfRegionId: "CH-1213",
     operational: { pistesOpen: 5, pistesTotal: 10, liftsOpen: 4, liftsTotal: 6 },
@@ -594,7 +634,7 @@ export const stations = [
     pisteMapUrl: "https://www.les-paccots.ch/ski",
   },
   {
-    id: "rathvel", name: "Rathvel", region: "Fribourg", alt: "1350\u20131600m",
+    id: "rathvel", name: "Rathvel", region: "Fribourg", alt: "1350–1600m",
     coordinates: { lat: 46.5500, lon: 7.0700 },
     imisCode: null, slfRegionId: "CH-1213",
     operational: { pistesOpen: 4, pistesTotal: 8, liftsOpen: 3, liftsTotal: 4 },
@@ -603,9 +643,9 @@ export const stations = [
     webcamUrl: null,
     pisteMapUrl: null,
   },
-  // ──────────────────────────── NEUCH\u00c2TEL (3) ────────────────────────────
+  // ──────────────────────────── NEUCHÂTEL (3) ────────────────────────────
   {
-    id: "bugnenets-savagnieres", name: "Bugnenets-Savagni\u00e8res", region: "Neuch\u00e2tel", alt: "1085\u20131440m",
+    id: "bugnenets-savagnieres", name: "Bugnenets-Savagnières", region: "Neuchâtel", alt: "1085–1440m",
     coordinates: { lat: 47.1000, lon: 7.0000 },
     imisCode: null, slfRegionId: "CH-1112",
     operational: { pistesOpen: 15, pistesTotal: 30, liftsOpen: 6, liftsTotal: 8 },
@@ -615,7 +655,7 @@ export const stations = [
     pisteMapUrl: "https://www.chasseral-snow.ch/plan-des-pistes",
   },
   {
-    id: "cret-du-puy", name: "Cr\u00eat-du-Puy", region: "Neuch\u00e2tel", alt: "1100\u20131350m",
+    id: "cret-du-puy", name: "Crêt-du-Puy", region: "Neuchâtel", alt: "1100–1350m",
     coordinates: { lat: 47.0500, lon: 6.9000 },
     imisCode: null, slfRegionId: "CH-1112",
     operational: { pistesOpen: 5, pistesTotal: 10, liftsOpen: 3, liftsTotal: 4 },
@@ -625,7 +665,7 @@ export const stations = [
     pisteMapUrl: null,
   },
   {
-    id: "robella-val-de-travers", name: "Robella", region: "Neuch\u00e2tel", alt: "740\u20131420m",
+    id: "robella-val-de-travers", name: "Robella", region: "Neuchâtel", alt: "740–1420m",
     coordinates: { lat: 46.9300, lon: 6.6500 },
     imisCode: null, slfRegionId: "CH-1112",
     operational: { pistesOpen: 10, pistesTotal: 20, liftsOpen: 3, liftsTotal: 4 },
@@ -636,7 +676,7 @@ export const stations = [
   },
   // ──────────────────────────── SOLEURE (2) ────────────────────────────
   {
-    id: "balmberg", name: "Balmberg", region: "Soleure", alt: "900\u20131250m",
+    id: "balmberg", name: "Balmberg", region: "Soleure", alt: "900–1250m",
     coordinates: { lat: 47.2500, lon: 7.5200 },
     imisCode: null, slfRegionId: "CH-1113",
     operational: { pistesOpen: 3, pistesTotal: 5, liftsOpen: 2, liftsTotal: 3 },
@@ -646,7 +686,7 @@ export const stations = [
     pisteMapUrl: "https://www.balmberg.ch/winter",
   },
   {
-    id: "grenchenberg", name: "Grenchenberg", region: "Soleure", alt: "1000\u20131350m",
+    id: "grenchenberg", name: "Grenchenberg", region: "Soleure", alt: "1000–1350m",
     coordinates: { lat: 47.2200, lon: 7.3800 },
     imisCode: null, slfRegionId: "CH-1113",
     operational: { pistesOpen: 1, pistesTotal: 1, liftsOpen: 1, liftsTotal: 2 },
@@ -657,7 +697,7 @@ export const stations = [
   },
   // ──────────────────────────── LUCERNE (2) ────────────────────────────
   {
-    id: "sorenberg", name: "S\u00f6renberg", region: "Lucerne", alt: "1166\u20132350m",
+    id: "sorenberg", name: "Sörenberg", region: "Lucerne", alt: "1166–2350m",
     coordinates: { lat: 46.8167, lon: 8.0333 },
     imisCode: "SRB2", slfRegionId: "CH-2124",
     operational: { pistesOpen: 40, pistesTotal: 53, liftsOpen: 12, liftsTotal: 15 },
@@ -667,7 +707,7 @@ export const stations = [
     pisteMapUrl: "https://www.soerenberg.ch/en/information-service/mountain-cableways/ski-area-map",
   },
   {
-    id: "marbachegg", name: "Marbachegg", region: "Lucerne", alt: "880\u20131483m",
+    id: "marbachegg", name: "Marbachegg", region: "Lucerne", alt: "880–1483m",
     coordinates: { lat: 46.8500, lon: 7.9500 },
     imisCode: null, slfRegionId: "CH-2124",
     operational: { pistesOpen: 3, pistesTotal: 5, liftsOpen: 2, liftsTotal: 3 },
@@ -678,7 +718,7 @@ export const stations = [
   },
   // ──────────────────────────── OBWALD (2) ────────────────────────────
   {
-    id: "melchsee-frutt", name: "Melchsee-Frutt", region: "Obwald", alt: "1080\u20132255m",
+    id: "melchsee-frutt", name: "Melchsee-Frutt", region: "Obwald", alt: "1080–2255m",
     coordinates: { lat: 46.7667, lon: 8.2667 },
     imisCode: "MEL2", slfRegionId: "CH-2124",
     operational: { pistesOpen: 25, pistesTotal: 32, liftsOpen: 8, liftsTotal: 10 },
@@ -688,7 +728,7 @@ export const stations = [
     pisteMapUrl: "https://www.melchsee-frutt.ch/en/transport-and-tariffs/panoramic-map/",
   },
   {
-    id: "morlialp", name: "M\u00f6rlialp", region: "Obwald", alt: "470\u20131350m",
+    id: "morlialp", name: "Mörlialp", region: "Obwald", alt: "470–1350m",
     coordinates: { lat: 46.8200, lon: 8.1800 },
     imisCode: null, slfRegionId: "CH-2124",
     operational: { pistesOpen: 2, pistesTotal: 4, liftsOpen: 2, liftsTotal: 3 },
@@ -699,7 +739,7 @@ export const stations = [
   },
   // ──────────────────────────── FRANCE (9) ────────────────────────────
   {
-    id: "le-grand-bornand", name: "Le Grand-Bornand", region: "France", alt: "1000\u20132100m",
+    id: "le-grand-bornand", name: "Le Grand-Bornand", region: "France", alt: "1000–2100m",
     coordinates: { lat: 45.9400, lon: 6.4300 },
     imisCode: null, slfRegionId: null,
     operational: { pistesOpen: 40, pistesTotal: 78, liftsOpen: 20, liftsTotal: 27 },
@@ -709,7 +749,7 @@ export const stations = [
     pisteMapUrl: "https://www.legrandbornand.com/en/ski-area/piste-map",
   },
   {
-    id: "praz-de-lys-sommand", name: "Praz de Lys-Sommand", region: "France", alt: "1500\u20132000m",
+    id: "praz-de-lys-sommand", name: "Praz de Lys-Sommand", region: "France", alt: "1500–2000m",
     coordinates: { lat: 46.1400, lon: 6.5700 },
     imisCode: null, slfRegionId: null,
     operational: { pistesOpen: 30, pistesTotal: 67, liftsOpen: 15, liftsTotal: 23 },
@@ -719,7 +759,7 @@ export const stations = [
     pisteMapUrl: "https://www.prazdelys-sommand.com/en/piste-map",
   },
   {
-    id: "massif-des-brasses", name: "Massif des Brasses", region: "France", alt: "1000\u20131500m",
+    id: "massif-des-brasses", name: "Massif des Brasses", region: "France", alt: "1000–1500m",
     coordinates: { lat: 46.1600, lon: 6.4400 },
     imisCode: null, slfRegionId: null,
     operational: { pistesOpen: 20, pistesTotal: 37, liftsOpen: 10, liftsTotal: 15 },
@@ -729,7 +769,7 @@ export const stations = [
     pisteMapUrl: "https://www.lesbrasses.com/plan-des-pistes",
   },
   {
-    id: "hirmentaz", name: "Hirmentaz", region: "France", alt: "1000\u20131600m",
+    id: "hirmentaz", name: "Hirmentaz", region: "France", alt: "1000–1600m",
     coordinates: { lat: 46.2700, lon: 6.5200 },
     imisCode: null, slfRegionId: null,
     operational: { pistesOpen: 12, pistesTotal: 23, liftsOpen: 8, liftsTotal: 12 },
@@ -739,7 +779,7 @@ export const stations = [
     pisteMapUrl: "https://www.bellevaux-hirmentaz.com/plan-des-pistes",
   },
   {
-    id: "habere-poche", name: "Hab\u00e8re-Poche", region: "France", alt: "930\u20131530m",
+    id: "habere-poche", name: "Habère-Poche", region: "France", alt: "930–1530m",
     coordinates: { lat: 46.2300, lon: 6.4700 },
     imisCode: null, slfRegionId: null,
     operational: { pistesOpen: 10, pistesTotal: 22, liftsOpen: 7, liftsTotal: 10 },
@@ -749,7 +789,7 @@ export const stations = [
     pisteMapUrl: "https://www.habere-poche.com/plan-des-pistes",
   },
   {
-    id: "thollon-les-memises", name: "Thollon-les-M\u00e9mises", region: "France", alt: "1000\u20131600m",
+    id: "thollon-les-memises", name: "Thollon-les-Mémises", region: "France", alt: "1000–1600m",
     coordinates: { lat: 46.3600, lon: 6.6300 },
     imisCode: null, slfRegionId: null,
     operational: { pistesOpen: 5, pistesTotal: 10, liftsOpen: 4, liftsTotal: 6 },
@@ -759,7 +799,7 @@ export const stations = [
     pisteMapUrl: "https://www.thollon-les-memises.com/plan-des-pistes",
   },
   {
-    id: "monts-jura", name: "Monts Jura", region: "France", alt: "900\u20131680m",
+    id: "monts-jura", name: "Monts Jura", region: "France", alt: "900–1680m",
     coordinates: { lat: 46.3000, lon: 5.9000 },
     imisCode: null, slfRegionId: null,
     operational: { pistesOpen: 20, pistesTotal: 40, liftsOpen: 10, liftsTotal: 17 },
@@ -769,7 +809,7 @@ export const stations = [
     pisteMapUrl: "https://www.montsjura.com/plan-des-pistes",
   },
   {
-    id: "jura-sur-leman", name: "Jura sur L\u00e9man", region: "France", alt: "1000\u20131680m",
+    id: "jura-sur-leman", name: "Jura sur Léman", region: "France", alt: "1000–1680m",
     coordinates: { lat: 46.4200, lon: 6.1000 },
     imisCode: null, slfRegionId: null,
     operational: { pistesOpen: 8, pistesTotal: 15, liftsOpen: 5, liftsTotal: 8 },
@@ -779,7 +819,7 @@ export const stations = [
     pisteMapUrl: null,
   },
   {
-    id: "metabief", name: "M\u00e9tabief", region: "France", alt: "900\u20131463m",
+    id: "metabief", name: "Métabief", region: "France", alt: "900–1463m",
     coordinates: { lat: 46.7700, lon: 6.3500 },
     imisCode: null, slfRegionId: null,
     operational: { pistesOpen: 20, pistesTotal: 40, liftsOpen: 15, liftsTotal: 20 },
@@ -790,7 +830,7 @@ export const stations = [
   },
   // ──────────────────────────── ITALIE (2) ────────────────────────────
   {
-    id: "alpe-devero", name: "Alpe Devero", region: "Italie", alt: "1640\u20132240m",
+    id: "alpe-devero", name: "Alpe Devero", region: "Italie", alt: "1640–2240m",
     coordinates: { lat: 46.3200, lon: 8.2900 },
     imisCode: null, slfRegionId: null,
     operational: { pistesOpen: 5, pistesTotal: 10, liftsOpen: 3, liftsTotal: 4 },
@@ -800,7 +840,7 @@ export const stations = [
     pisteMapUrl: null,
   },
   {
-    id: "san-domenico", name: "San Domenico", region: "Italie", alt: "1420\u20132515m",
+    id: "san-domenico", name: "San Domenico", region: "Italie", alt: "1420–2515m",
     coordinates: { lat: 46.2500, lon: 8.1900 },
     imisCode: null, slfRegionId: null,
     operational: { pistesOpen: 8, pistesTotal: 15, liftsOpen: 4, liftsTotal: 5 },
