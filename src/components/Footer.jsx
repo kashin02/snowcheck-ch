@@ -10,7 +10,7 @@ export default function Footer({ lastUpdate, sourceStatus }) {
     <footer style={{ borderTop: "1px solid #e2e8f0", padding: "14px 24px", background: "#fff" }}>
       <div style={{ maxWidth: 1100, margin: "0 auto", display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: 10 }}>
         <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-          <img src="/logo.png" alt="snowcheck.ch" style={{ height: 32, width: "auto" }} />
+          <img src="/logo.png" alt="snowcheck.ch" style={{ height: 72, width: "auto" }} />
           <span style={{ fontSize: 9, color: "#94a3b8" }}>Sources : Open-Meteo / MeteoSwiss &middot; WSL/SLF &middot; bergfex &mdash; Non affili&eacute; &agrave; Magic Pass</span>
         </div>
         <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
