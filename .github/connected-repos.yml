@@ -1,0 +1,7 @@
+# Connected GitHub Repositories
+# This file documents GitHub repository connections for snowcheck-ch
+
+connections:
+  - repo: kashin02/Namibie2026
+    description: Connected repository
+    remote: namibie2026

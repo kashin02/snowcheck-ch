@@ -1,0 +1,1311 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>&#x1F981; Namibie 2026 — Notre Grand Voyage</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400&family=Nunito:wght@300;400;600;700;800;900&family=Cinzel:wght@400;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<style>
+:root {
+  --bg:   #faf5ee;
+  --bg2:  #f3ece1;
+  --bg3:  #ede3d4;
+  --card: #ffffff;
+  --card-border: rgba(160,100,40,0.16);
+  --sand: #7c5a00;
+  --ochre: #7c4808;
+  --terra: #b03808;
+  --sienna: #7a3a10;
+  --burnt: #8a4818;
+  --sky: #1e5f9a;
+  --teal: #147a6a;
+  --horizon: #3a8ab0;
+  --green: #1a7a42;
+  --savane: #6a5828;
+  --text: #1e1008;
+  --text-muted: #6a4c28;
+  --text-dim: #6b4820;
+  --red: #b02020;
+  --orange: #7c4808;
+  --blue: #1e5f9a;
+  --r-bg: rgba(176,32,32,0.07);
+  --o-bg: rgba(192,112,32,0.08);
+  --b-bg: rgba(30,95,154,0.07);
+  --g-bg: rgba(26,122,66,0.07);
+  font-size: 16px;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth;overflow-x:hidden}
+body{background:var(--bg);color:var(--text);font-family:'Nunito',sans-serif;line-height:1.6;overflow-x:hidden}
+::selection{background:var(--ochre);color:#000}
+
+/* ─── SCROLLBAR ─── */
+::-webkit-scrollbar{width:6px}
+::-webkit-scrollbar-track{background:var(--bg2)}
+::-webkit-scrollbar-thumb{background:var(--ochre);border-radius:3px}
+::-webkit-scrollbar-thumb:hover{background:var(--terra)}
+
+/* ─── NAV ─── */
+.nav{position:fixed;top:0;left:0;right:0;z-index:1000;background:rgba(250,245,238,0.96);backdrop-filter:blur(20px);border-bottom:1px solid var(--card-border);padding:0 1.5rem;height:64px;display:flex;align-items:center;gap:1rem;justify-content:space-between}
+.nav-logo{font-family:'Cinzel','Playfair Display',serif;font-size:1rem;font-weight:700;color:var(--sand);white-space:nowrap;letter-spacing:0.08em}
+.nav-logo span{color:var(--terra)}
+.nav-links{display:flex;gap:0.25rem;list-style:none}
+.nav-links a{color:var(--sienna);text-decoration:none;font-size:0.8rem;font-weight:600;padding:0.35rem 0.7rem;border-radius:6px;transition:all .2s;white-space:nowrap;letter-spacing:0.03em;text-transform:uppercase}
+.nav-links a:hover{color:var(--terra);background:rgba(192,112,32,0.1)}
+
+/* ─── MODE TOGGLE ─── */
+.mode-toggle{display:flex;background:var(--bg2);border:1px solid var(--card-border);border-radius:30px;padding:3px;gap:2px;flex-shrink:0}
+.mode-btn{border:none;cursor:pointer;border-radius:24px;padding:0.4rem 0.9rem;font-family:'Cinzel',serif;font-size:0.72rem;font-weight:700;transition:all .25s;white-space:nowrap;letter-spacing:0.04em}
+.mode-btn.aventure{background:transparent;color:var(--text-muted)}
+.mode-btn.explorateur{background:transparent;color:var(--text-muted)}
+.mode-aventure .mode-btn.aventure{background:linear-gradient(135deg,var(--ochre),var(--terra));color:#fff;box-shadow:0 2px 12px rgba(244,162,97,0.4)}
+.mode-explorateur .mode-btn.explorateur{background:linear-gradient(135deg,var(--sky),var(--teal));color:#fff;box-shadow:0 2px 12px rgba(69,123,157,0.4)}
+
+/* ─── HERO ─── */
+.hero{min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:5rem 1.5rem 3rem;position:relative;overflow:hidden}
+.hero-bg{position:absolute;inset:0;background:linear-gradient(180deg,rgba(15,10,5,0.55) 0%,rgba(15,10,5,0.82) 100%);pointer-events:none}
+.hero::after{content:'';position:absolute;inset:0;background-image:radial-gradient(circle at 15% 30%,rgba(212,133,58,0.08) 0%,transparent 40%),radial-gradient(circle at 85% 70%,rgba(193,68,14,0.06) 0%,transparent 40%);pointer-events:none}
+.hero>.container{position:relative;z-index:2}
+.stars{position:absolute;inset:0;pointer-events:none}
+.star{position:absolute;width:2px;height:2px;background:#fff;border-radius:50%;animation:twinkle var(--d,3s) ease-in-out infinite var(--delay,0s)}
+@keyframes twinkle{0%,100%{opacity:0.2;transform:scale(1)}50%{opacity:1;transform:scale(1.5)}}
+.hero-emoji{font-size:4rem;margin-bottom:1rem;display:block;animation:float 4s ease-in-out infinite}
+@keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-12px)}}
+.hero-title{font-family:'Playfair Display',serif;font-size:clamp(3rem,8vw,7rem);font-weight:900;line-height:1.05;letter-spacing:-0.02em;margin-bottom:0.5rem}
+.hero-title .line1{color:var(--text);display:block}
+.hero-title .line2{background:linear-gradient(135deg,var(--sand),var(--ochre),var(--terra));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;display:block}
+.hero-sub{font-size:clamp(1rem,2.5vw,1.3rem);color:var(--text-muted);font-weight:300;margin-bottom:2.5rem;letter-spacing:0.05em}
+.hero-sub strong{color:var(--ochre);font-weight:700}
+.hero-stats{display:flex;flex-wrap:wrap;gap:1rem;justify-content:center;margin-bottom:3rem}
+.stat-card{background:rgba(255,255,255,0.15);border:1px solid rgba(255,255,255,0.25);border-radius:16px;padding:1rem 1.5rem;text-align:center;backdrop-filter:blur(10px);transition:transform .2s}
+.stat-card:hover{transform:translateY(-4px)}
+.stat-num{font-family:'Cinzel','Playfair Display',serif;font-size:2rem;font-weight:700;color:var(--sand);display:block}
+.stat-label{font-size:0.75rem;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.08em;font-weight:600}
+.hero-scroll{animation:bounce 2s infinite;color:var(--text-muted);font-size:0.8rem;display:flex;flex-direction:column;align-items:center;gap:0.5rem;cursor:pointer}
+@keyframes bounce{0%,100%{transform:translateY(0)}50%{transform:translateY(8px)}}
+.hero-scroll svg{width:20px;height:20px;opacity:0.5}
+
+/* ─── GALLERY SECTION ─── */
+.gallery-section{padding:1.5rem 0;background:var(--bg3);border-bottom:1px solid var(--card-border)}
+.gallery-scroll{display:flex;gap:0.6rem;overflow-x:auto;padding-bottom:0.4rem}
+.gallery-scroll::-webkit-scrollbar{height:4px}
+.gallery-scroll::-webkit-scrollbar-thumb{background:rgba(244,162,97,0.3);border-radius:2px}
+.gallery-figure{margin:0;flex-shrink:0;text-align:center}
+.gallery-img{height:160px;border-radius:10px;object-fit:cover;cursor:pointer;transition:transform .2s}
+.gallery-img:hover{transform:scale(1.03)}
+.gallery-caption{font-size:0.7rem;color:var(--text-dim);margin-top:0.25rem}
+
+/* ─── SECTIONS ─── */
+section{padding:4rem 0}
+section:nth-child(even){background:var(--bg2)}
+.container{max-width:1100px;margin:0 auto;padding:0 1.5rem}
+.section-title{font-family:'Playfair Display',serif;font-size:clamp(1.8rem,4vw,2.8rem);font-weight:700;margin-bottom:0.3rem;letter-spacing:-0.01em;position:relative;display:inline-block}
+.section-title .accent{color:var(--ochre)}
+.section-lead{color:var(--text-muted);font-size:1rem;margin-bottom:2.5rem;font-weight:400}
+.section-divider{height:3px;margin:0.5rem 0 1.5rem;background:none;position:relative;overflow:visible}
+.section-divider::after{content:'';display:block;width:80px;height:3px;background:linear-gradient(90deg,var(--ochre),var(--terra));border-radius:2px}
+
+/* Section-specific overrides */
+#carte{padding:3rem 0;border-top:1px solid rgba(212,133,58,0.15)}
+#itineraire{padding:3rem 0}
+#pratique{padding:3rem 0}
+#enfants{padding:3rem 0}
+#enfants>.container{position:relative}
+#alertes{padding:3rem 0 2rem}
+
+/* ─── ALERT BOXES ─── */
+.alert-box{border-radius:0 12px 12px 0;padding:1rem 1.25rem;margin-bottom:1rem;border-left:4px solid;font-size:0.9rem}
+.alert-box .alert-title{font-weight:800;font-size:0.85rem;text-transform:uppercase;letter-spacing:0.05em;margin-bottom:0.4rem}
+.alert-box ul{padding-left:1rem;margin-top:0.4rem}
+.alert-box li{margin-bottom:0.25rem;line-height:1.5}
+.alert-red{background:var(--r-bg);border-left-color:var(--red);color:var(--text)}
+.alert-red .alert-title{color:#8a1010}
+.alert-orange{background:var(--o-bg);border-left-color:var(--orange);color:var(--text)}
+.alert-orange .alert-title{color:var(--sienna)}
+.alert-blue{background:var(--b-bg);border-left-color:var(--blue);color:var(--text)}
+.alert-blue .alert-title{color:var(--sky)}
+.alert-green{background:var(--g-bg);border-left-color:var(--green);color:var(--text)}
+.alert-green .alert-title{color:var(--green)}
+
+/* ─── MAP SECTION ─── */
+#map-overview{height:520px;border-radius:16px;overflow:hidden;border:1px solid var(--card-border)}
+.map-tabs{display:flex;gap:0.5rem;margin-bottom:1rem;flex-wrap:wrap}
+.map-tab{padding:0.5rem 1rem;border:1px solid var(--card-border);background:var(--card);border-radius:8px;cursor:pointer;font-size:0.82rem;font-weight:600;color:var(--text-muted);transition:all .2s;letter-spacing:0.02em}
+.map-tab.active{background:rgba(244,162,97,0.15);border-color:var(--ochre);color:var(--ochre)}
+.day-map-nav{display:flex;gap:0.5rem;margin-top:1rem;margin-bottom:0.9rem;flex-wrap:wrap;justify-content:center}
+.day-nav-btn{padding:0.3rem 0.6rem;border:1.5px solid rgba(192,112,32,0.25);background:#fff;border-radius:6px;cursor:pointer;font-family:'Cinzel',serif;font-size:0.7rem;font-weight:700;letter-spacing:0.06em;color:var(--sienna);transition:all .2s}
+.day-nav-btn:hover,.day-nav-btn.active{background:linear-gradient(135deg,var(--ochre),var(--terra));border-color:var(--terra);color:#fff;box-shadow:0 3px 12px rgba(176,56,8,0.25)}
+
+/* ─── DAYS ACCORDION ─── */
+.days-grid{display:flex;flex-direction:column;gap:0.75rem}
+.day-card{background:#fff;border:1px solid var(--card-border);box-shadow:0 2px 12px rgba(100,60,10,0.06);border-radius:16px;overflow:hidden;transition:border-color .2s}
+.day-card:hover{border-color:rgba(233,196,106,0.25)}
+.day-card.open{border-color:rgba(244,162,97,0.35)}
+.day-header{display:flex;align-items:center;gap:1rem;padding:1rem 1.25rem;cursor:pointer;user-select:none}
+.day-badge{font-family:'Cinzel','Playfair Display',serif;font-size:0.85rem;font-weight:700;color:#fff;background:linear-gradient(135deg,var(--ochre),var(--terra));border-radius:6px;padding:0.2rem 0.6rem;min-width:50px;text-align:center;flex-shrink:0;letter-spacing:0.05em;box-shadow:0 2px 8px rgba(212,133,58,0.3)}
+.day-badge.special{background:linear-gradient(135deg,var(--terra),var(--sienna));box-shadow:0 2px 10px rgba(176,56,8,0.35)}
+.day-title-block{flex:1;min-width:0}
+.day-title{font-weight:700;font-size:1rem;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.day-sub{font-size:0.78rem;color:var(--text-muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.day-meta{display:flex;gap:0.5rem;align-items:center;flex-shrink:0}
+.day-km{font-size:0.75rem;font-weight:700;color:var(--ochre);background:rgba(244,162,97,0.1);padding:0.2rem 0.5rem;border-radius:6px}
+.day-chevron{color:var(--text-muted);transition:transform .3s;font-size:1.2rem;flex-shrink:0}
+.day-card.open .day-chevron{transform:rotate(180deg)}
+.day-body{display:none;padding:0 1.25rem 1.25rem;border-top:1px solid var(--card-border);background:#fefcf8}
+.day-card.open .day-body{display:block}
+.day-tabs{display:flex;gap:0.5rem;margin:1rem 0;padding-top:0.25rem}
+.day-tab{border:none;background:transparent;border-bottom:2px solid transparent;color:var(--text-muted);font-family:'Nunito',sans-serif;font-size:0.82rem;font-weight:700;cursor:pointer;padding:0.3rem 0.6rem;transition:all .2s}
+.day-tab.active{color:var(--ochre);border-bottom-color:var(--ochre)}
+
+/* ─── CONTENT MODES ─── */
+.content-aventure,.content-explorateur{display:none}
+.mode-aventure .content-aventure{display:block}
+.mode-explorateur .content-explorateur{display:block}
+
+/* ─── AVENTURE STYLE ─── */
+.aventure-story{font-size:1rem;line-height:1.8;color:var(--text)}
+.aventure-story p{margin-bottom:0.75rem}
+.animal-grid{display:flex;flex-wrap:wrap;gap:0.5rem;margin:1rem 0}
+.animal-tag{background:rgba(139,69,19,0.12);border:1px solid rgba(212,133,58,0.25);border-radius:20px;padding:0.3rem 0.8rem;font-size:0.78rem;font-weight:600;color:var(--sand)}
+.animal-tag.checked{background:rgba(212,133,58,0.2);border-color:var(--ochre)}
+/* FIXED: fun-fact was color:#b0f0cc (light text) but Arts section sets background:#fff8f2 (light) → unreadable */
+.fun-fact{background:#fff8f2;border-left:3px solid var(--terra);border-radius:0 10px 10px 0;padding:0.75rem 1rem;margin:0.75rem 0;font-size:0.88rem;color:var(--text)}
+.fun-fact strong{color:var(--terra);font-size:0.75rem;text-transform:uppercase;letter-spacing:0.05em;display:block;margin-bottom:0.25rem}
+.highlight-moment{background:#fffae8;border-left:3px solid var(--ochre);border-radius:0 10px 10px 0;padding:0.75rem 1rem;margin:0.75rem 0;font-size:0.9rem;color:var(--text)}
+.highlight-moment strong{color:var(--ochre)}
+
+/* ─── EXPLORATEUR STYLE ─── */
+.timing-table{width:100%;border-collapse:collapse;font-size:0.85rem;margin:0.75rem 0}
+.timing-table th{background:rgba(255,255,255,0.04);text-align:left;padding:0.5rem 0.75rem;font-size:0.72rem;text-transform:uppercase;letter-spacing:0.05em;color:var(--text-muted);border-bottom:1px solid var(--card-border)}
+.timing-table td{padding:0.5rem 0.75rem;border-bottom:1px solid rgba(255,255,255,0.04);vertical-align:top}
+.timing-table tr:last-child td{border-bottom:none}
+.timing-table .time{color:var(--ochre);font-weight:700;white-space:nowrap;font-size:0.8rem}
+.timing-table .important{color:var(--terra);font-weight:700}
+.info-chips{display:flex;flex-wrap:wrap;gap:0.4rem;margin:0.75rem 0}
+.chip{font-size:0.75rem;font-weight:700;padding:0.25rem 0.6rem;border-radius:20px;letter-spacing:0.02em}
+.chip-road{background:rgba(58,125,201,0.15);color:#7ab8f5;border:1px solid rgba(58,125,201,0.25)}
+.chip-km{background:rgba(244,162,97,0.12);color:var(--ochre);border:1px solid rgba(244,162,97,0.2)}
+.chip-time{background:rgba(42,157,140,0.12);color:#4dd9c8;border:1px solid rgba(42,157,140,0.2)}
+.chip-camp{background:rgba(42,157,92,0.12);color:#4dd98a;border:1px solid rgba(42,157,92,0.2)}
+.chip-ref{background:rgba(150,100,200,0.12);color:#c8a8f0;border:1px solid rgba(150,100,200,0.2)}
+
+/* ─── PRACTICAL INFO ─── */
+.grid-2{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:1.25rem}
+.info-card{background:var(--card);border:1px solid var(--card-border);border-radius:16px;padding:1.5rem;border-top:3px solid transparent;border-image:linear-gradient(90deg,var(--ochre),var(--terra),var(--sienna)) 1;position:relative;overflow:hidden}
+.info-card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,var(--ochre),var(--terra),var(--ochre));opacity:0.7}
+.info-card h3{font-family:'Playfair Display',serif;font-size:1.1rem;color:var(--sand);margin-bottom:1rem;display:flex;align-items:center;gap:0.5rem}
+.info-card p,.info-card li{font-size:0.88rem;color:var(--text-muted);line-height:1.65}
+.info-card ul{padding-left:1.2rem}
+.info-card li{margin-bottom:0.4rem}
+.info-card li strong{color:var(--text)}
+
+/* ─── BUDGET TABLE ─── */
+.budget-table{width:100%;border-collapse:collapse;font-size:0.85rem}
+.budget-table th{background:rgba(244,162,97,0.1);padding:0.6rem 0.75rem;text-align:left;font-size:0.72rem;text-transform:uppercase;letter-spacing:0.05em;color:var(--ochre)}
+.budget-table td{padding:0.55rem 0.75rem;border-bottom:1px solid rgba(255,255,255,0.05)}
+.budget-table .total{background:rgba(244,162,97,0.08);font-weight:800;color:var(--sand)}
+.budget-table .revised{color:var(--terra);font-weight:700}
+
+/* ─── KIDS ZONE ─── */
+.kids-zone{background:linear-gradient(180deg,rgba(139,69,19,0.06) 0%,transparent 100%);border:1px solid rgba(212,133,58,0.1);border-radius:16px;padding:1.25rem}
+.animals-showcase{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:1rem;margin-top:1.5rem}
+.animal-card{background:var(--card);border:1px solid var(--card-border);border-radius:12px;padding:1rem;text-align:center;cursor:pointer;transition:transform .2s,border-color .2s}
+.animal-card:hover{transform:translateY(-4px);border-color:rgba(233,196,106,0.4)}
+.animal-emoji{font-size:2.5rem;display:block;margin-bottom:0.5rem}
+.animal-name{font-weight:700;font-size:0.85rem;color:var(--sand)}
+.animal-where{font-size:0.72rem;color:var(--text-muted);margin-top:0.2rem}
+.quiz-wrapper{background:linear-gradient(160deg,rgba(139,69,19,0.12) 0%,rgba(212,133,58,0.08) 50%,rgba(193,68,14,0.1) 100%);border:1.5px solid rgba(212,133,58,0.4);border-radius:18px;padding:1.5rem;margin-top:0.5rem;position:relative;overflow:hidden}
+.quiz-wrapper::before{content:'&#x1F9E0;';position:absolute;right:1rem;top:0.75rem;font-size:2.5rem;opacity:0.12;pointer-events:none}
+.quiz-progress{height:5px;background:rgba(139,69,19,0.2);border-radius:3px;margin-bottom:1.1rem;overflow:hidden}
+.quiz-progress-bar{height:100%;background:linear-gradient(90deg,var(--ochre),var(--terra),var(--sienna));border-radius:3px;transition:width .4s ease}
+.quiz-counter{font-size:0.75rem;color:var(--text-dim);font-weight:700;letter-spacing:0.05em;margin-bottom:0.6rem}
+.quiz-q{font-weight:800;font-size:1rem;color:var(--text);margin-bottom:0.85rem;line-height:1.4}
+.quiz-options{display:flex;flex-wrap:wrap;gap:0.5rem;margin-bottom:1rem}
+.quiz-opt{background:var(--card);border:1.5px solid var(--card-border);border-radius:10px;padding:0.5rem 1rem;cursor:pointer;font-size:0.85rem;font-weight:600;transition:all .2s;text-align:left}
+.quiz-opt:hover:not(:disabled){background:rgba(244,162,97,0.12);border-color:var(--ochre);transform:translateY(-1px)}
+.quiz-opt.correct{background:rgba(42,157,92,0.2);border-color:var(--green);color:#2a7a42}
+.quiz-opt.wrong{background:rgba(230,57,70,0.15);border-color:var(--red);color:#8a1010}
+.quiz-result{text-align:center;padding:1rem 0}
+.quiz-result-score{font-size:3rem;font-weight:900;background:linear-gradient(135deg,var(--ochre),var(--terra));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.quiz-result-label{font-size:1.1rem;font-weight:700;color:var(--text);margin:0.5rem 0}
+.quiz-result-detail{font-size:0.85rem;color:var(--text-muted);margin-bottom:1rem}
+.quiz-restart{background:linear-gradient(135deg,var(--ochre),var(--terra));border:none;border-radius:10px;color:#fff;font-family:'Nunito',sans-serif;font-weight:700;font-size:0.9rem;padding:0.6rem 1.5rem;cursor:pointer;margin-top:0.5rem}
+
+/* ─── GAME MODAL ─── */
+.game-modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.75);z-index:4000;align-items:center;justify-content:center;padding:1rem}
+.game-modal-overlay.open{display:flex}
+.game-modal{background:#fff;border:1px solid var(--card-border);border-top:4px solid var(--ochre);border-radius:20px;max-width:460px;width:100%;padding:1.5rem;position:relative;max-height:80vh;overflow-y:auto;box-shadow:0 24px 64px rgba(80,40,10,0.2)}
+.game-modal-close{position:absolute;top:0.75rem;right:0.9rem;background:none;border:none;color:var(--text-muted);font-size:1.4rem;cursor:pointer;line-height:1}
+.game-modal-title{font-size:1.15rem;font-weight:800;color:var(--sand);margin-bottom:0.25rem}
+.game-modal-cat{font-family:'Cinzel',serif;font-size:0.72rem;font-weight:700;color:var(--ochre);text-transform:uppercase;letter-spacing:0.1em;margin-bottom:0.75rem}
+.game-modal-desc{font-size:0.9rem;color:var(--text);margin-bottom:0.75rem;line-height:1.5}
+.game-modal-rules{background:var(--bg2);border-radius:10px;padding:0.75rem 1rem;font-size:0.83rem;color:var(--text-muted);line-height:1.6}
+.game-modal-rules strong{color:var(--sand)}
+.game-chip{background:#fff;border:1.5px solid rgba(139,69,19,0.3);color:var(--sienna);border-radius:20px;padding:0.4rem 0.85rem;font-size:0.82rem;font-weight:700;cursor:pointer;transition:all .2s;display:inline-flex;align-items:center;gap:0.3rem}
+.game-chip:hover{border-color:var(--ochre);background:linear-gradient(135deg,rgba(212,133,58,0.15),rgba(193,68,14,0.1));transform:translateY(-1px)}
+.game-card{background:var(--card);border:1px solid var(--card-border);border-radius:12px;padding:1.25rem;margin-bottom:1rem;border-top:3px solid transparent;border-image:linear-gradient(90deg,var(--ochre),var(--terra),var(--sienna)) 1;position:relative;overflow:hidden}
+.game-card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,var(--ochre),var(--terra),var(--ochre));opacity:0.7}
+.game-title{font-weight:800;color:var(--ochre);font-size:0.9rem;text-transform:uppercase;letter-spacing:0.05em;margin-bottom:0.5rem}
+
+/* ─── CONTACTS ─── */
+.contact-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:0.75rem}
+.contact-card{background:var(--r-bg);border:1px solid rgba(230,57,70,0.25);border-radius:10px;padding:0.75rem 1rem;font-size:0.85rem}
+.contact-card .c-name{font-weight:700;color:var(--terra);font-size:0.75rem;text-transform:uppercase;letter-spacing:0.05em}
+.contact-card .c-num{font-size:1rem;font-weight:800;color:var(--text);margin-top:0.25rem}
+
+/* ─── FOOTER ─── */
+footer{background:var(--bg2);border-top:2px solid transparent;border-image:linear-gradient(90deg,transparent,var(--ochre) 30%,var(--terra) 70%,transparent) 1;padding:2rem 1.5rem;text-align:center;font-size:0.8rem;color:var(--text-muted)}
+footer .f-logo{font-family:'Playfair Display',serif;font-size:1.2rem;color:var(--sand);margin-bottom:0.5rem}
+
+/* ─── MODE VISIBILITY ─── */
+.show-aventure{display:none}
+.show-explorateur{display:none}
+.mode-aventure .show-aventure{display:block}
+.mode-explorateur .show-explorateur{display:block}
+.hide-aventure{display:block}
+.hide-explorateur{display:block}
+.mode-aventure .hide-aventure{display:none}
+.mode-explorateur .hide-explorateur{display:none}
+
+/* ─── RESPONSIVE ─── */
+@media(max-width:700px){
+  .nav-links{display:none}
+  .hero-stats{gap:0.75rem}
+  .stat-card{padding:0.75rem 1rem}
+  .stat-num{font-size:1.5rem}
+  #map-overview{height:350px}
+  .grid-2{grid-template-columns:1fr}
+}
+
+/* ─── ANIMATIONS ─── */
+.fade-in{opacity:0;transform:translateY(20px);transition:opacity .6s ease,transform .6s ease}
+.fade-in.visible{opacity:1;transform:translateY(0)}
+
+/* ─── PROGRESS BAR ─── */
+.progress-bar{position:fixed;top:64px;left:0;height:2px;background:linear-gradient(to right,var(--ochre),var(--terra));z-index:999;transition:width .1s}
+
+/* ─── LEAFLET ─── */
+.leaflet-tile{filter:brightness(1.05) saturate(0.85) hue-rotate(-3deg)}
+.leaflet-popup-content-wrapper{background:#fff;color:var(--text);border:1px solid var(--card-border);border-top:3px solid var(--ochre);box-shadow:0 8px 24px rgba(100,60,10,0.15)}
+.leaflet-popup-tip{background:#fff}
+.leaflet-popup-content{font-family:'Nunito',sans-serif;font-size:0.85rem}
+.popup-day{color:var(--ochre);font-weight:800;font-size:0.75rem;text-transform:uppercase;letter-spacing:0.05em;margin-bottom:0.25rem}
+.popup-place{font-weight:700;font-size:0.95rem;color:var(--text);margin-bottom:0.3rem}
+.popup-info{color:var(--text-muted);font-size:0.8rem;margin-bottom:0.4rem}
+.popup-img{width:100%;height:110px;object-fit:cover;border-radius:8px;margin-bottom:0.4rem;display:block}
+.popup-phrase{font-size:0.82rem;color:var(--text-muted);font-style:italic;line-height:1.4}
+.map-legend{display:flex;flex-wrap:wrap;gap:0.5rem;margin-top:0.75rem;font-size:0.75rem;color:var(--text-muted)}
+.legend-item{display:flex;align-items:center;gap:0.35rem}
+.legend-dot{width:10px;height:10px;border-radius:50%}
+
+/* ─── TOAST ─── */
+.toast{position:fixed;bottom:1.5rem;right:1.5rem;background:var(--bg3);border:1px solid var(--card-border);border-radius:12px;padding:0.75rem 1.25rem;font-size:0.85rem;font-weight:600;color:var(--text);z-index:2000;transform:translateY(100px);opacity:0;transition:all .3s;max-width:280px}
+.toast.show{transform:translateY(0);opacity:1}
+
+/* ─── STORY PHOTOS ─── */
+.story-photos{display:flex;gap:0.5rem;margin:0.75rem 0;overflow-x:auto;padding-bottom:0.25rem}
+.story-photos::-webkit-scrollbar{height:4px}
+.story-photos::-webkit-scrollbar-thumb{background:rgba(244,162,97,0.3);border-radius:2px}
+.story-photo{height:150px;border-radius:10px;object-fit:cover;flex-shrink:0;cursor:pointer;transition:transform .2s}
+.story-photo:hover{transform:scale(1.03)}
+.photo-caption{font-size:0.72rem;color:var(--text-muted);text-align:center;margin-top:0.25rem;font-style:italic}
+
+/* ─── LIGHTBOX ─── */
+.lightbox{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.92);z-index:3000;align-items:center;justify-content:center;cursor:pointer}
+.lightbox.open{display:flex}
+.lightbox img{max-width:92vw;max-height:90vh;border-radius:12px;object-fit:contain}
+
+/* ─── NAMIBIA DIVIDER ─── */
+.namibia-divider{position:relative;text-align:center;margin:2rem 0 1.5rem;height:24px;overflow:visible}
+.namibia-divider::before{content:'';position:absolute;top:50%;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,var(--ochre) 20%,var(--terra) 50%,var(--ochre) 80%,transparent);opacity:0.4}
+.namibia-divider svg{position:relative;background:var(--bg);padding:0 0.75rem;z-index:1}
+
+/* ─── SAN ORNAMENT ─── */
+.san-ornament{display:flex;align-items:center;justify-content:center;gap:0.5rem;margin:0.5rem 0;opacity:0.5}
+.san-ornament span{display:inline-block;width:24px;height:1px;background:var(--ochre)}
+</style>
+</head>
+<body class="mode-aventure">
+
+<div class="progress-bar" id="progressBar"></div>
+
+<!-- NAV -->
+<nav class="nav">
+  <div class="nav-logo">&#x1F981; <span>Namibie</span> 2026</div>
+  <ul class="nav-links">
+    <li class="hide-aventure"><a href="#alertes" style="color:rgba(255,176,176,0.8)">&#x26A0;&#xFE0F; Alertes</a></li>
+    <li><a href="#carte">Carte</a></li>
+    <li><a href="#itineraire">Itin&eacute;raire</a></li>
+    <li><a href="#pratique">Pratique</a></li>
+    <li><a href="#enfants">Enfants</a></li>
+  </ul>
+  <div class="mode-toggle">
+    <button class="mode-btn aventure" onclick="setMode('aventure')">&#x1F31F; Curieux</button>
+    <button class="mode-btn explorateur" onclick="setMode('explorateur')">&#x1F5FA; Explorateur</button>
+  </div>
+</nav>
+
+<!-- HERO -->
+<section class="hero" id="accueil">
+  <div class="hero-bg"></div>
+  <div class="stars" id="stars"></div>
+  <span class="hero-emoji" id="heroEmoji">&#x1F981;</span>
+  <h1 class="hero-title">
+    <span class="line1">Notre Grand Voyage</span>
+    <span class="line2">Namibie 2026</span>
+  </h1>
+  <div style="display:flex;align-items:center;gap:0.6rem;margin-bottom:0.5rem;opacity:0.5">
+    <svg width="60" height="8" viewBox="0 0 60 8" xmlns="http://www.w3.org/2000/svg">
+      <line x1="0" y1="4" x2="60" y2="4" stroke="#d4853a" stroke-width="1"/>
+      <polygon points="20,1 25,4 20,7" fill="#c1440e"/>
+      <polygon points="40,1 35,4 40,7" fill="#c1440e"/>
+      <circle cx="30" cy="4" r="2" fill="#d4853a"/>
+    </svg>
+    <svg width="60" height="8" viewBox="0 0 60 8" xmlns="http://www.w3.org/2000/svg" style="transform:scaleX(-1)">
+      <line x1="0" y1="4" x2="60" y2="4" stroke="#d4853a" stroke-width="1"/>
+      <polygon points="20,1 25,4 20,7" fill="#c1440e"/>
+      <polygon points="40,1 35,4 40,7" fill="#c1440e"/>
+      <circle cx="30" cy="4" r="2" fill="#d4853a"/>
+    </svg>
+  </div>
+  <p class="hero-sub">
+    <strong>3 &ndash; 18 avril 2026</strong> &middot; 2 familles &middot; 4 enfants (10&ndash;12 ans) &middot; 2&times; 4x4 tente de toit
+  </p>
+  <div class="hero-stats">
+    <div class="stat-card"><span class="stat-num">16</span><span class="stat-label">Jours</span></div>
+    <div class="stat-card"><span class="stat-num">2 670</span><span class="stat-label">km de piste</span></div>
+    <div class="stat-card"><span class="stat-num">8</span><span class="stat-label">Aventuriers</span></div>
+    <div class="stat-card"><span class="stat-num">15</span><span class="stat-label">Nuits camping</span></div>
+    <div class="stat-card"><span class="stat-num">5</span><span class="stat-label">R&eacute;gions</span></div>
+  </div>
+  <div class="hero-scroll" onclick="document.getElementById('carte').scrollIntoView({behavior:'smooth'})">
+    <span>D&eacute;couvrir le voyage</span>
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M7 10l5 5 5-5"/></svg>
+  </div>
+</section>
+
+<!-- OWAMBO ZIGZAG DIVIDER -->
+<div style="overflow:hidden;line-height:0;background:var(--bg)">
+  <svg width="100%" height="16" viewBox="0 0 800 16" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
+    <polyline points="0,8 25,1 50,15 75,1 100,15 125,1 150,15 175,1 200,15 225,1 250,15 275,1 300,15 325,1 350,15 375,1 400,15 425,1 450,15 475,1 500,15 525,1 550,15 575,1 600,15 625,1 650,15 675,1 700,15 725,1 750,15 775,1 800,8"
+      fill="none" stroke="url(#zGrad)" stroke-width="1.2" opacity="0.4"/>
+    <defs><linearGradient id="zGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="transparent"/>
+      <stop offset="15%" stop-color="#d4853a"/>
+      <stop offset="50%" stop-color="#c1440e"/>
+      <stop offset="85%" stop-color="#d4853a"/>
+      <stop offset="100%" stop-color="transparent"/>
+    </linearGradient></defs>
+  </svg>
+</div>
+
+<!-- GALLERY -->
+<section id="galerie" class="gallery-section">
+  <div class="container">
+    <div class="gallery-scroll">
+      <figure class="gallery-figure">
+        <img class="gallery-img" src="web_photos/safari_kids.jpg" onclick="openLightbox('web_photos/safari_kids.jpg')" alt="Safari famille">
+        <figcaption class="gallery-caption">Safari famille</figcaption>
+      </figure>
+      <figure class="gallery-figure">
+        <img class="gallery-img" src="web_photos/lion.jpg" onclick="openLightbox('web_photos/lion.jpg')" alt="Lion &middot; Etosha">
+        <figcaption class="gallery-caption">Lion &middot; Etosha</figcaption>
+      </figure>
+      <figure class="gallery-figure">
+        <img class="gallery-img" src="web_photos/cheetah.jpg" onclick="openLightbox('web_photos/cheetah.jpg')" alt="Gu&eacute;pard &middot; Namibie">
+        <figcaption class="gallery-caption">Gu&eacute;pard &middot; Namibie</figcaption>
+      </figure>
+      <figure class="gallery-figure">
+        <img class="gallery-img" src="web_photos/sossusvlei.jpg" onclick="openLightbox('web_photos/sossusvlei.jpg')" alt="Dunes &middot; Sossusvlei">
+        <figcaption class="gallery-caption">Dunes &middot; Sossusvlei</figcaption>
+      </figure>
+      <figure class="gallery-figure">
+        <img class="gallery-img" src="web_photos/deadvlei.jpg" onclick="openLightbox('web_photos/deadvlei.jpg')" alt="Deadvlei">
+        <figcaption class="gallery-caption">Deadvlei</figcaption>
+      </figure>
+      <figure class="gallery-figure">
+        <img class="gallery-img" src="web_photos/spitzkoppe.jpg" onclick="openLightbox('web_photos/spitzkoppe.jpg')" alt="Spitzkoppe">
+        <figcaption class="gallery-caption">Spitzkoppe</figcaption>
+      </figure>
+      <figure class="gallery-figure">
+        <img class="gallery-img" src="web_photos/sandwich.jpg" onclick="openLightbox('web_photos/sandwich.jpg')" alt="Sandwich Harbour">
+        <figcaption class="gallery-caption">Sandwich Harbour</figcaption>
+      </figure>
+      <figure class="gallery-figure">
+        <img class="gallery-img" src="web_photos/stars.jpg" onclick="openLightbox('web_photos/stars.jpg')" alt="Voie Lact&eacute;e &middot; Namib">
+        <figcaption class="gallery-caption">Voie Lact&eacute;e &middot; Namib</figcaption>
+      </figure>
+    </div>
+  </div>
+</section>
+
+<!-- CARTE SECTION -->
+<section id="carte">
+  <div class="container">
+    <div class="section-title">&#x1F5FA; <span class="accent">Carte</span> du Voyage</div>
+    <div class="section-divider"></div>
+    <p class="section-lead">Vue d'ensemble du circuit &middot; cliquez sur les marqueurs pour les d&eacute;tails &middot; navigation jour par jour ci-dessous.</p>
+    <div class="day-map-nav" id="dayNav">
+      <button class="day-nav-btn active" onclick="focusDay(-1,this)">&#x1F5FA; Tout</button>
+      <button class="day-nav-btn" onclick="focusDay(0,this)">J0-1</button>
+      <button class="day-nav-btn" onclick="focusDay(1,this)">J2</button>
+      <button class="day-nav-btn" onclick="focusDay(2,this)">J3</button>
+      <button class="day-nav-btn" onclick="focusDay(3,this)">J4-7</button>
+      <button class="day-nav-btn" onclick="focusDay(4,this)">J8-9</button>
+      <button class="day-nav-btn" onclick="focusDay(5,this)">J10</button>
+      <button class="day-nav-btn" onclick="focusDay(6,this)">J11-12</button>
+      <button class="day-nav-btn" onclick="focusDay(7,this)">J13-14</button>
+      <button class="day-nav-btn" onclick="focusDay(8,this)">J15-16</button>
+    </div>
+    <div id="map-overview"></div>
+    <div class="map-legend">
+      <div class="legend-item"><div class="legend-dot" style="background:#e9c46a"></div>Etape principale</div>
+      <div class="legend-item"><div class="legend-dot" style="background:#e76f51"></div>Highlight</div>
+      <div class="legend-item"><div class="legend-dot" style="background:#3a7dc9"></div>Point de passage</div>
+    </div>
+  </div>
+</section>
+
+<!-- ITINERAIRE SECTION -->
+<section id="itineraire">
+  <div class="container">
+    <div class="section-title">&#x1F4C5; <span class="accent">It&eacute;raire</span> Jour par Jour</div>
+    <div class="section-divider"></div>
+    <p class="section-lead">Cliquez sur chaque jour pour voir les d&eacute;tails. Basculez entre les modes <strong>Curieux</strong> (fun!) et <strong>Explorateur</strong> (donn&eacute;es pr&eacute;cises).</p>
+    <div class="days-grid" id="daysGrid"></div>
+  </div>
+</section>
+
+<!-- PRATIQUE SECTION -->
+<section id="pratique" class="hide-aventure">
+  <div class="container">
+    <div class="section-title">&#x1F6E0; Infos <span class="accent">Pratiques</span></div>
+    <div class="section-divider"></div>
+    <h3 style="font-family:'Playfair Display',serif;font-size:1.3rem;color:var(--sand);margin-bottom:1rem">&#x1F4B0; Budget r&eacute;vis&eacute; &mdash; 8 personnes</h3>
+    <div style="background:var(--card);border:1px solid var(--card-border);border-radius:16px;overflow:hidden;margin-bottom:2rem">
+      <table class="budget-table" style="width:100%">
+        <thead><tr><th>Poste</th><th>Estimation originale</th><th>Estimation r&eacute;vis&eacute;e</th></tr></thead>
+        <tbody>
+          <tr><td>H&eacute;bergements (15 nuits)</td><td>~1 500&euro;</td><td>~1 500&euro;</td></tr>
+          <tr><td>V&eacute;hicules + carburant</td><td>~300&euro;</td><td class="revised">~380&euro; (+27%)</td></tr>
+          <tr><td>Entr&eacute;es parcs</td><td>~420&euro;</td><td>~460&euro;</td></tr>
+          <tr><td>Excursions (dont Sandwich Harbour)</td><td>~1 450&euro;</td><td class="revised">~2 300&euro; (+59%)</td></tr>
+          <tr><td>Alimentation</td><td>~2 500&euro;</td><td>~2 600&euro;</td></tr>
+          <tr><td>Divers + impr&eacute;vus</td><td>~420&euro;</td><td class="revised">~600&euro; (+tampon 30%)</td></tr>
+          <tr class="total"><td><strong>TOTAL 8 personnes</strong></td><td>~6 590&euro;</td><td>~7 840&euro;</td></tr>
+          <tr class="total"><td><strong>Par personne</strong></td><td>~825&euro;</td><td>~980&euro;</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p style="font-size:0.82rem;color:var(--text-muted);margin-bottom:2rem">Hors vols &middot; Soit ~65&euro;/personne/jour pour 16 jours &mdash; excellent rapport qualit&eacute;/prix.</p>
+    <div class="grid-2">
+      <div class="info-card">
+        <h3>&#x1F699; Guide technique 4x4</h3>
+        <div class="alert-box alert-red" style="margin-bottom:1rem">
+          <div class="alert-title">Conduite de nuit &mdash; interdiction formelle</div>
+          Oryx, koudous traversent r&eacute;guli&egrave;rement la nuit. Toujours arriv&eacute; au camp avant 18h30.
+        </div>
+        <ul>
+          <li><strong>High Range 4x4</strong> : sable tass&eacute;, pistes gravillonn&eacute;es normales</li>
+          <li><strong>Low Range 4x4</strong> : sable profond charg&eacute;, mont&eacute;es/descentes raides (Spreetshoogte)</li>
+          <li><strong>T&ocirc;le ondul&eacute;e</strong> : 50&ndash;70 km/h, tester selon poids charg&eacute;</li>
+          <li><strong>Boulons de roues</strong> : v&eacute;rifier au couple tous les 2 jours</li>
+          <li><strong>Filtre &agrave; air</strong> : inspecter apr&egrave;s 3&ndash;4 jours de piste</li>
+          <li>2 familles sur 3 ont au moins 1 crevaison sur ce circuit &mdash; v&eacute;rifier roue de secours J1</li>
+        </ul>
+      </div>
+      <div class="info-card">
+        <h3>&#x2708;&#xFE0F; Vols &mdash; R&eacute;sum&eacute;</h3>
+        <div class="alert-box alert-blue" style="margin-bottom:0.75rem">
+          <div class="alert-title">Aller &mdash; 2&ndash;3 avril</div>
+          ET739 GVA&rarr;ADD : 2 avr. 21h05 &rarr; 3 avr. 04h55<br>
+          ET835 ADD&rarr;WDH : 3 avr. 08h35 &rarr; 13h20<br>
+          <em>Escale Addis Abeba 3h40 &mdash; Terminal 2</em>
+        </div>
+        <div class="alert-box alert-blue">
+          <div class="alert-title">Retour &mdash; 18&ndash;19 avril</div>
+          ET834 WDH&rarr;ADD : 18 avr. 14h30 &rarr; 21h20<br>
+          ET736 ADD&rarr;MXP&rarr;ZRH : 19 avr. 00h20 &rarr; 07h40<br>
+          <em>Dur&eacute;e totale WDH&rarr;ZRH : ~21h10</em>
+        </div>
+        <p style="font-size:0.8rem;margin-top:0.75rem;color:var(--text-muted)">Pas de d&eacute;calage horaire Suisse = Namibie (UTC+2) &mdash; avantage majeur pour les enfants.</p>
+      </div>
+      <div class="info-card">
+        <h3>&#x1FA7A; Sant&eacute; &amp; Pharmacie</h3>
+        <ul>
+          <li><strong>Parac&eacute;tamol enfants</strong> (sirop + comprim&eacute;s)</li>
+          <li><strong>Antihistaminique, anti-diarrhéique</strong> (Smecta/Imodium)</li>
+          <li><strong>ORS r&eacute;hydratation</strong>, anti-naus&eacute;e (Vogal&egrave;ne)</li>
+          <li><strong>D&eacute;sinfectant, pansements, tire-tique</strong></li>
+          <li><strong>Cr&egrave;me solaire 50+</strong> (grande quantit&eacute; !), after-sun aloe vera</li>
+          <li><strong>R&eacute;pulsif 30% DEET</strong></li>
+          <li>Assurance rapatriement OBLIGATOIRE (&eacute;vacuation Etosha/Sesriem = 3&ndash;5h vers Windhoek)</li>
+        </ul>
+        <div class="alert-box alert-red" style="margin-top:0.75rem">
+          <div class="alert-title">Danger chaleur Sossusvlei</div>
+          10h&ndash;16h : 40&ndash;45&deg;C. Sable surface : 60&deg;C+. Boire toutes les 15 min avant d'avoir soif.
+        </div>
+      </div>
+      <div class="info-card">
+        <h3>&#x1F981; R&egrave;gles du Parc Etosha</h3>
+        <div class="alert-box alert-red">
+          <div class="alert-title">&Agrave; expliquer aux enfants AVANT l'entr&eacute;e</div>
+          <ul>
+            <li><strong>Vitesse 60 km/h max</strong> &mdash; amende 1000+ N$, assurance annul&eacute;e si accident</li>
+            <li><strong>Rester dans le v&eacute;hicule</strong> &mdash; exception zones am&eacute;nag&eacute;es uniquement</li>
+            <li><strong>Horaires portes</strong> : ouverture lever soleil (~6h15), fermeture ~18h30. Retard = amende 2 000 N$</li>
+            <li><strong>Silence aux points d'eau</strong> &mdash; moteurs &eacute;teints, pas de cris</li>
+          </ul>
+        </div>
+        <div class="alert-box alert-orange" style="margin-top:0.5rem">
+          <div class="alert-title">Babouins &mdash; plus dangereux que pr&eacute;vu</div>
+          Glaci&egrave;res et sacs <strong>verrouill&eacute;s DANS les v&eacute;hicules</strong> &mdash; vols rapport&eacute;s m&ecirc;me avec sacs &ldquo;rang&eacute;s&rdquo;.
+        </div>
+      </div>
+      <div class="info-card">
+        <h3>&#x26FA; H&eacute;bergements &mdash; R&eacute;capitulatif</h3>
+        <table style="width:100%;font-size:0.8rem;border-collapse:collapse">
+          <tr style="border-bottom:1px solid var(--card-border)"><td style="padding:0.4rem 0;color:var(--ochre);font-weight:700">J1</td><td>Chameleon Backpackers</td><td style="color:var(--green)">163 CHF/nuit &#x2705;</td></tr>
+          <tr style="border-bottom:1px solid var(--card-border)"><td style="padding:0.4rem 0;color:var(--ochre);font-weight:700">J2</td><td>Omborokko Safaris</td><td style="color:var(--ochre)">&Agrave; confirmer</td></tr>
+          <tr style="border-bottom:1px solid var(--card-border)"><td style="padding:0.4rem 0;color:var(--ochre);font-weight:700">J3</td><td>Waterberg Rest Camp</td><td style="color:var(--green)">84.49 CHF &#x2705;</td></tr>
+          <tr style="border-bottom:1px solid var(--card-border)"><td style="padding:0.4rem 0;color:var(--ochre);font-weight:700">J4-7</td><td>Namutoni/Halali/Okaukuejo</td><td style="color:var(--green)">630&euro;/4 nuits &#x2705;</td></tr>
+          <tr style="border-bottom:1px solid var(--card-border)"><td style="padding:0.4rem 0;color:var(--ochre);font-weight:700">J8-9</td><td>Mowani Mountain Camp</td><td style="color:var(--green)">309.79 CHF &#x2705;</td></tr>
+          <tr style="border-bottom:1px solid var(--card-border)"><td style="padding:0.4rem 0;color:var(--ochre);font-weight:700">J10</td><td>Spitzkoppe Campsite</td><td style="color:var(--green)">106.58 CHF &#x2705;</td></tr>
+          <tr style="border-bottom:1px solid var(--card-border)"><td style="padding:0.4rem 0;color:var(--ochre);font-weight:700">J11-12</td><td>Walvis Bay Lagoon Chalet</td><td style="color:var(--terra)">~220 CHF &#x26A0;&#xFE0F; payer avant 15/3</td></tr>
+          <tr style="border-bottom:1px solid var(--card-border)"><td style="padding:0.4rem 0;color:var(--ochre);font-weight:700">J13-14</td><td>Sesriem NWR (dans parc)</td><td style="color:var(--terra)">~480&euro; &#x26A0;&#xFE0F; confirmation en attente</td></tr>
+          <tr><td style="padding:0.4rem 0;color:var(--ochre);font-weight:700">J15</td><td>Urban Camp Windhoek</td><td style="color:var(--green)">120.70 CHF &#x2705;</td></tr>
+        </table>
+      </div>
+      <div class="info-card">
+        <h3>&#x1F198; Urgences Namibie</h3>
+        <div class="contact-grid">
+          <div class="contact-card"><div class="c-name">Police / Urgences</div><div class="c-num">10111</div></div>
+          <div class="contact-card"><div class="c-name">Ambulance</div><div class="c-num">211111</div></div>
+          <div class="contact-card"><div class="c-name">Med Rescue 24</div><div class="c-num">+264 61 230 505</div></div>
+          <div class="contact-card"><div class="c-name">Mediclinic Windhoek</div><div class="c-num">+264 61 433 2000</div></div>
+          <div class="contact-card"><div class="c-name">Welwitschia Hospital (WB)</div><div class="c-num">+264 64 218 2000</div></div>
+        </div>
+        <div class="alert-box alert-red" style="margin-top:0.75rem">
+          <div class="alert-title">Evacuation m&eacute;dicale</div>
+          Depuis Etosha ou Sesriem : vers Windhoek (3&ndash;5h). <strong>Assurance rapatriement obligatoire.</strong>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ENFANTS SECTION -->
+<section id="enfants">
+  <div class="container">
+    <div class="section-title">&#x1F392; Zone <span class="accent">Enfants</span></div>
+    <div class="section-divider"></div>
+    <p class="section-lead">Activit&eacute;s, quiz, animaux &agrave; chercher et jeux pour les 10&ndash;12 ans. Le voyage commence ici !</p>
+    <div class="kids-zone">
+      <h3 style="font-weight:800;font-size:1.1rem;color:var(--sand);margin-bottom:0.5rem">&#x1F52D; Animaux &agrave; chercher</h3>
+      <p style="font-size:0.85rem;color:var(--text-muted);margin-bottom:1rem">Cochez ceux que vous avez vus ! Essayez de les photographier tous.</p>
+      <div class="animals-showcase" id="animalGrid"></div>
+      <h3 style="font-weight:800;font-size:1.1rem;color:var(--sand);margin:1.5rem 0 0.5rem">&#x1F393; Activit&eacute;s &eacute;ducatives</h3>
+      <div class="grid-2" style="gap:1rem">
+        <div class="game-card">
+          <div class="game-title">&#x1F52C; D&eacute;fi g&eacute;ologue</div>
+          <p style="font-size:0.85rem;color:var(--text-muted)">Photographiez et dessinez 5 roches diff&eacute;rentes &agrave; Spitzkoppe et au Spreetshoogte Pass. Identifiez-les avec un guide de poche !</p>
+        </div>
+        <div class="game-card">
+          <div class="game-title">&#x1F30C; Constellations H&eacute;misph&egrave;re Sud</div>
+          <p style="font-size:0.85rem;color:var(--text-muted)">T&eacute;l&eacute;chargez <strong>Stellarium offline</strong> avant le voyage. La Croix du Sud est visible depuis J2 &mdash; impossible &agrave; voir depuis l'Europe !</p>
+        </div>
+        <div class="game-card">
+          <div class="game-title">&#x1F4D6; Journal de bord</div>
+          <p style="font-size:0.85rem;color:var(--text-muted)">Chaque soir : date, trajet, animaux vus (dessin&eacute;s), moment fort, apprentissage du jour. Le plus beau souvenir du voyage.</p>
+        </div>
+        <div class="game-card">
+          <div class="game-title">&#x1F4F8; Concours photo</div>
+          <p style="font-size:0.85rem;color:var(--text-muted)">Qui photographie le plus d'esp&egrave;ces diff&eacute;rentes ? On identifie le soir avec le guide. Meilleure photo gagne... quoi ? &Agrave; vous de d&eacute;cider !</p>
+        </div>
+      </div>
+      <h3 style="font-weight:800;font-size:1.1rem;color:var(--sand);margin:1.5rem 0 0.75rem">&#x1F697; Jeux sur la piste</h3>
+      <p style="font-size:0.83rem;color:var(--text-muted);margin-bottom:0.9rem">Cliquez sur un jeu pour voir les r&egrave;gles compl&egrave;tes !</p>
+      <div id="gameChips" style="display:flex;flex-wrap:wrap;gap:0.5rem"></div>
+      <h3 style="font-weight:800;font-size:1.1rem;color:var(--sand);margin:1.75rem 0 0.75rem">&#x1F9E0; Quiz Namibie</h3>
+      <div class="quiz-wrapper">
+        <div class="quiz-progress"><div class="quiz-progress-bar" id="quizBar" style="width:0%"></div></div>
+        <div id="quizContainer"></div>
+        <button onclick="nextQuestion()" id="nextQBtn" style="display:none;margin-top:0.75rem;padding:0.6rem 1.5rem;background:linear-gradient(135deg,var(--ochre),var(--terra));border:none;border-radius:10px;color:#fff;font-family:'Nunito',sans-serif;font-weight:700;cursor:pointer;font-size:0.9rem">Question suivante &rarr;</button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ALERTES SECTION -->
+<section id="alertes" class="hide-aventure">
+  <div class="container">
+    <div class="section-title">&#x1F6A8; Alertes <span class="accent">Prioritaires</span></div>
+    <div class="section-divider"></div>
+    <p class="section-lead">6 points critiques identifi&eacute;s &mdash; &agrave; traiter en priorit&eacute; absolue avant le d&eacute;part.</p>
+    <div class="grid-2">
+      <div class="alert-box alert-red">
+        <div class="alert-title">&#x1F6C2; Visas &mdash; ne pas oublier !</div>
+        <p>La Namibie exige un passeport valide 6 mois apr&egrave;s le retour. Les ressortissants suisses n'ont pas besoin de visa pour un s&eacute;jour touristique (&lt;90 jours). <strong>V&eacute;rifier la validit&eacute; des passeports de tous les participants avant le d&eacute;part.</strong></p>
+      </div>
+      <div class="alert-box alert-red">
+        <div class="alert-title">&#x1F6A8; Timing sous-estim&eacute; &mdash; J4 et J8</div>
+        <ul>
+          <li><strong>J4 (Waterberg&rarr;Etosha)</strong> : 3h+ sur piste. Arriv&eacute;e Namutoni au mieux 16h30. <strong>D&eacute;part 07h00 imp&eacute;ratif.</strong></li>
+          <li><strong>J8 (Okaukuejo&rarr;Twyfelfontein)</strong> : 7&ndash;8h r&eacute;elles (pas 5&ndash;6h). <strong>D&eacute;part avant 07h00 obligatoire.</strong></li>
+          <li>Toujours ajouter 45 min pour coordination de groupe.</li>
+        </ul>
+      </div>
+      <div class="alert-box alert-red">
+        <div class="alert-title">&#x1F6A8; Pression pneus &mdash; r&egrave;gle corrig&eacute;e</div>
+        <ul>
+          <li><strong>Sable tr&egrave;s mou uniquement</strong> (Sossusvlei 5km, Sandwich Harbour) : 1.5&ndash;1.8 bars</li>
+          <li><strong>Pistes gravillonn&eacute;es</strong> (C22, C39, D2xxx) : <strong>2.0&ndash;2.2 bars minimum</strong></li>
+          <li>DANGER : descendre sous 2.0 bars sur gravillons = risque de d&eacute;jantage</li>
+        </ul>
+      </div>
+      <div class="alert-box alert-orange">
+        <div class="alert-title">&#x26A0;&#xFE0F; Budget cash NAD &mdash; pr&eacute;voir +20&ndash;30%</div>
+        <ul>
+          <li>Carburant Okaukuejo : 31&ndash;33 N$/L (pas 25 N$/L)</li>
+          <li>Distributeurs hors service fr&eacute;quents &agrave; Outjo et Uis</li>
+          <li>Retrait recommand&eacute; : <strong>7 000&ndash;10 000 N$ &agrave; l'a&eacute;roport</strong> + compl&eacute;ment Tsumeb</li>
+        </ul>
+      </div>
+      <div class="alert-box alert-orange">
+        <div class="alert-title">&#x26A0;&#xFE0F; R&eacute;servations urgentes</div>
+        <ul>
+          <li>&#x1F534; <strong>Sandwich Harbour</strong> (Mola Mola Tours) &mdash; places limit&eacute;es en avril &mdash; APPELER maintenant</li>
+          <li>&#x1F534; <strong>Etosha</strong> : Namutoni, Halali, Okaukuejo &mdash; confirmer</li>
+          <li>&#x1F7E1; <strong>Walvis Bay Lagoon</strong> (NB-115880382) &mdash; payer avant le 15 mars</li>
+          <li>&#x1F7E1; <strong>Sesriem NWR</strong> &mdash; confirmation en attente</li>
+        </ul>
+      </div>
+      <div class="alert-box alert-blue">
+        <div class="alert-title">&#x1F4A1; Sand boards &mdash; &eacute;quipement critique</div>
+        <ul>
+          <li>Demander &agrave; ASCO Car Hire d&egrave;s J1 : 2 sand boards par v&eacute;hicule (obligatoire Sossusvlei &amp; Spitzkoppe)</li>
+          <li>+ Sangle de r&eacute;cup&eacute;ration par v&eacute;hicule</li>
+          <li>Tester l'engagement 4x4 High/Low range avant de partir</li>
+        </ul>
+      </div>
+      <div class="alert-box alert-green">
+        <div class="alert-title">&#x2705; Correction culturelle &mdash; Twyfelfontein</div>
+        <ul>
+          <li>Les gravures ne sont PAS &ldquo;bushman/San&rdquo;</li>
+          <li>Auteurs : anc&ecirc;tres des peuples <strong>Damara et Khoekhoe</strong></li>
+          <li>Site UNESCO depuis 2007 &mdash; 2 500+ gravures, 6 000 ans d'histoire Damara</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- SAN ROCK ART ORNAMENT -->
+<div style="text-align:center;padding:1.5rem 0 0;overflow:hidden;opacity:0.32">
+  <svg width="320" height="32" viewBox="0 0 320 32" xmlns="http://www.w3.org/2000/svg">
+    <line x1="70" y1="16" x2="250" y2="16" stroke="#d4853a" stroke-width="0.8" opacity="0.6"/>
+    <circle cx="160" cy="16" r="12" fill="none" stroke="#d4853a" stroke-width="1"/>
+    <circle cx="160" cy="16" r="7" fill="none" stroke="#d4853a" stroke-width="1"/>
+    <circle cx="160" cy="16" r="2" fill="#d4853a"/>
+    <g transform="translate(20,6)" fill="#d4853a">
+      <ellipse cx="12" cy="14" rx="10" ry="5"/>
+      <line x1="4" y1="14" x2="2" y2="24" stroke="#d4853a" stroke-width="1.5"/>
+      <line x1="8" y1="14" x2="6" y2="24" stroke="#d4853a" stroke-width="1.5"/>
+      <line x1="16" y1="14" x2="18" y2="24" stroke="#d4853a" stroke-width="1.5"/>
+      <line x1="20" y1="14" x2="22" y2="24" stroke="#d4853a" stroke-width="1.5"/>
+      <circle cx="22" cy="11" r="4"/>
+      <line x1="24" y1="8" x2="28" y2="2" stroke="#d4853a" stroke-width="1.5"/>
+    </g>
+    <g transform="translate(258,0)" fill="#c1440e">
+      <ellipse cx="12" cy="20" rx="8" ry="5"/>
+      <line x1="6" y1="20" x2="4" y2="30" stroke="#c1440e" stroke-width="1.5"/>
+      <line x1="10" y1="20" x2="8" y2="30" stroke="#c1440e" stroke-width="1.5"/>
+      <line x1="14" y1="20" x2="16" y2="30" stroke="#c1440e" stroke-width="1.5"/>
+      <line x1="18" y1="20" x2="20" y2="30" stroke="#c1440e" stroke-width="1.5"/>
+      <line x1="18" y1="16" x2="20" y2="4" stroke="#c1440e" stroke-width="2"/>
+      <circle cx="20" cy="3" r="3"/>
+    </g>
+    <circle cx="90" cy="16" r="2" fill="#d4853a" opacity="0.6"/>
+    <circle cx="110" cy="10" r="1.5" fill="#d4853a" opacity="0.5"/>
+    <circle cx="210" cy="16" r="2" fill="#d4853a" opacity="0.6"/>
+    <circle cx="230" cy="10" r="1.5" fill="#d4853a" opacity="0.5"/>
+  </svg>
+</div>
+
+<footer>
+  <div class="f-logo">&#x1F981; Namibie 2026</div>
+  <p>2 familles &middot; 8 aventuriers &middot; 16 jours &middot; 2 670 km de pistes</p>
+  <p style="margin-top:0.5rem;font-size:0.72rem;opacity:0.6">Guide bas&eacute; sur le document &ldquo;Namibie 2026 &mdash; Corrections experts int&eacute;gr&eacute;es &mdash; Mars 2026&rdquo;</p>
+</footer>
+
+<div class="lightbox" id="lightbox" onclick="this.classList.remove('open')"><img id="lightboxImg" src="" alt=""></div>
+<div class="game-modal-overlay" id="gameModalOverlay" onclick="closeGameModal(event)">
+  <div class="game-modal">
+    <button class="game-modal-close" onclick="closeGameModal(event)">&#x2715;</button>
+    <div class="game-modal-cat" id="gameModalCat"></div>
+    <div class="game-modal-title" id="gameModalTitle"></div>
+    <div class="game-modal-desc" id="gameModalDesc"></div>
+    <div class="game-modal-rules" id="gameModalRules"></div>
+  </div>
+</div>
+<div class="toast" id="toast"></div>
+
+<script>
+// ─── STARS ───
+const starsEl = document.getElementById('stars');
+for (let i = 0; i < 120; i++) {
+  const s = document.createElement('div');
+  s.className = 'star';
+  s.style.cssText = `left:${Math.random()*100}%;top:${Math.random()*100}%;--d:${2+Math.random()*4}s;--delay:${-Math.random()*4}s;opacity:${0.2+Math.random()*0.8}`;
+  if (Math.random() > 0.97) { s.style.width = s.style.height = '3px'; }
+  starsEl.appendChild(s);
+}
+
+// ─── SCROLL PROGRESS BAR ───
+window.addEventListener('scroll', () => {
+  const d = document.documentElement;
+  const p = (d.scrollTop / (d.scrollHeight - d.clientHeight)) * 100;
+  document.getElementById('progressBar').style.width = p + '%';
+});
+
+// ─── HERO EMOJI CYCLE ───
+const emojis = ['🦁','🐘','🦒','🦓','🦏','🐆','🌅','🏜️','⭐'];
+let ei = 0;
+const heroEmoji = document.getElementById('heroEmoji');
+heroEmoji.style.transition = 'opacity 0.3s';
+setInterval(() => {
+  ei = (ei + 1) % emojis.length;
+  heroEmoji.style.opacity = '0';
+  setTimeout(() => { heroEmoji.textContent = emojis[ei]; heroEmoji.style.opacity = '1'; }, 300);
+}, 2500);
+
+// ─── LIGHTBOX ───
+function openLightbox(src) {
+  document.getElementById('lightboxImg').src = src;
+  document.getElementById('lightbox').classList.add('open');
+}
+
+// ─── MODE TOGGLE ───
+function setMode(mode) {
+  document.body.className = 'mode-' + mode;
+  localStorage.setItem('namibieMode', mode);
+  showToast(mode === 'aventure' ? '🌟 Mode Curieux activé !' : '🗺 Mode Explorateur activé — données détaillées');
+}
+const savedMode = localStorage.getItem('namibieMode') || 'aventure';
+document.body.className = 'mode-' + savedMode;
+
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2500);
+}
+
+// ─── MAP ───
+let map;
+const stops = [
+  {name:'Windhoek',lat:-22.5649,lng:17.0842,day:'J0-1',desc:'Départ & Arrivée · Chameleon Backpackers',color:'#e9c46a',photo:'web_photos/windhoek.jpg',phrase:"Capitale chaleureuse — point de départ de l'aventure namibienne."},
+  {name:'Omborokko Safaris',lat:-21.5,lng:16.9,day:'J2',desc:'Première nuit en brousse · 120 km de Windhoek',color:'#e9c46a',photo:'web_photos/tent.jpg',phrase:'Première nuit sous les étoiles, la brousse s\'éveille autour de vous.'},
+  {name:'Waterberg Plateau NP',lat:-20.3528,lng:17.3377,day:'J3',desc:'Rhinos · Plateau Trail · WW-260121-032',color:'#e9c46a',photo:'web_photos/waterberg.jpg',phrase:'Un plateau de grès rouge surgi du néant — rhinos noirs et vue à 360°.'},
+  {name:'Namutoni — Etosha Est',lat:-18.8055,lng:16.9417,day:'J4',desc:'Entrée Etosha · Safaris · Réf. 604143',color:'#e76f51',photo:'web_photos/elephants.jpg',phrase:"Etosha : 22 000 km² de savane, les éléphants viennent boire au coucher du soleil."},
+  {name:'Halali — Etosha Centre',lat:-19.0362,lng:16.4697,day:'J5',desc:"Safari Fisher's Pan · Point d'eau Salvadora",color:'#e9c46a',photo:'web_photos/giraffe.jpg',phrase:"Au cœur d'Etosha — girafes, zèbres et lions au point d'eau illuminé."},
+  {name:'Okaukuejo — Etosha Ouest',lat:-19.1815,lng:15.9172,day:'J6-7',desc:"Point d'eau éclairé 24h · Lions, rhinos noirs",color:'#e76f51',photo:'web_photos/lion.jpg',phrase:"Le point d'eau éclairé toute la nuit — lions et rhinos noirs à quelques mètres."},
+  {name:'Twyfelfontein',lat:-20.5905,lng:14.372,day:'J8-9',desc:'Gravures rupestres UNESCO · Mowani Mountain Camp',color:'#e9c46a',photo:'web_photos/gravures.jpg',phrase:'6 000 gravures rupestres vieilles de 6 000 ans, classées au patrimoine UNESCO.'},
+  {name:'Spitzkoppe',lat:-21.8247,lng:15.1942,day:'J10',desc:"Granit 700 millions d'années · Paradis des enfants",color:'#e76f51',photo:'web_photos/spitzkoppe.jpg',phrase:"Le Cervin namibien — granit vieux de 700 millions d'années, Voie Lactée garantie."},
+  {name:'Walvis Bay',lat:-22.9585,lng:14.5039,day:'J11',desc:'Flamants roses (80 000!) · Lagoon Chalet',color:'#e9c46a',photo:'web_photos/sandwich.jpg',phrase:"80 000 flamants roses dans la lagune, et les dunes plongent dans l'Atlantique."},
+  {name:'Sandwich Harbour',lat:-23.149,lng:14.4441,day:'J12',desc:'Dunes 100m+ dans l\'océan · 4x4 extrême',color:'#e76f51',photo:'web_photos/dune45.jpg',phrase:"Dunes de 100m qui tombent dans l'océan — l'expérience 4x4 ultime du voyage."},
+  {name:'Sossusvlei / Sesriem',lat:-24.7274,lng:15.3424,day:'J13-14',desc:'Dunes 300–400m · Big Daddy · Deadvlei',color:'#f4a261',photo:'web_photos/deadvlei.jpg',phrase:'Les dunes les plus hautes du monde et le Deadvlei — paysage de fin du monde.'},
+  {name:'Windhoek (retour)',lat:-22.53,lng:17.0642,day:'J15-16',desc:"Urban Camp · Joe's Beerhouse · Vol retour",color:'#e9c46a',photo:'web_photos/route.jpg',phrase:"Retour à Windhoek — les souvenirs plein les yeux, l'aventure gravée pour toujours."},
+];
+const routeCoords = [
+  [-22.5649,17.0842],[-22.2,17.0],[-21.5,17.2],[-21.0,16.8],[-20.8147,16.6544],
+  [-20.461,16.6512],[-20.3528,17.3377],[-20.1,17.2],[-19.5,17.0],[-18.8055,16.9417],
+  [-19.0362,16.4697],[-19.1815,15.9172],[-19.5,15.5],[-20.0,15.0],[-20.5905,14.372],
+  [-21.0,14.5],[-21.3,14.8],[-21.8247,15.1942],[-22.2,14.9],[-22.5,14.7],
+  [-22.9585,14.5039],[-23.149,14.4441],[-23.0,14.5],[-23.2,14.8],[-23.8,15.5],
+  [-24.2,15.7],[-24.7274,15.3424],[-24.5,15.8],[-23.5,16.0],[-22.5649,17.0842]
+];
+const daySegments = [
+  {coords:[[-22.5649,17.0842]],zoom:10,center:[-22.5649,17.0842]},
+  {coords:[[-22.5649,17.0842],[-20.8147,16.6544]],zoom:8,center:[-21.7,16.9]},
+  {coords:[[-20.8147,16.6544],[-20.3528,17.3377]],zoom:9,center:[-20.58,16.99]},
+  {coords:[[-20.3528,17.3377],[-18.8055,16.9417],[-19.0362,16.4697],[-19.1815,15.9172]],zoom:8,center:[-19.08,16.7]},
+  {coords:[[-19.1815,15.9172],[-20.5905,14.372]],zoom:7,center:[-19.88,15.14]},
+  {coords:[[-20.5905,14.372],[-21.8247,15.1942]],zoom:8,center:[-21.2,14.78]},
+  {coords:[[-21.8247,15.1942],[-22.9585,14.5039],[-23.149,14.4441]],zoom:8,center:[-22.6,14.7]},
+  {coords:[[-22.9585,14.5039],[-24.7274,15.3424]],zoom:7,center:[-23.8,14.9]},
+  {coords:[[-24.7274,15.3424],[-22.5649,17.0842]],zoom:7,center:[-23.6,16.2]},
+];
+
+function createMarkerIcon(color, number, size=36) {
+  const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${size}" height="${size+10}" viewBox="0 0 36 46">
+    <filter id="sh"><feDropShadow dx="0" dy="2" stdDeviation="2" flood-opacity="0.5"/></filter>
+    <ellipse cx="18" cy="44" rx="6" ry="2" fill="rgba(0,0,0,0.3)"/>
+    <path d="M18 2 C8 2 2 10 2 18 C2 30 18 44 18 44 C18 44 34 30 34 18 C34 10 28 2 18 2Z" fill="${color}" filter="url(#sh)"/>
+    <circle cx="18" cy="18" r="10" fill="rgba(0,0,0,0.2)"/>
+    <text x="18" y="22" text-anchor="middle" font-family="Nunito,sans-serif" font-weight="800" font-size="10" fill="white">${number}</text>
+  </svg>`;
+  return L.divIcon({html:svg,className:'',iconSize:[size,size+10],iconAnchor:[size/2,size+10],popupAnchor:[0,-size]});
+}
+
+function initMap() {
+  map = L.map('map-overview', {zoomControl:true, attributionControl:false}).setView([-21.5,15.8], 6);
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {maxZoom:18}).addTo(map);
+  L.control.attribution({prefix:'© OpenStreetMap'}).addTo(map);
+  L.polyline(routeCoords, {color:'#f4a261',weight:2.5,opacity:0.7,dashArray:'6,4'}).addTo(map);
+  stops.forEach((s, i) => {
+    if (i === 11) return;
+    const marker = L.marker([s.lat,s.lng], {icon: createMarkerIcon(s.color, i+1)}).addTo(map);
+    const popup = `<img class="popup-img" src="${s.photo}" alt="${s.name}"><div class="popup-day">${s.day}</div><div class="popup-place">${s.name}</div><div class="popup-info">${s.desc}</div><div class="popup-phrase">${s.phrase}</div>`;
+    marker.bindPopup(popup, {maxWidth:220,minWidth:200});
+  });
+}
+
+function focusDay(idx, btn) {
+  document.querySelectorAll('.day-nav-btn').forEach(b => b.classList.remove('active'));
+  if (btn) btn.classList.add('active');
+  if (!map) return;
+  if (idx === -1) { map.setView([-21.5,15.8], 6); }
+  else { const seg = daySegments[idx]; map.setView(seg.center, seg.zoom); }
+}
+
+document.addEventListener('DOMContentLoaded', initMap);
+
+// ─── DAYS DATA ───
+const days = [
+  {
+    id:'j0',badge:'J0',date:'2 avril',title:'Départ de Genève ✈️',sub:'Vol de nuit · GVA → ADD · ET739',km:null,special:false,
+    animals:[],
+    story:`<p>🌙 Ce soir, l'aventure commence ! On embarque dans l'avion à 21h05 à l'aéroport de Genève. Destination : Addis Abeba en Éthiopie, puis la Namibie !</p><p>On va dormir dans l'avion comme des explorateurs. Demain matin, on atterrit en Afrique 🌍</p>`,
+    storyFun:`<div class="fun-fact"><strong>Le saviez-vous ?</strong> L'Éthiopie possède plus de 3000 ans d'histoire non-colonisée. Addis Abeba veut dire "nouvelle fleur" en amharique !</div>`,
+    timings:[
+      {time:'21h05',action:'Décollage Genève — ET739 Boeing 787 Dreamliner'},
+      {time:'~04h55',action:'Arrivée Addis Abeba (ADD) — Escale 3h40 Terminal 2'},
+      {time:'08h35',action:'Décollage ADD → WDH — ET835 Airbus A350'},
+      {time:'13h20',action:'Atterrissage Windhoek (WDH) — J1 commence !',note:'important'},
+    ],
+    alerts:[
+      {type:'blue',title:'💡 Escale Addis Abeba 04h55–08h35',text:"Enfants épuisés — prévoir snacks, coussin gonflable, tablettes chargées. Pas besoin de visa pour transit court."},
+      {type:'orange',title:'⚠️ Bagages Ethiopian Airlines',text:"Soute : 23kg/pers. Cabine : 7kg + 1 accessoire. Batteries externes en CABINE uniquement, jamais en soute."},
+    ]
+  },
+  {
+    id:'j1',badge:'J1',date:'3 avril',title:'Arrivée Windhoek 🏙️',sub:"Pick-up 4x4 · Courses · Installation",km:null,special:false,
+    animals:['🐜','🐦'],
+    story:`<div class="story-photos"><img class="story-photo" src="web_photos/windhoek.jpg" alt="Windhoek" onclick="openLightbox('web_photos/windhoek.jpg')"><img class="story-photo" src="web_photos/tent.jpg" alt="Tente de toit" onclick="openLightbox('web_photos/tent.jpg')"></div><p>🛬 On atterrit en Namibie ! La chaleur de l'Afrique nous accueille. C'est l'heure de récupérer nos deux gros 4x4 avec les tentes sur le toit !</p><p>🛒 Direction le supermarché pour charger le frigo. Et ce soir, on dort pour la première fois sous les étoiles africaines.</p>`,
+    storyFun:`<div class="fun-fact"><strong>La tente de toit c'est quoi ?</strong> Une tente posée sur le toit du 4x4 ! On est à 2m du sol, les lions ne peuvent pas nous embêter 😄 Installation en 5 minutes !</div>`,
+    timings:[
+      {time:'13h20',action:'Atterrissage Windhoek Hosea Kutako (WDH)'},
+      {time:'14h30',action:'Prise en charge 2× 4x4 chez ASCO Car Hire — tester High/Low range',note:'important'},
+      {time:'16h00',action:'Briefing Namikala Safaris — remise dossier de route'},
+      {time:'17h00',action:"Check-in Chameleon Backpackers — Réf. 6435234371 / code 2128 · 163 CHF/nuit"},
+      {time:'17h30',action:'COURSES MAJEURES supermarché (Checkers ou Spar recommandés)',note:'important'},
+      {time:'19h00',action:'Dîner restaurant ou BBQ backpackers'},
+    ],
+    alerts:[
+      {type:'red',title:'🚨 Demander à ASCO Car Hire dès J1',text:"2 sand boards par véhicule + sangle récupération. Vérifier roue de secours + cric. Tester 4x4 High/Low range."},
+      {type:'orange',title:'⚠️ Courses J1',text:"Glace en BLOCS (acheter 2 blocs). Cash NAD : retirer 7 000–10 000 N$ à l'aéroport. Biltong frais chez le boucher local."},
+      {type:'blue',title:"💡 Insider tip — Kapana",text:"Viande grillée de rue au marché Katutura — expérience gastronomique et culturelle unique si l'heure le permet."},
+    ]
+  },
+  {
+    id:'j2',badge:'J2',date:'4 avril',title:'Windhoek → Omborokko 🦒',sub:'120 km · B1 · Première nuit en brousse',km:'120 km',special:false,
+    animals:['🦒','🦓','🐆','🦌'],
+    story:`<p>🚗 Première journée sur la route ! Seulement 120 km pour bien démarrer — le temps de faire les grandes courses et rouler tranquillement vers la brousse.</p><p>🏕 Ce soir : Omborokko Safaris, un lodge familial au cœur de la savane. Première nuit dans la tente de toit !</p>`,
+    storyFun:`<div class="fun-fact"><strong>🦒 La Girafe</strong> La girafe est le plus grand animal terrestre au monde ! Son cou seul mesure 2 mètres — et pourtant elle a exactement 7 vertèbres, comme nous !</div><div class="highlight-moment"><strong>✨ Ce soir :</strong> Première vraie nuit en brousse — écoute des sons de la savane nocturne !</div>`,
+    timings:[
+      {time:'09h30',action:'Grandes courses Windhoek (Checkers/Pick n Pay) — provisions 3 jours'},
+      {time:'12h00',action:'Départ Windhoek — B1 direction nord'},
+      {time:'14h00',action:'Arrivée Omborokko Safaris (~120 km) — installation tentes de toit'},
+      {time:'16h00',action:'Game drive ou balade libre dans la réserve'},
+      {time:'19h00',action:'BBQ camp (braai) — première nuit tente de toit 🌟'},
+    ],
+    alerts:[
+      {type:'orange',title:'⚠️ Omborokko — confirmation en attente',text:"Réservation à confirmer directement. Prévoir une alternative si complet."},
+      {type:'blue',title:'💡 Courses à Windhoek',text:"Faire les grandes provisions le matin — c'est le dernier grand supermarché avant plusieurs jours."},
+    ]
+  },
+  {
+    id:'j3',badge:'J3',date:'5 avril',title:'Omborokko → Waterberg 🦏',sub:'70 km · C22 (premiers gravillons) · Rhinos',km:'70 km',special:false,
+    animals:['🦏','🦒','🐃','🐒'],
+    story:`<div class="story-photos"><img class="story-photo" src="web_photos/waterberg.jpg" alt="Waterberg" onclick="openLightbox('web_photos/waterberg.jpg')"></div><p>🌄 Réveil très tôt ! Si on veut faire la randonnée du Plateau, il faut partir avant 7h30 — après, il fait trop chaud.</p><p>🦏 L'après-midi : Rhino Drive avec un guide NWR pour voir les rhinos noirs réintroduits en 1989.</p>`,
+    storyFun:`<div class="fun-fact"><strong>🦏 Le Rhino Noir</strong> Il est en danger critique d'extinction — il en reste moins de 6 000 dans le monde !</div>`,
+    timings:[
+      {time:'06h30',action:'Réveil — DÉPART TÔT si Plateau Trail prévu',note:'important'},
+      {time:'07h00',action:'Départ randonnée Plateau Trail — eau 2L/personne minimum'},
+      {time:'~12h00',action:'Retour camp depuis plateau (5–6h avec enfants)'},
+      {time:'16h00',action:'Rhino Drive avec guide NWR (~500 N$/adulte)'},
+      {time:'19h00',action:'Arrivée Waterberg Rest Camp — Réf. WW-260121-032 · 84.49 CHF'},
+    ],
+    alerts:[
+      {type:'red',title:'🚨 Plateau Trail — timing critique',text:'Départ IMPÉRATIF avant 07h00–07h30. Durée réelle avec enfants : 5–6h.'},
+      {type:'orange',title:'⚠️ Route C22 — première piste',text:'Vitesse 60–70 km/h max. 2.0–2.2 bars. Vérifier boulons de roues ce soir.'},
+    ]
+  },
+  {
+    id:'j4',badge:'J4',date:'6 avril',title:'Waterberg → Etosha 🦁',sub:'300 km · Stop Tsumeb · Namutoni',km:'300 km',special:true,
+    animals:['🦁','🐘','🦒','🦓','🦏'],
+    story:`<div class="story-photos"><img class="story-photo" src="web_photos/lion.jpg" alt="Lion Etosha" onclick="openLightbox('web_photos/lion.jpg')"><img class="story-photo" src="web_photos/elephants.jpg" alt="Éléphants" onclick="openLightbox('web_photos/elephants.jpg')"></div><p>🦁 ETOSHA ! Le moment le plus attendu ! On entre dans l'un des plus grands parcs naturels d'Afrique. 22 000 km² — c'est comme la Suisse entière remplie d'animaux !</p><p>🐘 Ce soir à Namutoni, les éléphants viennent boire au point d'eau au coucher du soleil !</p>`,
+    storyFun:`<div class="fun-fact"><strong>🦁 Lion de Namibie</strong> Les lions d'Etosha sont les seuls au monde à boire de l'eau salée de la grande cuvette de sel du parc !</div><div class="highlight-moment"><strong>✨ Ce soir :</strong> Observer les éléphants au point d'eau de Namutoni au coucher du soleil</div>`,
+    timings:[
+      {time:'07h00',action:'DÉPART IMPÉRATIF',note:'important'},
+      {time:'10h30',action:'Arrivée Tsumeb — ⛽ PLEIN + courses 3–4 jours (1h30 minimum)',note:'important'},
+      {time:'13h30',action:'Entrée King Nehale Gate (Etosha Nord)'},
+      {time:'16h00–16h30',action:'Arrivée Namutoni Camp — Réf. 604143',note:'important'},
+    ],
+    alerts:[
+      {type:'red',title:'🚨 Timing J4 — correction critique',text:'Waterberg→Tsumeb = 3h+. Stop Tsumeb : 1h30 minimum. DÉPART 07H00 IMPÉRATIF.'},
+      {type:'red',title:'🚨 Règles du parc — expliquer aux enfants',text:"60 km/h max. Rester dans le véhicule. Portes ferment 18h30. Silence aux points d'eau."},
+    ]
+  },
+  {
+    id:'j5',badge:'J5',date:'7 avril',title:"Safari Halali 🦓",sub:"75 km · Safari Fisher's Pan · Points d'eau",km:'75 km',special:false,
+    animals:['🦒','🦓','🐘','🦁'],
+    story:`<p>🌅 Réveil à l'aube pour le safari du matin — la meilleure heure ! Les lions chassent, les girafes boivent, et la lumière est dorée et magique.</p><p>🌆 Le soir, on se rend aux points d'eau pour l'heure de l'apéro africain... avec des éléphants !</p>`,
+    storyFun:`<div class="fun-fact"><strong>🦒 La girafe</strong> Elle ne dort que 30 minutes par jour !</div>`,
+    timings:[
+      {time:'06h00',action:'Safari matin — MEILLEURE heure (6h–10h)',note:'important'},
+      {time:'10h00',action:'Retour Halali Camp — sieste + déjeuner'},
+      {time:'13h00',action:'Junior Ranger Program — carnet activités gratuit'},
+      {time:'15h30',action:'Safari après-midi — points d\'eau + coucher de soleil',note:'important'},
+      {time:'18h30',action:'Rentrée au camp — BBQ'},
+    ],
+    alerts:[
+      {type:'blue',title:"💡 Points d'eau recommandés",text:"Aus : rhinos noirs. Klein Namutoni : zèbres. Salvadora : prédateurs, éléphants."},
+    ]
+  },
+  {
+    id:'j6',badge:'J6-7',date:'8–9 avril',title:"Okaukuejo — Le Meilleur Point d'Eau 🌙",sub:'175 km · 2 nuits · Lions/Rhinos de nuit',km:'175 km',special:true,
+    animals:['🦁','🦏','🐘','🦒','🐆'],
+    story:`<div class="story-photos"><img class="story-photo" src="web_photos/lion.jpg" alt="Lion nuit" onclick="openLightbox('web_photos/lion.jpg')"></div><p>⭐⭐⭐⭐⭐ Le camp d'Okaukuejo abrite le MEILLEUR point d'eau d'Afrique — éclairé 24h/24 ! La nuit, depuis la terrasse du camp, vous allez voir des LIONS et des RHINOS NOIRS boire à quelques mètres !</p>`,
+    storyFun:`<div class="highlight-moment"><strong>✨ HIGHLIGHT ABSOLU :</strong> Observer jusqu'à minuit depuis la terrasse éclairée d'Okaukuejo — prévoir des vestes (10–15°C la nuit)</div>`,
+    timings:[
+      {time:'06h00',action:'Safari matin (J6) — Gemsbokvlakte : lions, guépards',note:'important'},
+      {time:'09h00',action:'J7 — MATINÉE LIBRE au camp (pas de réveil 6h)'},
+      {time:'15h30',action:'Safari après-midi — Olifantsbad : éléphants quasi-garantis',note:'important'},
+      {time:'Nuit',action:"Okaukuejo point d'eau — lions, rhinos noirs — OBSERVER JUSQU'À MINUIT",note:'important'},
+    ],
+    alerts:[
+      {type:'blue',title:'💡 Olifantsbad — spot secret',text:"À 12km d'Okaukuejo — éléphants quasi-garantis en avril."},
+      {type:'orange',title:'⚠️ Babouins à Okaukuejo',text:"Glacières verrouillées dans les véhicules. Carburant Okaukuejo : 31–33 N$/L."},
+    ]
+  },
+  {
+    id:'j7',badge:'J8-9',date:'10–11 avril',title:'Damaraland / Twyfelfontein 🪨',sub:'350 km · 7–8h réelles · Mowani Mountain Camp',km:'350 km',special:false,
+    animals:['🐘','🦎','🐦'],
+    story:`<div class="story-photos"><img class="story-photo" src="web_photos/gravures.jpg" alt="Gravures rupestres" onclick="openLightbox('web_photos/gravures.jpg')"></div><p>🚗 Grande journée de route — 350 km sur les pistes rouges du Damaraland.</p><p>🪨 À Twyfelfontein : les gravures rupestres les plus importantes d'Afrique — 2 500 images gravées il y a 6 000 ans par les ancêtres des Damara. Site classé UNESCO !</p>`,
+    storyFun:`<div class="fun-fact"><strong>🎨 6 000 ans d'histoire</strong> Les ancêtres Damara ont gravé des lions, girafes, rhinocéros dans la roche. Ces images ont traversé 6 000 ans dans la pierre !</div>`,
+    timings:[
+      {time:'AVANT 07h00',action:'DÉPART OBLIGATOIRE depuis Okaukuejo',note:'important'},
+      {time:'~09h00',action:'Stop Outjo — ⛽ PLEIN + courses 3 jours (1h30 minimum)',note:'important'},
+      {time:'~14h00',action:'Arrivée Mowani Mountain Camp — NB-115879560 · 309.79 CHF'},
+      {time:'J9 09h00',action:'Twyfelfontein — visite guidée OBLIGATOIRE (2h) · 150 N$/adulte'},
+      {time:'J9 11h30',action:'Organ Pipes + Burnt Mountain (30 min — gratuit)'},
+    ],
+    alerts:[
+      {type:'red',title:'🚨 Timing J8 — correction critique',text:'Durée réelle : 7–8h (pas 5–6h). DÉPART AVANT 07H00 IMPÉRATIF.'},
+      {type:'red',title:'🚨 Correction culturelle',text:"Les gravures ne sont PAS 'bushman/San' — ce sont les ancêtres des peuples Damara et Khoekhoe. UNESCO 2007."},
+    ]
+  },
+  {
+    id:'j8',badge:'J10',date:'12 avril',title:"Spitzkoppe 🏔️",sub:"250 km · Granit 700 millions d'années · Paradis enfants",km:'250 km',special:true,
+    animals:['🦎','🐍','🐦','🦅'],
+    story:`<div class="story-photos"><img class="story-photo" src="web_photos/spitzkoppe.jpg" alt="Spitzkoppe" onclick="openLightbox('web_photos/spitzkoppe.jpg')"></div><p>🏔️ Spitzkoppe : le "Cervin Namibien" ! Un pic de granit vieux de 700 à 760 MILLIONS d'années qui s'élève à 1 728 m au milieu du désert.</p><p>🌌 La nuit : pollution lumineuse ZÉRO. La Voie Lactée est visible à l'œil nu !</p>`,
+    storyFun:`<div class="highlight-moment"><strong>✨ Meilleur coucher de soleil du voyage !</strong> Les rochers de granit passent du rose à l'orange puis au rouge feu.</div><div class="fun-fact"><strong>🌌 Voie Lactée</strong> En Namibie, on voit même les nuages de Magellan — des galaxies voisines ! Impossible depuis l'Europe.</div>`,
+    timings:[
+      {time:'08h30',action:'Départ Mowani → Spitzkoppe'},
+      {time:'~13h30',action:'Arrivée Spitzkoppe Campsite — Réf. SPI-260118-030 · 106.58 CHF'},
+      {time:'14h00',action:'Exploration boulders + peintures rupestres (guide local 100 N$)'},
+      {time:'16h30',action:'Coucher de soleil sur le granit — MEILLEUR DU VOYAGE',note:'important'},
+      {time:'Nuit',action:'Voie Lactée + constellations Hémisphère Sud — app Stellarium offline'},
+    ],
+    alerts:[
+      {type:'red',title:'🚨 Piste sableuse Spitzkoppe',text:'Low Range 4x4 + 1.5–1.8 bars de pression. Sand boards obligatoires.'},
+    ]
+  },
+  {
+    id:'j9',badge:'J11-12',date:'13–14 avril',title:'Walvis Bay + Sandwich Harbour 🌊',sub:'250 km · Flamants roses · 4x4 extrême',km:'250 km',special:true,
+    animals:['🦩','🐧','🦭','🐬','🦊'],
+    story:`<div class="story-photos"><img class="story-photo" src="web_photos/sandwich.jpg" alt="Sandwich Harbour" onclick="openLightbox('web_photos/sandwich.jpg')"></div><p>🌊 La côte Atlantique ! On arrive à Walvis Bay et là... 80 000 FLAMANTS ROSES dans le lagon !</p><p>🏜️ J12 : Sandwich Harbour — LE HIGHLIGHT ULTIME du voyage ! Des dunes de 100m plongent directement dans l'océan Atlantique.</p>`,
+    storyFun:`<div class="highlight-moment"><strong>✨ HIGHLIGHT ULTIME :</strong> Sandwich Harbour — là où le désert rencontre l'océan !</div><div class="fun-fact"><strong>🦩 Flamant rose</strong> Le flamant est rose à cause des crevettes qu'il mange ! Un bébé flamant est gris.</div>`,
+    timings:[
+      {time:'J11 PM',action:'Lagon Walvis Bay — flamants roses (80 000 !) + pélicans'},
+      {time:'J11 PM',action:'Courses complètes + ⛽ PLEIN'},
+      {time:'J12 07h00',action:'Sandwich Harbour — pick-up par guide (Mola Mola Tours)',note:'important'},
+      {time:'J12 10h00',action:'Dunes 100m+ + lagune + déjeuner plage inclus'},
+    ],
+    alerts:[
+      {type:'red',title:'🚨 Sandwich Harbour — réserver MAINTENANT',text:'Budget 2026 : 280–320€/adulte. Places limitées en avril. Appeler Mola Mola Tours.'},
+      {type:'orange',title:'⚠️ Walvis Bay Lagoon Chalet',text:'NB-115880382 — paiement dû avant le 15 mars 2026.'},
+    ]
+  },
+  {
+    id:'j10',badge:'J13-14',date:'15–16 avril',title:'Sossusvlei — Les Dunes Géantes 🏜️',sub:'350 km · Big Daddy 325m · Deadvlei ⭐⭐⭐⭐⭐',km:'350 km',special:true,
+    animals:['🦘','🦎','🐦'],
+    story:`<div class="story-photos"><img class="story-photo" src="web_photos/sossusvlei.jpg" alt="Sossusvlei" onclick="openLightbox('web_photos/sossusvlei.jpg')"><img class="story-photo" src="web_photos/deadvlei.jpg" alt="Deadvlei" onclick="openLightbox('web_photos/deadvlei.jpg')"></div><p>⭐⭐⭐⭐⭐ LE CLOU DU SPECTACLE ! Les dunes de Sossusvlei sont parmi les plus hautes du monde — 300 à 400 mètres de sable rouge orangé !</p><p>💀 Deadvlei : une cuvette de sel blanc entourée d'arbres morts depuis 900 ANS. Le sol est trop sec pour se décomposer.</p>`,
+    storyFun:`<div class="highlight-moment"><strong>✨ Deadvlei aux enfants :</strong> Ces arbres sont morts il y a 900 ans — à l'époque de Guillaume Tell !</div><div class="fun-fact"><strong>🏜️ Le désert le plus vieux du monde</strong> Le Namib a 55 à 80 millions d'années !</div>`,
+    timings:[
+      {time:'J13 10h30',action:'Stop Solitaire — ⛽ DERNIER RAVITAILLEMENT + Apple Crumble bakery !',note:'important'},
+      {time:'J13 16h00',action:'Arrivée Sesriem — Sesriem Canyon (1h, frais et ombragé)'},
+      {time:'J14 04h45',action:'RÉVEIL — café rapide, habillage chaud (10°C)',note:'important'},
+      {time:'J14 05h00',action:'Départ camp — ouverture porte désert 05h15'},
+      {time:'J14 07h00',action:'SOSSUSVLEI + DEADVLEI — photos dans la cuvette (07h00–08h30)'},
+      {time:'J14 08h00',action:'Big Daddy (325m) — montée 1h30–2h, descente en courant !'},
+      {time:'J14 12h00',action:'SIESTE OBLIGATOIRE — 40–45°C',note:'important'},
+    ],
+    alerts:[
+      {type:'red',title:'🚨 Danger chaleur réelle',text:'10h–16h : 40–45°C. Sable : 60°C+. Boire toutes les 15 min.'},
+      {type:'orange',title:'⚠️ Hébergement Sesriem NWR — crucial',text:"Sesriem NWR (dans le parc) : accès 1h avant ouverture = lever de soleil parfait."},
+    ]
+  },
+  {
+    id:'j11',badge:'J15',date:'17 avril',title:"Sesriem → Windhoek 🏠",sub:"305 km · Option Spreetshoogte Pass · Joe's Beerhouse",km:'305 km',special:false,
+    animals:['🦓','🐜'],
+    story:`<p>🚗 Dernier grand trajet ! On rentre à Windhoek en passant par le spectaculaire Spreetshoogte Pass.</p><p>🍺 Ce soir : Joe's Beerhouse à Windhoek — restaurant légendaire. <strong>Réserver à l'avance !</strong></p>`,
+    storyFun:`<div class="fun-fact"><strong>🏔️ Spreetshoogte Pass</strong> On traverse 500 millions d'années de géologie en quelques km !</div>`,
+    timings:[
+      {time:'08h00',action:'Départ Sesriem'},
+      {time:'~11h00',action:'Option Spreetshoogte Pass — +1h mais FORTEMENT RECOMMANDÉ'},
+      {time:'16h00',action:'Stop Okahandja — marché artisanal'},
+      {time:'17h30',action:'Arrivée Windhoek'},
+      {time:'19h00',action:"Dîner Joe's Beerhouse — RÉSERVER À L'AVANCE",note:'important'},
+    ],
+    alerts:[
+      {type:'orange',title:'⚠️ Technique descente Spreetshoogte',text:'40 km/h max. 1ère ou 2ème vitesse (frein moteur). 15+ virages en épingle.'},
+    ]
+  },
+  {
+    id:'j12',badge:'J16',date:'18 avril',title:'Départ Windhoek ✈️',sub:'Restitution ASCO Car Hire · Vol retour 14h30',km:null,special:false,
+    animals:[],
+    story:`<p>😢 C'est le dernier matin... On démonte les tentes de toit pour la dernière fois.</p><p>✈️ À 14h30, on s'envole vers Addis Abeba et puis Zurich. On arrive à la maison le 19 avril à 07h40.</p><p>🦁 Ce voyage était inoubliable. Les enfants s'en souviendront toute leur vie !</p>`,
+    storyFun:`<div class="fun-fact"><strong>💡 Top 5 du voyage</strong> Ce soir J15, faites un "top 5 du voyage" en famille : chacun dit son moment préféré.</div>`,
+    timings:[
+      {time:'09h30',action:'Check-out Urban Camp — Réf. NB-115881364'},
+      {time:'10h45',action:'Arrivée WDH — restitution ASCO Car Hire (30–45 min/véhicule)',note:'important'},
+      {time:'14h30',action:'Décollage WDH → ADD (ET834)'},
+      {time:'19 avr. 07h40',action:'Arrivée Zurich ZRH — retour en Suisse 🇨🇭'},
+    ],
+    alerts:[
+      {type:'red',title:'🚨 Restitution véhicules ASCO — check-list',text:'Plein essence IMPÉRATIF. Photos de chaque véhicule avant restitution. Tentes toit refermées.'},
+    ]
+  },
+];
+
+// ─── RENDER DAYS ───
+function renderDays() {
+  const grid = document.getElementById('daysGrid');
+  days.forEach(d => {
+    const card = document.createElement('div');
+    card.className = 'day-card';
+    card.id = d.id;
+    const alertsHtml = d.alerts.map(a => `
+      <div class="alert-box alert-${a.type}" style="margin-top:0.5rem">
+        <div class="alert-title">${a.title}</div>${a.text}
+      </div>`).join('');
+    const timingsHtml = d.timings.length ? `
+      <table class="timing-table">
+        <thead><tr><th>Horaire</th><th>Action</th></tr></thead>
+        <tbody>${d.timings.map(t => `<tr>
+          <td class="time">${t.time||''}</td>
+          <td class="${t.note==='important'?'important':''}">${t.action}</td>
+        </tr>`).join('')}</tbody>
+      </table>` : '';
+    const chipsHtml = `<div class="info-chips">
+      ${d.km ? `<span class="chip chip-km">📍 ${d.km}</span>` : ''}
+      ${d.timings.length ? `<span class="chip chip-time">⏱ Voir horaires</span>` : ''}
+    </div>`;
+    const animalsHtml = d.animals.length ? `<div class="animal-grid">${d.animals.map(a=>`<span class="animal-tag">${a}</span>`).join('')}</div>` : '';
+    card.innerHTML = `
+      <div class="day-header" onclick="toggleDay('${d.id}')">
+        <div class="day-badge${d.special?' special':''}">${d.badge}</div>
+        <div class="day-title-block">
+          <div class="day-title">${d.title}</div>
+          <div class="day-sub">${d.sub}</div>
+        </div>
+        <div class="day-meta">${d.km?`<span class="day-km">${d.km}</span>`:''}</div>
+        <div class="day-chevron">&#x25BE;</div>
+      </div>
+      <div class="day-body">
+        <div class="content-aventure"><div class="aventure-story">${d.story}${d.storyFun||''}${animalsHtml}</div></div>
+        <div class="content-explorateur">${chipsHtml}${timingsHtml}${alertsHtml}</div>
+      </div>`;
+    grid.appendChild(card);
+  });
+}
+
+function toggleDay(id) {
+  const card = document.getElementById(id);
+  const isOpen = card.classList.contains('open');
+  document.querySelectorAll('.day-card').forEach(c => c.classList.remove('open'));
+  if (!isOpen) card.classList.add('open');
+}
+renderDays();
+
+// ─── ANIMALS GRID ───
+const animals = [
+  {e:'🦁',name:'Lion',where:'Etosha'},
+  {e:'🐘',name:'Éléphant',where:'Etosha & Damaraland'},
+  {e:'🦒',name:'Girafe',where:'Etosha'},
+  {e:'🦓',name:'Zèbre de Burchell',where:'Etosha'},
+  {e:'🦏',name:'Rhino Noir',where:'Etosha & Waterberg'},
+  {e:'🐆',name:'Léopard',where:'Omborokko'},
+  {e:'🐆',name:'Guépard',where:'Omborokko'},
+  {e:'🦩',name:'Flamant Rose',where:'Walvis Bay'},
+  {e:'🦭',name:'Otarie',where:'Walvis Bay'},
+  {e:'🦌',name:'Springbok',where:'Partout'},
+  {e:'🐃',name:'Buffle du Cap',where:'Etosha'},
+  {e:'🦊',name:'Chacal côtier',where:'Walvis Bay'},
+  {e:'🐒',name:'Babouin',where:'Waterberg'},
+  {e:'🦅',name:'Aigle Martial',where:'Etosha'},
+  {e:'🦘',name:'Oryx',where:'Namib'},
+  {e:'🦒',name:'Kudu',where:'Etosha'},
+];
+const animalGrid = document.getElementById('animalGrid');
+const seen = new Set();
+animals.forEach(a => {
+  const card = document.createElement('div');
+  card.className = 'animal-card';
+  card.innerHTML = `<span class="animal-emoji">${a.e}</span><div class="animal-name">${a.name}</div><div class="animal-where">${a.where}</div>`;
+  card.addEventListener('click', () => {
+    if (seen.has(a.name)) {
+      seen.delete(a.name);
+      card.style.opacity = '1';
+      card.style.borderColor = 'var(--card-border)';
+      card.style.background = '';
+    } else {
+      seen.add(a.name);
+      card.style.opacity = '0.6';
+      card.style.borderColor = 'var(--green)';
+      card.style.background = 'rgba(42,157,92,0.1)';
+      showToast(`✅ ${a.name} vu ! ${seen.size}/${animals.length} espèces`);
+    }
+  });
+  animalGrid.appendChild(card);
+});
+
+// ─── QUIZ ───
+const quizData = [
+  {q:'Quel est le plus vieux désert du monde ?',opts:['Sahara','Gobi','Namib','Kalahari'],correct:2,exp:"Le Namib a 55 à 80 millions d'années — il existait déjà du temps des dinosaures !"},
+  {q:'À quelle vitesse le guépard peut-il courir ?',opts:['80 km/h','100 km/h','120 km/h','150 km/h'],correct:2,exp:'Le guépard est l\'animal terrestre le plus rapide du monde avec 120 km/h !'},
+  {q:"Depuis combien d'années les arbres de Deadvlei sont-ils morts ?",opts:['100 ans','500 ans','900 ans','2 000 ans'],correct:2,exp:"Environ 900 ans — à l'époque des Vikings. Ils ne se décomposent pas car l'air ultra-sec les a momifiés."},
+  {q:'Combien de flamants roses peut-on voir à Walvis Bay en avril ?',opts:['5 000','20 000','50 000','80 000'],correct:3,exp:"Jusqu'à 80 000 flamants ! L'un des 5 sites les plus importants d'Afrique."},
+  {q:'Combien de temps la girafe dort-elle par jour ?',opts:['30 minutes','2 heures','4 heures','6 heures'],correct:0,exp:'Seulement 30 minutes ! Elle doit rester vigilante contre les prédateurs.'},
+  {q:"Quel est le 1er bien namibien inscrit à l'UNESCO ?",opts:['Etosha','Kolmanskop','Twyfelfontein','Sossusvlei'],correct:2,exp:'Twyfelfontein en 2007, pour ses 2 500+ gravures rupestres vieilles de 6 000 ans.'},
+  {q:'Quelle est la superficie du parc national Etosha ?',opts:['500 km²','5 000 km²','22 000 km²','50 000 km²'],correct:2,exp:"22 000 km² — presque la superficie entière de la Suisse !"},
+  {q:'Quelle est la hauteur de la dune Big Daddy à Sossusvlei ?',opts:['100 m','200 m','325 m','500 m'],correct:2,exp:'325 mètres ! Une des dunes les plus hautes du monde.'},
+  {q:'Le rhino noir est-il plus gros que le rhino blanc ?',opts:['Oui','Non, il est plus petit','Même taille','Le rhino blanc n\'existe pas'],correct:1,exp:'Non ! Le rhino noir est plus petit et plus agressif.'},
+  {q:'Comment s\'appelle la monnaie namibienne ?',opts:['Rand','Shilling','Dollar namibien','Pula'],correct:2,exp:'Le Dollar namibien (NAD). Il vaut exactement 1 Rand sud-africain.'},
+  {q:"Depuis combien d'années la Namibie est-elle indépendante ?",opts:['15 ans','36 ans','52 ans','70 ans'],correct:1,exp:'La Namibie est indépendante depuis le 21 mars 1990 !'},
+  {q:'Combien de kg de nourriture un éléphant mange-t-il par jour ?',opts:['50 kg','150 kg','300 kg','500 kg'],correct:1,exp:'150 kg et 150 litres d\'eau par jour. Ils passent 16 heures à manger !'},
+];
+let qi = 0, quizScore = 0;
+
+function shuffle(arr) {
+  for (let i = arr.length-1; i > 0; i--) {
+    const j = Math.floor(Math.random()*(i+1));
+    [arr[i],arr[j]] = [arr[j],arr[i]];
+  }
+  return arr;
+}
+
+function updateBar() {
+  const bar = document.getElementById('quizBar');
+  if (bar) bar.style.width = ((qi / quizData.length) * 100) + '%';
+}
+
+function renderQuiz() {
+  const c = document.getElementById('quizContainer');
+  updateBar();
+  if (qi >= quizData.length) {
+    const pct = Math.round(quizScore / quizData.length * 100);
+    let badge, msg;
+    if (quizScore <= 4) { badge='🌱'; msg='Apprenti explorateur — tu vas vite apprendre en voyageant !'; }
+    else if (quizScore <= 8) { badge='🦁'; msg="Explorateur confirmé — la Namibie n'a presque plus de secrets pour toi !"; }
+    else if (quizScore <= 10) { badge='🏅'; msg='Expert namibien — tu peux guider le groupe !'; }
+    else { badge='🏆'; msg='Maître de la brousse — impressionnant !'; }
+    c.innerHTML = `<div class="quiz-result"><div style="font-size:3.5rem;margin-bottom:0.5rem">${badge}</div><div class="quiz-result-score">${quizScore} / ${quizData.length}</div><div class="quiz-result-label">${pct}% de bonnes réponses</div><div class="quiz-result-detail">${msg}</div><button class="quiz-restart" onclick="restartQuiz()">🔄 Recommencer le quiz</button></div>`;
+    document.getElementById('nextQBtn').style.display = 'none';
+    document.getElementById('quizBar').style.width = '100%';
+    return;
+  }
+  const q = quizData[qi];
+  const indices = shuffle([0,1,2,3]);
+  const correctShuffled = indices.indexOf(q.correct);
+  const opts = indices.map((origIdx,newIdx) =>
+    `<button class="quiz-opt" onclick="checkAnswer(${newIdx},${correctShuffled},this)">${q.opts[origIdx]}</button>`
+  ).join('');
+  c.innerHTML = `<div class="quiz-counter">Question ${qi+1} sur ${quizData.length}</div><p class="quiz-q">${q.q}</p><div class="quiz-options">${opts}</div><div id="quizFeedback"></div>`;
+}
+
+function checkAnswer(i, correct, btn) {
+  if (document.getElementById('quizFeedback').innerHTML) return;
+  if (i === correct) quizScore++;
+  document.querySelectorAll('.quiz-opt').forEach((b, idx) => {
+    b.disabled = true;
+    if (idx === correct) b.classList.add('correct');
+    else if (idx === i && i !== correct) b.classList.add('wrong');
+  });
+  const exp = quizData[qi].exp;
+  document.getElementById('quizFeedback').innerHTML = i === correct
+    ? `<div class="alert-box alert-green" style="margin-top:0.6rem"><strong>✅ Bonne réponse !</strong> ${exp}</div>`
+    : `<div class="alert-box alert-red" style="margin-top:0.6rem"><strong>❌ Raté !</strong> ${exp}</div>`;
+  document.getElementById('nextQBtn').style.display = 'inline-block';
+}
+
+function nextQuestion() { qi++; renderQuiz(); document.getElementById('nextQBtn').style.display = 'none'; }
+function restartQuiz() { qi = 0; quizScore = 0; renderQuiz(); document.getElementById('nextQBtn').style.display = 'none'; }
+renderQuiz();
+
+// ─── JEUX DE PISTE ───
+const gamesData = [
+  {emoji:'🦁',title:'Qui voit le premier ?',cat:'Observation',desc:'Transformer chaque trajet en compétition d\'observation naturelle.',rules:'<strong>But :</strong> Être le premier à repérer un animal.<br><strong>Points :</strong> 1 pt animal commun, 3 pts rare (lion, léopard), 5 pts si personne d\'autre ne l\'a vu.<br><strong>Règle :</strong> Faut crier le nom de l\'animal avant de dire "Je vois !" — sinon pas de point.'},
+  {emoji:'🔢',title:'Compter les animaux',cat:'Statistiques',desc:'Garder un registre précis de toutes les espèces vues.',rules:'<strong>But :</strong> Tenir un tableau de bord des espèces vues.<br><strong>Règle :</strong> On note l\'espèce, le nombre, le lieu et l\'heure. On compare les carnets chaque soir.<br><strong>Défi bonus :</strong> Qui prédit le mieux le nombre total d\'animaux ?'},
+  {emoji:'🃏',title:'Bingo du voyage',cat:'Chance & Observation',desc:'Un bingo adapté au safari — cochez les cases au fil des rencontres.',rules:'<strong>Avant le départ :</strong> Chaque joueur dessine une grille 4×4 avec animaux et paysages.<br><strong>Pendant :</strong> Quand on voit quelque chose, on coche.<br><strong>Gagne :</strong> Le premier qui complète une ligne crie BINGO !'},
+  {emoji:'❓',title:'20 questions animal',cat:'Déduction',desc:'Deviner l\'animal mystère en posant des questions fermées.',rules:'<strong>Un joueur</strong> pense à un animal vu ou sur la liste du voyage.<br><strong>Les autres</strong> posent des questions OUI/NON.<br><strong>Gagne :</strong> Qui devine avant la 20ème question.'},
+  {emoji:'🎭',title:'Mimes de brousse',cat:'Créativité',desc:'Mimer des animaux namibiens sans faire de bruit.',rules:'<strong>Un joueur</strong> reçoit un animal (chuchoté) et doit le mimer en restant assis dans le 4x4.<br><strong>Les autres</strong> devinent. Celui qui trouve gagne le droit de mimer ensuite.<br><strong>Temps limite :</strong> 60 secondes max.'},
+  {emoji:'🗺',title:'La carte aveugle',cat:'Navigation',desc:'Naviguer sans GPS pendant 10 minutes avec la carte papier.',rules:'<strong>Co-pilote désigné :</strong> Un enfant prend la carte et guide le conducteur.<br><strong>Défi :</strong> Estimer les km jusqu\'au prochain arrêt.<br><strong>Points :</strong> 3 pts si estimation dans les 10%, 1 pt si dans les 20%.'},
+  {emoji:'🌌',title:'Astronome en herbe',cat:'Sciences',desc:'La Namibie a la meilleure clarté du ciel du monde.',rules:'<strong>Chaque nuit :</strong> Sortir Stellarium (offline) et trouver 5 constellations.<br><strong>Mission :</strong> Trouver la Croix du Sud — visible uniquement depuis l\'hémisphère sud !<br><strong>Défi ultime :</strong> Photographier la Voie Lactée avec votre téléphone en mode nuit.'},
+  {emoji:'📸',title:'Concours photo',cat:'Créativité',desc:'Chaque voyageur devient photographe animalier.',rules:'<strong>Chaque jour :</strong> Chaque joueur choisit SA meilleure photo de la journée.<br><strong>Catégories :</strong> Meilleur animal, meilleur paysage, photo la plus drôle.<br><strong>Finale à Windhoek :</strong> Grand vote des meilleures photos du voyage entier.'},
+  {emoji:'📖',title:'Journal de bord',cat:'Écriture',desc:'Écrire un vrai journal de voyage — dans 10 ans, vous serez contents.',rules:'<strong>Chaque soir :</strong> 5 minutes minimum d\'écriture.<br><strong>Au minimum :</strong> Date, étape, animal le plus marquant, moment préféré.<br><strong>Illustration :</strong> Un petit dessin — même mauvais !'},
+  {emoji:'🏆',title:'Grand Prix du Van',cat:'Général',desc:'Un championnat global sur toute la durée du voyage.',rules:'<strong>Avant le départ :</strong> Créer un tableau de scores dans le journal de bord.<br><strong>Points :</strong> 1er = 3pts, 2ème = 2pts, 3ème = 1pt dans chaque jeu.<br><strong>Cérémonie finale :</strong> Remise des prix inventés à Windhoek le dernier soir !'},
+];
+
+function openGameModal(idx) {
+  const g = gamesData[idx];
+  document.getElementById('gameModalCat').textContent = g.cat;
+  document.getElementById('gameModalTitle').textContent = g.emoji + ' ' + g.title;
+  document.getElementById('gameModalDesc').textContent = g.desc;
+  document.getElementById('gameModalRules').innerHTML = g.rules;
+  document.getElementById('gameModalOverlay').classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+
+function closeGameModal(e) {
+  if (e && e.target !== document.getElementById('gameModalOverlay') && !e.target.classList.contains('game-modal-close')) return;
+  document.getElementById('gameModalOverlay').classList.remove('open');
+  document.body.style.overflow = '';
+}
+
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape') { document.getElementById('gameModalOverlay').classList.remove('open'); document.body.style.overflow = ''; }
+});
+
+function buildGameChips() {
+  const container = document.getElementById('gameChips');
+  if (!container) return;
+  container.innerHTML = gamesData.map((g,i) =>
+    `<button class="game-chip" onclick="openGameModal(${i})">${g.emoji} ${g.title}</button>`
+  ).join('');
+}
+buildGameChips();
+
+// ─── SCROLL ANIMATIONS ───
+const io = new IntersectionObserver(entries => {
+  entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('visible'); });
+}, {threshold:0.05});
+document.querySelectorAll('.fade-in').forEach(el => io.observe(el));
+</script>
+</body>
+</html>
